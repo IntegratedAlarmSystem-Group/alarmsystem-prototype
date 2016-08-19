@@ -8,6 +8,7 @@
 		<property name="build.dir" value="../classes" />
   		<property name="lib.dir" value="../lib" />
   		<property name="bin.dir" value="../bin" />
+		<property name="config.dir" value="../config" />
 		<property name="install.dir" value="${env.IAS_ROOT}" />
 	</target>
 	
@@ -83,6 +84,11 @@
 		<echo>Installing binaries</echo>
 		<copy todir="${install.dir}/bin" verbose="true">
 			<fileset dir="${bin.dir}" includes="**/*" defaultexcludes="no"/>
+		</copy>
+		<!-- Copy config -->
+		<echo>Installing binaries</echo>
+		<copy todir="${install.dir}/config" verbose="true">
+			<fileset dir="${config.dir}" includes="**/*" defaultexcludes="no"/>
 		</copy>
 	</target>
 	

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 '''
 Created on Aug 18, 2016
 
@@ -714,6 +715,7 @@ def createModule(name):
         makedirs(name+sep+"bin")
         makedirs(name+sep+"lib")
         makedirs(name+sep+"classes")
+        makedirs(name+sep+"config")
         
         return 0
     else:
