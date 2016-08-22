@@ -5,10 +5,11 @@ Created on Aug 18, 2016
 @author: acaproni
 '''
 
-import sys
 from os.path import exists
 from os.path import sep
 from os import makedirs
+import argparse
+from shutil import rmtree
 
 LPGPv3Text="""                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -721,26 +722,32 @@ def createModule(name):
     else:
         print
         print name,"already exists!!!"
+        print "Use -e|--erase to remove before creating the module."
         print
         return -1
 
-def printUsage(name):
-    """
-    Print the usage help for this script
+def removeExistingModule(name):
+    '''
+    Remove an existing module
     
-    @param name: The name of this script
-    """
-    print "Usage:",name,"[-h|--help] ModuleName"
-    print "Creates a module for the Integrated Alarm System."
-    print
-    print "If -h or --help arguments are passed",name,"prints this help and exits"
-    print "MdoduleName: the full path name of the module to create"
-    print  
+    @param name: The full path name of the module to remove
+    '''
+    print "Removing moldule",name
+    if exists(name):
+        rmtree(name) 
 
 if __name__ == '__main__':
-    if sys.argv.count("-h")>0 or sys.argv.count("--help")>0 or len(sys.argv)==1:
-        printUsage(sys.argv[0])
-        sys.exit(0)
+    parser = argparse.ArgumentParser(description='Creates a module for the Integrated Alarm System.')
+    parser.add_argument(
+                        '-e',
+                        '--erase',
+                        help='Erase the module if it already exists',
+                        action='store_true',
+                        default=False)
+    parser.add_argument('moduleName', help='The name of the IAS module to create')
+    args = parser.parse_args()
     
-    createModule(sys.argv[1])
+    if args.erase:
+        removeExistingModule(args.moduleName)
+    createModule(args.moduleName)
     
