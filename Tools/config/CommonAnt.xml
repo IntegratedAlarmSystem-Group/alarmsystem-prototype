@@ -72,11 +72,12 @@
 		</copy>
 		<!-- Copy bin -->
 		<echo>Installing binaries</echo>
-		<copy todir="${install.dir}/bin" verbose="true" >
-		  <fileset dir="${bin.dir}">
-		     <include name="**/*.py"/>
-		   </fileset>
-		</copy>
+		<!-- Use cp to copy files instead of the ant copy tag because
+		     ant copy does not preserve permissions-->
+		<exec executable="bash">
+			<arg value="-c" />
+			<arg value="cp ${bin.dir}/* ${install.dir}/bin" />
+		</exec>
 		<!-- Copy config -->
 		<echo>Installing configs</echo>
 		<copy todir="${install.dir}/config" verbose="true">
