@@ -1,0 +1,108 @@
+<project name="CommonAnt" default="build" basedir=".">
+	<target name="init-ias-environment">
+		<echo>Initing IAS build...</echo>
+		<property environment="env" />
+		<property name="src.dir" value="." />
+		<property name="build.dir" value="../classes" />
+  		<property name="lib.dir" value="../lib" />
+  		<property name="bin.dir" value="../bin" />
+		<property name="config.dir" value="../config" />
+		<property name="install.dir" value="${env.IAS_ROOT}" />
+	</target>
+	
+	<target name="init-ias-folders" depends="init-ias-environment">
+		<echo>Initing IAS build...</echo>
+  		<mkdir dir="${build.dir}" />
+  		<mkdir dir="${lib.dir}" />
+  		<mkdir dir="${bin.dir}" />
+	</target>
+	
+	<target name="init-scala-build" depends="init-ias-folders">
+		<echo>Initing scala build...</echo>
+		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
+		<path id="build.classpath">
+	    	<pathelement location="${scala-library.jar}"   />
+	    	<!--<pathelement location="${your.path}"   />-->
+	    	<pathelement location="${build.dir}"   />
+	    </path>
+	    <taskdef resource="scala/tools/ant/antlib.xml">
+	    	<classpath>
+     			<pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar"   />
+     			<!-- NEW: For scala 2.10.2 you need scala-reflect: -->
+     			<pathelement location="${env.SCALA_HOME}/lib/scala-reflect.jar"   />
+      			<pathelement location="${scala-library.jar}"   />
+    		</classpath>
+  		</taskdef>
+  		<echo>Scala environment ready</echo>
+	</target>
+	
+	<target name="clean" depends="init-ias-environment">
+		<echo>Cleaning... ${build.dir}</echo>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${build.dir}" includes="**/*" defaultexcludes="no"/>
+		</delete>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${lib.dir}" includes="**/*" defaultexcludes="no"/>
+		</delete>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${bin.dir}" includes="**/*" defaultexcludes="no"/>
+		</delete>
+	</target>
+	
+	<target name="localinstallbinaries" depends="init-ias-environment">
+		<!-- Binaries are initially copied in the bin folder of the module 
+		     then installed in the IAS_ROOT/bin folder -->
+		<echo>Locally installing binaries</echo>
+		<copy todir="${bin.dir}" verbose="true">
+			<fileset dir="${src.dir}" includes="**/*.py" defaultexcludes="no"/>
+		</copy>
+		<!-- Set permission of executables -->
+		<chmod dir="${bin.dir}" perm="ug+rx" includes="**/*" defaultexcludes="no" />
+	</target>
+	
+	<target name="install" depends="init-ias-environment,localinstallbinaries">
+		<echo>Installing in ${install.dir}</echo>
+		
+		<!-- Copy jars -->
+		<echo>Installing jars</echo>
+		<copy todir="${install.dir}/lib" verbose="true" >
+		  <fileset dir="${lib.dir}">
+		     <include name="**/*.jar"/>
+		   </fileset>
+		</copy>
+		<!-- Copy bin -->
+		<echo>Installing binaries</echo>
+		<copy todir="${install.dir}/bin" verbose="true" >
+		  <fileset dir="${bin.dir}">
+		     <include name="**/*.py"/>
+		   </fileset>
+		</copy>
+		<!-- Copy config -->
+		<echo>Installing configs</echo>
+		<copy todir="${install.dir}/config" verbose="true">
+			<fileset dir="${config.dir}" includes="**/*" defaultexcludes="no"/>
+		</copy>
+	</target>
+	
+	<target name="scalacompile" depends="init-scala-build">
+		<echo>Building from ${src.dir} in ${build.dir}</echo>
+		<mkdir dir="../classes"/>
+
+  		<scalac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" force="changed">
+          	<!-- addparams="-Yclosure-elim -optimise" -->
+    		<include name="**/*.scala"/>
+  		</scalac>
+	</target>
+	
+	<target name="scalabuild" depends="scalacompile">
+		<property name="jarFileToBuild" value="${lib.dir}/ias-basic-types.jar"/>
+		 <delete file="${jarFileToBuild}" />
+		 <jar destfile="${jarFileToBuild}" >
+		 	<fileset dir="${build.dir}" />
+		 	<fileset dir="${src.dir}" excludes="build.xml" />
+	 	</jar>
+	</target>
+	
+	<target name="build" depends="localinstallbinaries" />
+	
+</project>
