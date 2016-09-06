@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Build the entire IAS prototype -->
+<project name="BuildIAS" default="build" basedir=".">
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	
+	<property name="iasModules" value="Tools,BasicTypes" />
+	
+	<target name="buildOneModule">
+		<echo>Building one IAS module</echo>
+	</target>
+	
+	<target name="build">
+		<echo>Building IAS modules: ${iasModules}</echo>
+		<for list="${iasModules}" param="moduleName">
+			<sequential>
+				<echo>Next module to build @{moduleName}</echo>
+			</sequential>
+		</for>
+	</target>
+</project>
