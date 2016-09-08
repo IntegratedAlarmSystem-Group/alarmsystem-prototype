@@ -22,23 +22,36 @@ abstract class MonitorPoint[A](
     val id: String,
     val runningMode: OperationalMode.Mode = OperationalMode.Running) {
   
+    /**
+     * The value of the monitoring point is associated 
+     * to a timestamp corrsponding to the update time of 
+     * the value
+     */
+    class MonitorPointValue[A](
+        val value:A) {
+      
+      val timestamp: Long = System.currentTimeMillis()
+    }
+  
   /**
    *  The value of the monitor point
    *  Uninitialized at build time
+   *  
+   *  
    */
-  private var actualValue: Option[A] = None
+  private var actualValue: Option[MonitorPointValue[A]] = None
   
   /**
    * Getter
    */
   protected def setValue(v: A): Unit = {
-    actualValue = Option(v)
+    actualValue = Option(new MonitorPointValue[A](v))
   }
   
   /**
    * Setter
    */
-  def getValue: Option[A] = {
+  def getValue: Option[MonitorPointValue[A]] = {
     actualValue
   }
 }
