@@ -713,6 +713,7 @@ def createModule(name):
         makedirs(name)
         writeLicenseFile(name)
         makedirs(name+sep+"src")
+        makedirs(name+sep+"test")
         makedirs(name+sep+"bin")
         makedirs(name+sep+"lib")
         makedirs(name+sep+"classes")
