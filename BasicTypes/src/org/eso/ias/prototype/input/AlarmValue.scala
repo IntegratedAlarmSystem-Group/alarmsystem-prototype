@@ -14,9 +14,18 @@ object AlarmState extends Enumeration {
 }
 
 /**
- * An Alarm has three possible states (@see AlarmState) a context plus a shelved property.
+ * The value of an alarm. 
+ * 
+ * The AlarmValue has a state (@see AlarmState) plus a shelved property.
+ * In the design of the IAS, the Alarm is a special monitor point so
+ * that at a certain level it is possible to use indifferently alarms and monitor points.
+ * 
+ * Objects from this class shall not be used directly:
+ * <code>org.eso.ias.prototype.input.typedmp</code> provides a Alarm class.
+ * 
+ * @see org.eso.ias.prototype.input.typedmp.Alarm
  */
-case class Alarm(
+case class AlarmValue(
     alarmState: AlarmState.State = AlarmState.Unknown,  
     shelved: Boolean = false) {
 }
@@ -31,7 +40,10 @@ case class Clear() extends Event
 // A cleared alarm became active again
 case class Set() extends Event
 
-object Alarm {
+/**
+ * The AlarmValue companion implements the state class.
+ */
+object AlarmValue {
 
   /**
    * The transition of the state of an alarm as a result of an event
@@ -40,7 +52,7 @@ object Alarm {
    * @param e: the event to apply to the alarm
    * @result the alarm after the event has been processed
    */
-  def transition(a: Alarm, e: Event): Alarm = {
+  def transition(a: AlarmValue, e: Event): AlarmValue = {
     a.alarmState match {
       case AlarmState.ActiveAndNew =>
         e match {
@@ -62,9 +74,9 @@ object Alarm {
     }
   }
   
-  def shelve(a: Alarm): Alarm = a.copy(shelved=true)
+  def shelve(a: AlarmValue): AlarmValue = a.copy(shelved=true)
   
-  def unshelve(a: Alarm): Alarm = a.copy(shelved=false)
+  def unshelve(a: AlarmValue): AlarmValue = a.copy(shelved=false)
   
   
 }
