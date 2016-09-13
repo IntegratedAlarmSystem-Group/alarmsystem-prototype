@@ -1,10 +1,14 @@
 <project name="CommonAnt" default="build" basedir=".">
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	
 	<target name="init-ias-environment">
 		<echo>Initing IAS build...</echo>
 		<property environment="env" />
 		<property name="src.dir" value="." />
 		<property name="build.dir" value="../classes" />
   		<property name="lib.dir" value="../lib" />
+		<property name="exttools.dir" value="../lib/ExtTools" />
   		<property name="bin.dir" value="../bin" />
 		<property name="config.dir" value="../config" />
 		<property name="install.dir" value="${env.IAS_ROOT}" />
@@ -60,9 +64,18 @@
 		<chmod dir="${bin.dir}" perm="ug+rx" includes="**/*" defaultexcludes="no" />
 	</target>
 	
-	<target name="install" depends="init-ias-environment,localinstallbinaries">
+	<target name="installextprods" depends= "init-ias-environment">
+		<echo>Installing third-party libs: ${exttools}</echo>
+        <for list="${exttools}" param="theTool">
+                <sequential>
+                		<echo>  Installing @{theTool}</echo>
+                        <copy file="${exttools.dir}/@{theTool}" todir="${install.dir}/lib/ExtTools" />
+                </sequential>
+        </for>
+	</target>
+	
+	<target name="install" depends="init-ias-environment,localinstallbinaries,installextprods">
 		<echo>Installing in ${install.dir}</echo>
-		
 		<!-- Copy jars -->
 		<echo>Installing jars</echo>
 		<copy todir="${install.dir}/lib" verbose="true" >
