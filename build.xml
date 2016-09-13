@@ -10,12 +10,25 @@
 	<target name="buildOneModule">
 		<echo>Building one IAS module</echo>
 	</target>
+
+	<target name="clean">
+                <echo>Cleaning IAS modules: ${iasModules}</echo>
+                <for list="${iasModules}" param="moduleName">
+                        <sequential>
+                                <echo>Cleaning IAS module @{moduleName}...</echo>
+				<ant dir="@{moduleName}/src" target="clean" />
+				<echo>@{moduleName} cleaned.</echo>
+                        </sequential>
+                </for>
+        </target>
 	
 	<target name="build">
 		<echo>Building IAS modules: ${iasModules}</echo>
 		<for list="${iasModules}" param="moduleName">
 			<sequential>
-				<echo>Next module to build @{moduleName}</echo>
+				<echo>Building IAS module @{moduleName}</echo>
+				<ant dir="@{moduleName}/src" target="build" />
+				<echo>@{moduleName} built.</echo>
 			</sequential>
 		</for>
 	</target>
