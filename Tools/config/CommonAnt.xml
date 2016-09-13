@@ -42,13 +42,13 @@
 	
 	<target name="clean" depends="init-ias-environment">
 		<echo>Cleaning... ${build.dir}</echo>
-		<delete includeEmptyDirs="true">
+		<delete includeEmptyDirs="true" quiet="true">
 			<fileset dir="${build.dir}" includes="**/*" defaultexcludes="no"/>
 		</delete>
-		<delete includeEmptyDirs="true">
+		<delete includeEmptyDirs="true" quiet="true">
 			<fileset dir="${lib.dir}" includes="**/*" defaultexcludes="no"/>
 		</delete>
-		<delete includeEmptyDirs="true">
+		<delete includeEmptyDirs="true" quiet="true">
 			<fileset dir="${bin.dir}" includes="**/*" defaultexcludes="no"/>
 		</delete>
 	</target>
