@@ -13,7 +13,7 @@ import org.eso.ias.prototype.input.MonitorPoint
  */
 case class Alarm (
     alarmID: String,
-    mode: OperationalMode.Mode = OperationalMode.Running) 
+    mode: OperationalMode.Mode = OperationalMode.Operational) 
     extends MonitorPoint[AlarmValue](alarmID,mode) {
   
 }

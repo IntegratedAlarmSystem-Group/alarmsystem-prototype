@@ -8,7 +8,7 @@ import org.eso.ias.prototype.input.OperationalMode
  */
 case class LongMP(
     mpID: String,
-    mode: OperationalMode.Mode = OperationalMode.Running) 
+    mode: OperationalMode.Mode = OperationalMode.Unknown) 
     extends MonitorPoint[Long](mpID,mode) {
   
 }
