@@ -5,7 +5,7 @@ package org.eso.ias.prototype.input
  */
 object OperationalMode extends Enumeration {
   type Mode = Value
-  val StartUp, ShutDown, Maintenance, Operational = Value
+  val StartUp, ShutDown, Maintenance, Operational, Unknown = Value
 }
 
 /**
@@ -14,13 +14,13 @@ object OperationalMode extends Enumeration {
  * array of integers and many other types. (Should we look for a better name?)
  * 
  * <code>MonitorPoint</code> is intended for internal use only:
- * objects of this type shall not be instantiated directly (this class has, in fact abstract)
+ * objects of this type shall not be instantiated directly (this class has, in fact abstract).
  * <code>org.eso.ias.prototype.input.typedmp</code> provides a set of types
  * for the monitor points.    
  */
 abstract class MonitorPoint[A](
     val id: String,
-    val runningMode: OperationalMode.Mode = OperationalMode.Operational) {
+    val runningMode: OperationalMode.Mode = OperationalMode.Unknown) {
   
     /**
      * The value of the monitoring point is associated 
