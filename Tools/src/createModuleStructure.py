@@ -716,7 +716,7 @@ def createModule(name):
         makedirs(name+sep+"test")
         makedirs(name+sep+"bin")
         makedirs(name+sep+"lib")
-        makedirs(name+sep+"lib"+sep+"ExtTools")
+        makedirs(name+sep+"extTools")
         makedirs(name+sep+"classes")
         makedirs(name+sep+"config")
         
