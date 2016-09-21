@@ -2,25 +2,31 @@
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	
+	<!-- Global props definition -->
 	<target name="init-ias-environment">
 		<echo>Initing IAS build...</echo>
 		<property environment="env" />
 		<property name="src.dir" value="." />
 		<property name="build.dir" value="../classes" />
   		<property name="lib.dir" value="../lib" />
-		<property name="exttools.dir" value="../lib/ExtTools" />
+		<property name="libExtTools.dir" value="../lib/ExtTools" />
+		<property name="exttools.dir" value="../extTools" />
   		<property name="bin.dir" value="../bin" />
 		<property name="config.dir" value="../config" />
 		<property name="install.dir" value="${env.IAS_ROOT}" />
 	</target>
 	
+	<!-- Build the folders required by compliation -->
 	<target name="init-ias-folders" depends="init-ias-environment">
 		<echo>Initing IAS build...</echo>
   		<mkdir dir="${build.dir}" />
   		<mkdir dir="${lib.dir}" />
+		<mkdir dir="${libExtTools.dir}" />
+		<mkdir dir="${lib.dir}" />
   		<mkdir dir="${bin.dir}" />
 	</target>
 	
+	<!-- Initialization of scala build -->
 	<target name="init-scala-build" depends="init-ias-folders">
 		<echo>Initing scala build...</echo>
 		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
@@ -40,6 +46,7 @@
   		<echo>Scala environment ready</echo>
 	</target>
 	
+	<!-- Clean up the module --> 
 	<target name="clean" depends="init-ias-environment">
 		<echo>Cleaning... ${build.dir}</echo>
 		<delete includeEmptyDirs="true" quiet="true">
@@ -53,6 +60,14 @@
 		</delete>
 	</target>
 	
+	<!--
+		Install the python scripts from src into bin
+		and set their executable attribute to true
+		
+		At the present it copies ALL the python scripts in src and must be
+		refined if we want to user to select specific scripts
+		by setting a property
+	-->
 	<target name="localinstallbinaries" depends="init-ias-environment">
 		<!-- Binaries are initially copied in the bin folder of the module 
 		     then installed in the IAS_ROOT/bin folder -->
@@ -64,18 +79,34 @@
 		<chmod dir="${bin.dir}" perm="ug+rx" includes="**/*" defaultexcludes="no" />
 	</target>
 	
-	<target name="installextprods" depends= "init-ias-environment">
+	<!--
+	  Installs (copies) third party jars from extTools folder into lib/ExtProd.
+	
+	  ${exttools}: The comma separated list of jars to install
+	-->
+	<target name="localInstallThirdPartyJars" depends= "init-ias-environment" if="exttools">
 		<echo>Installing third-party libs: ${exttools}</echo>
         <for list="${exttools}" param="theTool">
                 <sequential>
                 		<echo>  Installing @{theTool}</echo>
-                        <copy file="${exttools.dir}/@{theTool}" todir="${install.dir}/lib/ExtTools" />
+                        <copy file="${exttools.dir}/@{theTool}" todir="${libExtTools.dir}" />
                 </sequential>
         </for>
 	</target>
 	
-	<target name="install" depends="init-ias-environment,localinstallbinaries,installextprods">
+	<!--
+		Install jars and binaries into $IAS_ROOT lib and bin folders
+	-->
+	<target name="install" depends="init-ias-environment,localinstallbinaries,localInstallThirdPartyJars">
 		<echo>Installing in ${install.dir}</echo>
+		<!-- Copy third party jars -->
+		<echo>Installing third-party jars</echo>
+			<mkdir dir="${install.dir}/lib/ExtTools"/>
+			<copy todir="${install.dir}/lib/ExtTools" verbose="true" >
+			  <fileset dir="${libExtTools.dir}">
+			     <include name="**/*.jar"/>
+			   </fileset>
+			</copy>
 		<!-- Copy jars -->
 		<echo>Installing jars</echo>
 		<copy todir="${install.dir}/lib" verbose="true" >
@@ -98,25 +129,39 @@
 		</copy>
 	</target>
 	
-	<target name="scalacompile" depends="init-scala-build">
+	<!--
+		Compile java sources (*.scala) into ../classes
+		
+		${scalaJarName}: the name of the jar to build
+		                 if not set skpis the compliation
+	-->
+	<target name="scalacompile" depends="init-scala-build" if="scalaJarName">
 		<echo>Building from ${src.dir} in ${build.dir}</echo>
 		<mkdir dir="../classes"/>
 
   		<scalac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" force="changed">
           	<!-- addparams="-Yclosure-elim -optimise" -->
-    		<include name="**/*.scala"/>
+    		<include name="**/*.scala,**.*.java"/>
   		</scalac>
 	</target>
 	
-	<target name="scalabuild" depends="scalacompile">
+	<!--
+		Build the jar from scala sources.
+		The jar is created into the lib folder of the module
+		
+		
+		${scalaJarName}: the name of the jar to build
+		                 if not set skpis the build
+	-->
+	<target name="scalabuild" depends="scalacompile" if="scalaJarName">
 		<property name="jarFileToBuild" value="${lib.dir}/${scalaJarName}"/>
 		 <delete file="${jarFileToBuild}" />
 		 <jar destfile="${jarFileToBuild}" >
 		 	<fileset dir="${build.dir}" />
-		 	<fileset dir="${src.dir}" excludes="build.xml" />
+		 	<fileset dir="${src.dir}" includes="**/*.scala,**/*.java" />
 	 	</jar>
 	</target>
 	
-	<target name="build" depends="localinstallbinaries,scalabuild" />
+	<target name="build" depends="localinstallbinaries,localInstallThirdPartyJars,scalabuild" />
 	
 </project>
