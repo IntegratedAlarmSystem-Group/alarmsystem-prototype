@@ -23,6 +23,7 @@
   		<mkdir dir="${lib.dir}" />
 		<mkdir dir="${libExtTools.dir}" />
   		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${config.dir}" />
 	</target>
 	
 	<!-- Initialization of scala build -->
