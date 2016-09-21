@@ -6,7 +6,7 @@
 	<target name="init-ias-environment">
 		<echo>Initing IAS build...</echo>
 		<property environment="env" />
-		<property name="src.dir" value="." />
+		<property name="src.dir" value="${basedir}" />
 		<property name="build.dir" value="../classes" />
   		<property name="lib.dir" value="../lib" />
 		<property name="libExtTools.dir" value="../lib/ExtTools" />
@@ -22,12 +22,11 @@
   		<mkdir dir="${build.dir}" />
   		<mkdir dir="${lib.dir}" />
 		<mkdir dir="${libExtTools.dir}" />
-		<mkdir dir="${lib.dir}" />
   		<mkdir dir="${bin.dir}" />
 	</target>
 	
 	<!-- Initialization of scala build -->
-	<target name="init-scala-build" depends="init-ias-folders">
+	<target name="init-scala-build" depends="init-ias-folders" if="scalaJarName">
 		<echo>Initing scala build...</echo>
 		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
 		<path id="build.classpath">
@@ -136,15 +135,16 @@
 		                 if not set skpis the compliation
 	-->
 	<target name="scalacompile" depends="init-scala-build" if="scalaJarName">
-		<echo>Building in ${build.dir}</echo>
+		<echo>Building in scala sources in ${src.dir}</echo>
 		<mkdir dir="${build.dir}"/>
 		<delete>
 			<fileset dir="${build.dir}"  includes="**/*"/>
 	  	</delete>
 
-  		<scalac srcdir="." destdir="${build.dir}" classpathref="build.classpath" force="changed">
+  		<scalac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" force="changed">
           	<!-- addparams="-Yclosure-elim -optimise" -->
-    		<include name="**/*.scala,**.*.java"/>
+    		<include name="**/*.scala"/>
+  			<include name="**/*.java"/>
   		</scalac>
 	</target>
 	
