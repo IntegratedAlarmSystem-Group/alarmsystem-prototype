@@ -22,9 +22,9 @@ def recursivelyLookForFile(folder,name):
              None otherwise
     """
     for root, subFolders, files in os.walk(folder):
-        for file in files:
-            if (file == name):
-                return os.path.join(folder,file)
+        for filePath in files:
+            if (filePath == name):
+                return os.path.join(folder,filePath)
     return None
 
 def iasFindFile(fileName,fileType=None):
