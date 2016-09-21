@@ -2,6 +2,9 @@
 
 <!-- Build the entire IAS prototype -->
 <project name="BuildIAS" default="build" basedir=".">
+	
+	<property environment="env" />
+	<property name="iasRoot" value="${env.IAS_ROOT}" />
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	
@@ -10,26 +13,41 @@
 	<target name="buildOneModule">
 		<echo>Building one IAS module</echo>
 	</target>
+	
+	<target name="commontask" if="anttasks">
+		<echo>Running tasks ${anttasks} in ${iasModules}</echo>
+		<for list="${iasModules}" param="moduleName">
+            <sequential>
+            	<for list="${anttasks}" param="aTask">
+            		<sequential>
+	                	<echo>Running @{aTask} in module @{moduleName}...</echo>
+						<ant dir="@{moduleName}/src" target="@{aTask}" />
+						<echo>@{aTask} in @{moduleName} done.</echo>
+        			</sequential>
+        		</for>
+            </sequential>
+        </for>
+	</target>
 
 	<target name="clean">
-                <echo>Cleaning IAS modules: ${iasModules}</echo>
-                <for list="${iasModules}" param="moduleName">
-                        <sequential>
-                                <echo>Cleaning IAS module @{moduleName}...</echo>
-				<ant dir="@{moduleName}/src" target="clean" />
-				<echo>@{moduleName} cleaned.</echo>
-                        </sequential>
-                </for>
-        </target>
+        <echo>Cleaning IAS modules: ${iasModules}</echo>
+		<antcall target="commontask">
+			<param name="anttasks" value="clean" />
+		</antcall>
+    </target>
 	
 	<target name="build">
 		<echo>Building IAS modules: ${iasModules}</echo>
-		<for list="${iasModules}" param="moduleName">
-			<sequential>
-				<echo>Building IAS module @{moduleName}</echo>
-				<ant dir="@{moduleName}/src" target="build" />
-				<echo>@{moduleName} built.</echo>
-			</sequential>
-		</for>
+		<antcall target="commontask">
+			<param name="anttasks" value="build,install" />
+		</antcall>
 	</target>
+	
+	<target name="install">
+		<echo>Installing IAS modules: ${iasModules}</echo>
+		<antcall target="commontask">
+			<param name="anttasks" value="install" />
+		</antcall>
+	</target>
+	
 </project>
