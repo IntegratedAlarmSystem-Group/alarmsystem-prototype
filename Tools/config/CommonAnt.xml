@@ -136,10 +136,13 @@
 		                 if not set skpis the compliation
 	-->
 	<target name="scalacompile" depends="init-scala-build" if="scalaJarName">
-		<echo>Building from ${src.dir} in ${build.dir}</echo>
-		<mkdir dir="../classes"/>
+		<echo>Building in ${build.dir}</echo>
+		<mkdir dir="${build.dir}"/>
+		<delete>
+			<fileset dir="${build.dir}"  includes="**/*"/>
+	  	</delete>
 
-  		<scalac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" force="changed">
+  		<scalac srcdir="." destdir="${build.dir}" classpathref="build.classpath" force="changed">
           	<!-- addparams="-Yclosure-elim -optimise" -->
     		<include name="**/*.scala,**.*.java"/>
   		</scalac>
