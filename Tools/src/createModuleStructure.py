@@ -15,7 +15,7 @@ def writeLicenseFile(folder):
     """
     Create a file with the license in the passed folder
     """
-    licenseFile = iasFindFile("LPGPv3License.txt")
+    licenseFile = iasFindFile("LPGPv3License.txt","config")
     copyfile(licenseFile,join(folder,"LGPLv3.txt"))
 
 def createModule(name):
@@ -29,18 +29,21 @@ def createModule(name):
     @return: 0 in case of success; -1 otherwise
     """
     
+    # Read the 
+    listOfFoldersFileName = iasFindFile("FoldersOfAModule.template","config")
+    with open(listOfFoldersFileName) as f:
+        folders = f.readlines()
     # Check if the module 
     if not exists(name):
         print "Creating module",name
         makedirs(name)
         writeLicenseFile(name)
-        makedirs(name+sep+"src")
-        makedirs(name+sep+"test")
-        makedirs(name+sep+"bin")
-        makedirs(name+sep+"lib")
-        makedirs(name+sep+"extTools")
-        makedirs(name+sep+"classes")
-        makedirs(name+sep+"config")
+        for folder in folders:
+            # Remove comments i.e. #...
+            parts = folder.partition('#')
+            folderName=parts[0].strip()
+            if folderName:
+                makedirs(join(name,folderName))
         
         return 0
     else:

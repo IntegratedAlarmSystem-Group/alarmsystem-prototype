@@ -1,0 +1,12 @@
+# The list of folders of a module
+#
+# Scripts like createModuleStructure.py do not have
+# such list hardcoded but must read it from here
+src
+test
+bin
+lib
+lib/ExtTools
+extTools
+classes
+config
