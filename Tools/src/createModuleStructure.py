@@ -29,7 +29,7 @@ def createModule(name):
     @return: 0 in case of success; -1 otherwise
     """
     
-    # Read the 
+    # Read the list of folders to create from the template
     listOfFoldersFileName = iasFindFile("FoldersOfAModule.template","config")
     with open(listOfFoldersFileName) as f:
         folders = f.readlines()
