@@ -43,7 +43,7 @@
 		</antcall>
 	</target>
 	
-	<target name="install">
+	<target name="install" if="iasRoot">
 		<echo>Installing IAS modules: ${iasModules}</echo>
 		<antcall target="commontask">
 			<param name="anttasks" value="install" />
