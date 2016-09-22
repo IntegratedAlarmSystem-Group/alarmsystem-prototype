@@ -13,8 +13,39 @@
 		<property name="exttools.dir" value="../extTools" />
   		<property name="bin.dir" value="../bin" />
 		<property name="config.dir" value="../config" />
+		
+		<property name="ias.dir" value="${env.IAS_ROOT}" />
+		<property name="ias.lib.dir" value="${ias.dir}/lib" />
+		<property name="ias.lib.ExtTools.dir" value="${ias.dir}/lib/ExtTools" />
 		<property name="install.dir" value="${env.IAS_ROOT}" />
+		<property name="scala.home" value="${env.SCALA_HOME}" />
 	</target>
+	
+	<target 
+		name="buildScalaClasspath"
+		description="Build the classpath including all the jars from the current module and IAS_ROOT">
+		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
+		<path id="build.classpath">
+			
+			<pathelement location="${scala-library.jar}"   />
+			<pathelement location="${build.dir}"   />
+			
+			<fileset dir="${lib.dir}">
+		        <include name="**/*.jar" />
+		    </fileset>
+			<fileset dir="${libExtTools.dir}">
+				<include name="**/*.jar" />
+		    </fileset>
+			<fileset dir="${ias.lib.dir}">
+		        <include name="**/*.jar" />
+		    </fileset>
+			<fileset dir="${ias.lib.ExtTools.dir}">
+				<include name="**/*.jar" />
+		    </fileset>
+			
+	    </path>
+	</target>
+		
 	
 	<!-- Build the folders required by compliation -->
 	<target name="init-ias-folders" depends="init-ias-environment">
@@ -27,14 +58,12 @@
 	</target>
 	
 	<!-- Initialization of scala build -->
-	<target name="init-scala-build" depends="init-ias-folders" if="scalaJarName">
+	<target 
+		description="Initialization of scala build"
+		name="init-scala-build" 
+		depends="init-ias-folders,buildScalaClasspath" 
+		if="scalaJarName">
 		<echo>Initing scala build...</echo>
-		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
-		<path id="build.classpath">
-	    	<pathelement location="${scala-library.jar}"   />
-	    	<!--<pathelement location="${your.path}"   />-->
-	    	<pathelement location="${build.dir}"   />
-	    </path>
 	    <taskdef resource="scala/tools/ant/antlib.xml">
 	    	<classpath>
      			<pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar"   />
