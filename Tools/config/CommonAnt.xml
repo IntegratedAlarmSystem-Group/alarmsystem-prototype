@@ -23,13 +23,21 @@
   		<property name="bin.dir" value="../bin" />
 		<property name="mods.python.dir" value="${lib.dir}/python" />
 		<property name="config.dir" value="../config" />
+		
 		<property name="ias.dir" value="${env.IAS_ROOT}" />
+		
+		<!-- Files are installed in the AIS_ROOT folder
+		     Could change in future if we want to introduce INTROOTs
+		-->
+		<property name="install.dir" value="${env.IAS_ROOT}" />
+		
+		<!-- ias.lib are needed to build classpath for compiling java/scala sources -->
 		<property name="ias.lib.dir" value="${ias.dir}/lib" />
 		<property name="ias.lib.ExtTools.dir" value="${ias.dir}/lib/ExtTools" />
-		<property name="install.dir" value="${env.IAS_ROOT}" />
+		
 		<property name="scala.home" value="${env.SCALA_HOME}" />
 		
-		<!-- Props set depending on the existnce of folders/files -->
+		<!-- Props set depending on the existence of folders/files -->
 		<available file="${src.java.dir}" type="dir" property="src.java.dir.exists"/>
 		<available file="${src.scala.dir}" type="dir" property="src.scala.dir.exists"/>
 		<available file="${src.python.dir}" type="dir" property="src.pyhton.dir.exists"/>
@@ -61,7 +69,7 @@
 	</target>
 		
 	
-	<!-- Build the folders required by compliation -->
+	<!-- Build the folders required by compilation -->
 	<target name="init-ias-folders" depends="init-ias-environment">
 		<echo>Initing IAS build...</echo>
   		<mkdir dir="${build.dir}" />
