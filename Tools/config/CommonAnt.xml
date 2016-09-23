@@ -17,6 +17,7 @@
 		<property name="libExtTools.dir" value="../lib/ExtTools" />
 		<property name="exttools.dir" value="../extTools" />
   		<property name="bin.dir" value="../bin" />
+		<property name="mods.python.dir" value="${lib.dir}/python" />
 		<property name="config.dir" value="../config" />
 		<property name="ias.dir" value="${env.IAS_ROOT}" />
 		<property name="ias.lib.dir" value="${ias.dir}/lib" />
@@ -94,19 +95,39 @@
 	</target>
 	
 	<!--
-		Install the python scripts from src into bin
+		Copy a python module from src/python/<moduleName> into lib/python/ModuleName
+	-->
+	<target 
+		name="localInstallPyModules" 
+		depends="init-ias-environment"
+		description="Install python modules from src to lib">
+		
+		<echo>Locally installing python modules in ${mods.python.dir}</echo>
+		<mkdir dir="${mods.python.dir}"/>
+		<delete>
+			<fileset dir="${mods.python.dir}"  includes="**/*"/>
+	  	</delete>
+		<copy todir="${mods.python.dir}">
+			<fileset dir="${src.python.dir}">
+				<exclude name="*.py"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<!--
+		Install the python scripts from src/python into bin
 		and set their executable attribute to true
 		
-		At the present it copies ALL the python scripts in src and must be
-		refined if we want to user to select specific scripts
+		At the present it copies ALL the python scripts in src/python and must be
+		refined if we want the user to select specific scripts
 		by setting a property
 	-->
 	<target name="localinstallbinaries" depends="init-ias-environment">
 		<!-- Binaries are initially copied in the bin folder of the module 
 		     then installed in the IAS_ROOT/bin folder -->
-		<echo>Locally installing python binaries</echo>
+		<echo>Locally installing python binaries in ${bin.dir}</echo>
 		<copy todir="${bin.dir}" verbose="true">
-			<fileset dir="${src.python.dir}" includes="**/*.py" defaultexcludes="no"/>
+			<fileset dir="${src.python.dir}" includes="*.py" defaultexcludes="no"/>
 		</copy>
 		<!-- Set permission of executables -->
 		<chmod dir="${bin.dir}" perm="ug+rx" includes="**/*" defaultexcludes="no" />
@@ -128,24 +149,36 @@
 	</target>
 	
 	<!--
-		Install jars and binaries into $IAS_ROOT lib and bin folders
+		Install jars and binaries into $IAS_ROOT lib and bin folders.
+		
+		
 	-->
-	<target name="install" depends="init-ias-environment,localinstallbinaries,localInstallThirdPartyJars">
+	<target 
+		name="install" 
+		depends="init-ias-environment,localinstallbinaries,localInstallThirdPartyJars">
+		
 		<echo>Installing in ${install.dir}</echo>
+		
 		<!-- Copy third party jars -->
 		<echo>Installing third-party jars</echo>
-			<mkdir dir="${install.dir}/lib/ExtTools"/>
-			<copy todir="${install.dir}/lib/ExtTools" verbose="true" >
-			  <fileset dir="${libExtTools.dir}">
-			     <include name="**/*.jar"/>
-			   </fileset>
-			</copy>
+		<mkdir dir="${install.dir}/lib/ExtTools"/>
+		<copy todir="${install.dir}/lib/ExtTools" verbose="true" >
+		  <fileset dir="${libExtTools.dir}">
+		     <include name="**/*.jar"/>
+		   </fileset>
+		</copy>
 		<!-- Copy jars -->
 		<echo>Installing jars</echo>
 		<copy todir="${install.dir}/lib" verbose="true" >
-		  <fileset dir="${lib.dir}">
-		     <include name="**/*.jar"/>
-		   </fileset>
+			<fileset dir="${lib.dir}">
+		    	<include name="**/*.jar"/>
+			</fileset>
+		</copy>
+		<!-- Copy Python modules -->
+		<echo>Installing python modules</echo>
+		<mkdir dir="${install.dir}/lib/python"/>
+		<copy todir="${install.dir}/lib/python">
+			<fileset dir="${mods.python.dir}"/>
 		</copy>
 		<!-- Copy bin -->
 		<echo>Installing binaries</echo>
@@ -199,6 +232,8 @@
 	 	</jar>
 	</target>
 	
-	<target name="build" depends="localinstallbinaries,localInstallThirdPartyJars,scalabuild" />
+	<target 
+		name="build" 
+		depends="localinstallbinaries,localInstallThirdPartyJars,scalabuild,localInstallPyModules" />
 	
 </project>
