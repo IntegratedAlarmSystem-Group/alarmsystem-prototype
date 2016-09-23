@@ -13,6 +13,7 @@
 		<property name="src.java.dir" value="${basedir}/java" />
 		<property name="src.scala.dir" value="${basedir}/scala" />
 		<property name="src.python.dir" value="${basedir}/python" />
+		<property name="src.python.dir" value="${basedir}/python" />
 		<property name="build.dir" value="../classes" />
 		<property name="build.scala.dir" value="../classes/scala" />
 		<property name="build.java.dir" value="../classes/java" />
@@ -27,6 +28,11 @@
 		<property name="ias.lib.ExtTools.dir" value="${ias.dir}/lib/ExtTools" />
 		<property name="install.dir" value="${env.IAS_ROOT}" />
 		<property name="scala.home" value="${env.SCALA_HOME}" />
+		
+		<!-- Props set depending on the existnce of folders/files -->
+		<available file="${src.java.dir}" type="dir" property="src.java.dir.exists"/>
+		<available file="${src.scala.dir}" type="dir" property="src.scala.dir.exists"/>
+		<available file="${src.python.dir}" type="dir" property="src.pyhton.dir.exists"/>
 	</target>
 	
 	<target 
@@ -61,6 +67,7 @@
   		<mkdir dir="${build.dir}" />
   		<mkdir dir="${lib.dir}" />
 		<mkdir dir="${libExtTools.dir}" />
+		<mkdir dir="${mods.python.dir}" />
   		<mkdir dir="${bin.dir}" />
 		<mkdir dir="${config.dir}" />
 	</target>
@@ -103,8 +110,9 @@
 	<target 
 		name="localInstallPyModules" 
 		depends="init-ias-environment"
-		description="Install python modules from src to lib">
-		
+		description="Install python modules from src to lib"
+		if="src.python.dir.exists">
+
 		<echo>Locally installing python modules in ${mods.python.dir}</echo>
 		<mkdir dir="${mods.python.dir}"/>
 		<delete>
@@ -125,7 +133,7 @@
 		refined if we want the user to select specific scripts
 		by setting a property
 	-->
-	<target name="localinstallbinaries" depends="init-ias-environment">
+	<target name="localinstallbinaries" depends="init-ias-environment" if="src.pyhton.dir.exists">
 		<!-- Binaries are initially copied in the bin folder of the module 
 		     then installed in the IAS_ROOT/bin folder -->
 		<echo>Locally installing python binaries in ${bin.dir}</echo>
