@@ -3,6 +3,9 @@
 # Scripts like createModuleStructure.py do not have
 # such list hardcoded but must read it from here
 src
+src/scala
+src/java
+src/python
 test
 bin
 lib
