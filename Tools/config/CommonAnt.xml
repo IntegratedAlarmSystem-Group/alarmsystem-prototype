@@ -104,9 +104,9 @@
 	<target name="localinstallbinaries" depends="init-ias-environment">
 		<!-- Binaries are initially copied in the bin folder of the module 
 		     then installed in the IAS_ROOT/bin folder -->
-		<echo>Locally installing binaries</echo>
+		<echo>Locally installing python binaries</echo>
 		<copy todir="${bin.dir}" verbose="true">
-			<fileset dir="${src.dir}" includes="**/*.py" defaultexcludes="no"/>
+			<fileset dir="${src.python.dir}" includes="**/*.py" defaultexcludes="no"/>
 		</copy>
 		<!-- Set permission of executables -->
 		<chmod dir="${bin.dir}" perm="ug+rx" includes="**/*" defaultexcludes="no" />
