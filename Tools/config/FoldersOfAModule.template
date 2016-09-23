@@ -12,6 +12,7 @@ test/java
 test/python
 bin
 lib
+lib/python
 lib/ExtTools
 extTools
 classes
