@@ -7,6 +7,9 @@ src/scala
 src/java
 src/python
 test
+test/scala
+test/java
+test/python
 bin
 lib
 lib/ExtTools
