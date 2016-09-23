@@ -7,13 +7,17 @@
 		<echo>Initing IAS build...</echo>
 		<property environment="env" />
 		<property name="src.dir" value="${basedir}" />
+		<property name="src.java.dir" value="${basedir}/java" />
+		<property name="src.scala.dir" value="${basedir}/scala" />
+		<property name="src.python.dir" value="${basedir}/python" />
 		<property name="build.dir" value="../classes" />
+		<property name="build.scala.dir" value="../classes/scala" />
+		<property name="build.java.dir" value="../classes/java" />
   		<property name="lib.dir" value="../lib" />
 		<property name="libExtTools.dir" value="../lib/ExtTools" />
 		<property name="exttools.dir" value="../extTools" />
   		<property name="bin.dir" value="../bin" />
 		<property name="config.dir" value="../config" />
-		
 		<property name="ias.dir" value="${env.IAS_ROOT}" />
 		<property name="ias.lib.dir" value="${ias.dir}/lib" />
 		<property name="ias.lib.ExtTools.dir" value="${ias.dir}/lib/ExtTools" />
@@ -165,13 +169,13 @@
 		                 if not set skpis the compliation
 	-->
 	<target name="scalacompile" depends="init-scala-build" if="scalaJarName">
-		<echo>Building in scala sources in ${src.dir}</echo>
-		<mkdir dir="${build.dir}"/>
+		<echo>Building in scala sources in ${src.scala.dir}</echo>
+		<mkdir dir="${build.scala.dir}"/>
 		<delete>
-			<fileset dir="${build.dir}"  includes="**/*"/>
+			<fileset dir="${build.scala.dir}"  includes="**/*"/>
 	  	</delete>
 
-  		<scalac srcdir="${src.dir}" destdir="${build.dir}" classpathref="build.classpath" force="changed">
+  		<scalac srcdir="${src.scala.dir}" destdir="${build.scala.dir}" classpathref="build.classpath" force="changed">
           	<!-- addparams="-Yclosure-elim -optimise" -->
     		<include name="**/*.scala"/>
   			<include name="**/*.java"/>
@@ -190,8 +194,8 @@
 		<property name="jarFileToBuild" value="${lib.dir}/${scalaJarName}"/>
 		 <delete file="${jarFileToBuild}" />
 		 <jar destfile="${jarFileToBuild}" >
-		 	<fileset dir="${build.dir}" />
-		 	<fileset dir="${src.dir}" includes="**/*.scala,**/*.java" />
+		 	<fileset dir="${build.scala.dir}" />
+		 	<fileset dir="${src.scala.dir}" includes="**/*.scala,**/*.java" />
 	 	</jar>
 	</target>
 	
