@@ -119,7 +119,7 @@
 		name="localInstallPyModules" 
 		depends="init-ias-environment"
 		description="Install python modules from src to lib"
-		if="src.python.dir.exists">
+		if="src.pyhton.dir.exists">
 
 		<echo>Locally installing python modules in ${mods.python.dir}</echo>
 		<mkdir dir="${mods.python.dir}"/>
