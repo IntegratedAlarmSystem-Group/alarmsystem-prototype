@@ -4,22 +4,25 @@ Created on Sep 22, 2016
 @author: acaproni
 '''
 
-from os import environ, getcwd
+from os import environ, getcwd, walk, path
 
 class CommonDefs(object):
-    """
-    Common definitions and useful methods.
-    """
-    def __init__(self):
-        self.__iasRoot=environ['IAS_ROOT']
-        
-    def getIASRoot(self):
+    
+    #IAS root from the environment
+    __iasRoot=environ['IAS_ROOT']
+    
+    # Classpath separator for jars
+    __classPathSeparator=":"
+    
+    @classmethod
+    def getIASRoot(cls):
         '''
         @return the IAS_ROOT
         '''
-        return self.__iasRoot
+        return cls.__iasRoot
     
-    def getAISSearchPaths(self):
+    @classmethod
+    def getAISSearchPaths(cls):
         '''
         Return the hierarchy of IAS folders.
         At the present it only contains the IAS root and the
@@ -33,8 +36,26 @@ class CommonDefs(object):
          @return A ordered tuple with the hierarchy of IAS folders
                  (root of current module,IAS_ROOT)
         '''
-        return (getcwd(),self.__iasRoot)
+        return (getcwd(),cls.getIASRoot())
     
-
-if __name__ == '__main__':
-    pass
+    @classmethod
+    def buildClasspath(cls):
+        """
+        Build the class path by reading the jars from the
+        IAS hierarchy of folders
+        
+        @return: A string with the jars in the classpath
+        """
+        classpath=""
+        for folder in cls.getAISSearchPaths():
+            for root, subFolders, files in walk(folder):
+                for file in files:
+                    if (file.lower().endswith('.jar')):
+                        print file, root
+                        filePath=path.join(root,file)
+                        if classpath:
+                            classpath=classpath+cls.__classPathSeparator
+                        classpath=classpath+filePath
+        return classpath
+                            
+                        

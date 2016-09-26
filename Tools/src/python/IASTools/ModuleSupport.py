@@ -17,7 +17,7 @@ class ModuleSupport(object):
     @raise ValueError: if the passed folder name is None or Empty
     """
     @staticmethod
-    def writeLicenseFile(self,rootOfModule):
+    def writeLicenseFile(rootOfModule):
         """
         Create a file with the license in the passed rootOfModule
         
@@ -30,7 +30,7 @@ class ModuleSupport(object):
         copyfile(licenseFile,join(rootOfModule,"LGPLv3.txt"))
 
     @staticmethod
-    def createModule(self,name):
+    def createModule(name):
         """
         Create a IAS empty module.
         
@@ -52,7 +52,7 @@ class ModuleSupport(object):
         if not exists(name):
             print "Creating module",name
             makedirs(name)
-            self.writeLicenseFile(name)
+            ModuleSupport.writeLicenseFile(name)
             for folder in folders:
                 # Remove comments i.e. #...
                 parts = folder.partition('#')
@@ -65,7 +65,7 @@ class ModuleSupport(object):
             raise IOError(name+"already exists!!!")
 
     @staticmethod
-    def removeExistingModule(self,name):
+    def removeExistingModule(name):
         '''
         Remove an existing module
         
