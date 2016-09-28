@@ -6,7 +6,7 @@ Created on Sep 23, 2016
 from os.path import exists, join
 from os import makedirs
 from shutil import rmtree, copyfile
-from FileSupport import FileSupport
+import FileSupport
 
 class ModuleSupport(object):
     """
@@ -25,7 +25,7 @@ class ModuleSupport(object):
         """
         if not rootOfModule:
             raise ValueError("The root of the module can't be None nor empty")
-        fileSupport = FileSupport("LPGPv3License.txt","config")
+        fileSupport = FileSupport.FileSupport("LPGPv3License.txt","config")
         licenseFile = fileSupport.findFile()
         copyfile(licenseFile,join(rootOfModule,"LGPLv3.txt"))
 
@@ -44,7 +44,7 @@ class ModuleSupport(object):
         if not name:
             raise ValueError("The name of the module can't be None nor empty")
         # Read the list of folders to create from the template
-        fileSupport = FileSupport("FoldersOfAModule.template","config")
+        fileSupport = FileSupport.FileSupport("FoldersOfAModule.template","config")
         listOfFoldersFileName = fileSupport.findFile()
         with open(listOfFoldersFileName) as f:
             folders = f.readlines()

@@ -7,13 +7,16 @@ from os import environ,getcwd, walk, path
 
 class FileSupport(object):
     '''
-    Support method for IAS files
+    Support method for IAS files and folders
     '''
     # Possible types of files recognized by this tool
     #
     # iasFileType matches with the folder names of a module
     # to ensure a valid value is given here
-    iasFileType = ("lib", "bin","config","src")  
+    iasFileType = ("lib", "bin","config","src")
+    
+    #IAS root from the environment
+    __iasRoot=environ['IAS_ROOT']   
     
 
     def __init__(self, fileName,fileType=None):
@@ -54,11 +57,11 @@ class FileSupport(object):
         
         
         @param fileName: The name of the file to look for
-        @param fileType: the type (iasFileType) of file to look for (example BINARY,LIB...
+        @param fileType: the type (iasFileType) of file to look for (example BINARY,LIB...)
         @return: if the file is found The full path name of the file
                  otherwise throws a IOError exception
         """
-        iasRoot=environ['IAS_ROOT']
+        iasRoot=FileSupport.getIASRoot()
         if self.fileType:
             fileType = self.fileType.lower()
             if not fileType in FileSupport.iasFileType:
@@ -99,4 +102,50 @@ class FileSupport(object):
                     return filePath
         # Bad luck!
         raise IOError(self.fileName+" not found")
+    
+    @classmethod
+    def getIASRoot(cls):
+        '''
+        @return the IAS_ROOT
+        '''
+        return cls.__iasRoot
+    
+    @classmethod
+    def getIASFolders(cls):
+        '''
+        Return the hierarchy of IAS folders.
+        At the present it only contains the current module
+        (the parent of the current folder i.e. assumes that
+        the tscript runs in src that is the typical case
+        for development) and IAS root; 
+        in future can be expanded with one or more integration
+        folders.
+        
+        The tuple returned is ordered by priority.
+        
+         @return A ordered tuple with the hierarchy of IAS folders
+                 (at the present the current module and IAS_ROOT)
+        '''
+        return (path.join(getcwd(),".."),cls.getIASRoot())
+    
+    @classmethod
+    def getIASSearchFolders(cls, fileType):
+        """
+        Return the folders to search for a a given file type
+        
+        @param fileType: the type (iasFileType) of file to look for (example BINARY,LIB...)
+        @return a list with the order folders to search for a file of the given name
+        """
+        if fileType:
+            fileType = fileType.lower()
+            if not fileType in cls.iasFileType:
+                raise ValueError("Invalid fileType '"+fileType+"' not in "+str(cls.iasFileType))
+        else:
+            # No folder passed: search in all the folders
+            raise ValueError("Invalid fileType "+fileType)
+        
+        folders = []
+        for folder in cls.getIASFolders():
+            folders.append(path.join(folder,fileType.lower()))
+        return folders
     
