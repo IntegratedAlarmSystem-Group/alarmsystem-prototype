@@ -179,7 +179,7 @@
 		<echo>Installing in ${install.dir}</echo>
 		
 		<!-- Copy third party jars -->
-		<echo>Installing third-party jars</echo>
+		<echo>Installing third-party jars in ${install.dir}/lib/ExtTools</echo>
 		<mkdir dir="${install.dir}/lib/ExtTools"/>
 		<copy todir="${install.dir}/lib/ExtTools" verbose="true" >
 		  <fileset dir="${libExtTools.dir}">
@@ -187,28 +187,30 @@
 		   </fileset>
 		</copy>
 		<!-- Copy jars -->
-		<echo>Installing jars</echo>
+		<echo>Installing jars in ${install.dir}/lib</echo>
 		<copy todir="${install.dir}/lib" verbose="true" >
 			<fileset dir="${lib.dir}">
 		    	<include name="**/*.jar"/>
 			</fileset>
 		</copy>
 		<!-- Copy Python modules -->
-		<echo>Installing python modules</echo>
+		<echo>Installing python modules in ${install.dir}/lib/python</echo>
 		<mkdir dir="${install.dir}/lib/python"/>
 		<copy todir="${install.dir}/lib/python">
 			<fileset dir="${mods.python.dir}"/>
 		</copy>
 		<!-- Copy bin -->
-		<echo>Installing binaries</echo>
-		<!-- Use cp to copy files instead of the ant copy tag because
-		     ant copy does not preserve permissions-->
-		<exec executable="bash">
-			<arg value="-c" />
-			<arg value="cp ${bin.dir}/* ${install.dir}/bin" />
-		</exec>
+		<echo>Installing binaries in ${install.dir}/bin</echo>
+		<mkdir dir="${install.dir}/bin"/>
+		<copy todir="${install.dir}/bin" verbose="true">
+			<fileset dir="${bin.dir}" includes="*.py" defaultexcludes="no"/>
+		</copy>
+		<copy todir="${install.dir}/bin" verbose="true">
+			<fileset dir="${bin.dir}" includes="*.sh" defaultexcludes="no"/>
+		</copy>
+		<chmod dir="${install.dir}/bin" perm="ug+rx" includes="**/*" defaultexcludes="no" />
 		<!-- Copy config -->
-		<echo>Installing configs</echo>
+		<echo>Installing configs in ${install.dir}/config</echo>
 		<copy todir="${install.dir}/config" verbose="true">
 			<fileset dir="${config.dir}" includes="**/*" defaultexcludes="no"/>
 		</copy>
