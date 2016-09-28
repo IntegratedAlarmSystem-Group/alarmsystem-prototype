@@ -5,6 +5,7 @@
 	
 	<property environment="env" />
 	<property name="iasRoot" value="${env.IAS_ROOT}" />
+	<available file="${iasRoot}" type="dir" property="iasRoot.exists"/>
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	
@@ -36,14 +37,14 @@
 		</antcall>
     </target>
 	
-	<target name="build">
+	<target name="build" if="iasRoot.exists">
 		<echo>Building IAS modules: ${iasModules}</echo>
 		<antcall target="commontask">
 			<param name="anttasks" value="build,install" />
 		</antcall>
 	</target>
 	
-	<target name="install" if="iasRoot">
+	<target name="install" if="iasRoot.exists">
 		<echo>Installing IAS modules: ${iasModules}</echo>
 		<antcall target="commontask">
 			<param name="anttasks" value="install" />
