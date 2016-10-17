@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Build the entire IAS prototype -->
+<!-- 
+     Build the entire IAS prototype 
+
+     PRE-Requisite: IAS_ROOT envirnment variable defined and pointing to 
+                             an existing folder
+-->
 <project name="BuildIAS" default="build" basedir=".">
 	
 	<property environment="env" />
