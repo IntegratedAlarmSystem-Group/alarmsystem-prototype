@@ -25,6 +25,10 @@
 		</fail>
 	</target>
 	
+	<!--
+	     Sequentially runs ant in each of the the modules in ${iasModules}.
+	     The targets to ant are read from anttasks
+	-->
 	<target name="commontask" if="anttasks">
 		<echo>Running tasks ${anttasks} in ${iasModules}</echo>
 		<for list="${iasModules}" param="moduleName">
