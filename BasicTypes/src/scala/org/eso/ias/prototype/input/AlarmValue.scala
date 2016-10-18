@@ -7,10 +7,15 @@ abstract class FiniteStateMachineState[T <: Enumeration](val state: T)
  */
 object AlarmState extends Enumeration {
   type State = Value
-  val ActiveAndNew = Value("New") // Active and new
-  val ActiveAndAcknowledged = Value("Acknowledged") // Active and acknowledged by operator
-  val Cleared = Value("Cleared") // Not active (i.e. terminated)
-  val Unknown = Value("Unknown") // Unknown state (an alarm should never have this state)
+  // Active and new
+  val ActiveAndNew = Value("New") 
+  // Active and acknowledged by operator
+  val ActiveAndAcknowledged = Value("Acknowledged")
+  // Not active (i.e. terminated)
+  val Cleared = Value("Cleared") 
+  // Unknown state is the initial state of the alarm
+  // before its state is defined
+  val Unknown = Value("Unknown") 
 }
 
 /**
@@ -31,14 +36,37 @@ case class AlarmValue(
 }
 
 
-// The events to switch state
+/**
+ *  The events to switch state
+ */
 trait Event
-// A active or cleared alarm has been acknowledged
+
+/**
+ *  A active or cleared alarm has been acknowledged
+ */
 case class Ack() extends Event
-// A new or acknowledged alarm became inactive
+
+/**
+ *  A new or acknowledged alarm became inactive
+ */
 case class Clear() extends Event
-// A cleared alarm became active again
+
+/**
+ *  A cleared alarm became active again
+ */
 case class Set() extends Event
+
+/**
+ * The exception thrown when the actual state does not accept a transition
+ */
+class InvalidStateTransition(
+    actualState: AlarmState.State,
+    transition: Event) extends Exception {
+  
+  override def toString(): String = {
+    return "Invalid transition "+transition+" from "+actualState+" state"
+  }
+}
 
 /**
  * The AlarmValue companion implements the state class.
@@ -70,7 +98,13 @@ object AlarmValue {
           case Set() => a.copy(alarmState = AlarmState.ActiveAndNew)
           case _ => a
         }
-      case _ => a
+      case AlarmState.Unknown =>
+        e match {
+          case Clear() => a.copy(alarmState = AlarmState.Cleared)
+          case Set() => a.copy(alarmState = AlarmState.ActiveAndNew)
+          case Ack() => throw new InvalidStateTransition(a.alarmState,e)
+        }
+      case _ => throw new InvalidStateTransition(a.alarmState,e)
     }
   }
   
