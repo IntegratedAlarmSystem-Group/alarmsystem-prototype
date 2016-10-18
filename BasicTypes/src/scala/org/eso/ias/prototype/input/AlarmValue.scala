@@ -59,7 +59,7 @@ case class Set() extends Event
 /**
  * The exception thrown when the actual state does not accept a transition
  */
-class InvalidStateTransition(
+class InvalidStateTransitionException(
     actualState: AlarmState.State,
     transition: Event) extends Exception {
   
@@ -102,9 +102,9 @@ object AlarmValue {
         e match {
           case Clear() => a.copy(alarmState = AlarmState.Cleared)
           case Set() => a.copy(alarmState = AlarmState.ActiveAndNew)
-          case Ack() => throw new InvalidStateTransition(a.alarmState,e)
+          case Ack() => throw new InvalidStateTransitionException(a.alarmState,e)
         }
-      case _ => throw new InvalidStateTransition(a.alarmState,e)
+      case _ => throw new InvalidStateTransitionException(a.alarmState,e)
     }
   }
   
