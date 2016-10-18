@@ -1,5 +1,15 @@
 package org.eso.ias.prototype.input
 
+/**
+ * The state machine for an alarm.
+ * 
+ * At the beginning of this prototype there were 4 states:
+ * ActiveAndNew, ActiveAndAcknowledged, Cleared and Unknown.
+ * This did not cover the case of an alarm being cleared but not yet
+ * acknowledged. We realized that being ACK or not is a property and 
+ * in that case there are only three states and only 2 really used.
+ * Probably a state machine for this very simple case is not needed.
+ */
 abstract class FiniteStateMachineState[T <: Enumeration](val state: T)
 
 /**
@@ -7,32 +17,71 @@ abstract class FiniteStateMachineState[T <: Enumeration](val state: T)
  */
 object AlarmState extends Enumeration {
   type State = Value
-  // Active and new
-  val ActiveAndNew = Value("New") 
-  // Active and acknowledged by operator
-  val ActiveAndAcknowledged = Value("Acknowledged")
-  // Not active (i.e. terminated)
+  // The alarm has been set by the alarm source
+  val Active = Value("Active") 
+  // The alarm has been cleared by the alarm source
   val Cleared = Value("Cleared") 
   // Unknown state is the initial state of the alarm
-  // before its state is defined
-  val Unknown = Value("Unknown") 
+  // when it is built
+  val Unknown = Value("Unknown")
 }
 
 /**
- * The value of an alarm. 
+ * An alarm can be still ignored or already acknowledged by the operator.
  * 
- * The AlarmValue has a state (@see AlarmState) plus a shelved property.
+ * We could express such property with a Boolean but the state is 
+ * more verbose and explained better the meaning of this property.
+ */
+object AckState extends Enumeration {
+  // New is an alarm that the operator has not yet acknowledged
+  val New = Value("New")
+  // An acknowledged alarm is one that the operator has acknowledged
+  // (he/she is also supposed to have taken the proper counter-action)
+  val Acknowledged  = Value("Acknowledged")
+}
+
+/**
+ * The immutable value of an alarm. 
+ * 
+ * The AlarmValue has a state (@see AlarmState) plus a acknowledgementt and 
+ * a shelved property.
+ * 
  * In the design of the IAS, the Alarm is a special monitor point so
- * that at a certain level it is possible to use indifferently alarms and monitor points.
+ * that at a certain level it is possible to use indifferently alarms and monitor points
  * 
  * Objects from this class shall not be used directly:
  * <code>org.eso.ias.prototype.input.typedmp</code> provides a Alarm class.
  * 
+ * @constructor Build a AlarmValue
+ * @param state The state of the alarm
+ * @param shelved True if the alarm is shelved, false otherwise
+ * @param acknowledgement Tell is the operator acknowledged the alarm
  * @see org.eso.ias.prototype.input.typedmp.Alarm
  */
 case class AlarmValue(
     alarmState: AlarmState.State = AlarmState.Unknown,  
-    shelved: Boolean = false) {
+    shelved: Boolean = false,
+    // acknowledgement defaults to Acknowledged o correctly handle the transition
+    // to the Cleared state
+    acknowledgement: AckState.Value = AckState.Acknowledged) {
+  
+  /**
+   * Shelve/Unshelve an alarm
+   * 
+   * @param s If True shelve the alarm otherwise, unshelve
+   * @return This same alarm with the shelved property updated 
+   */
+  def shelve(s: Boolean): AlarmValue = AlarmValue(alarmState, s,  acknowledgement)
+  
+  /**
+   * Acknowledge the Alarm.
+   * 
+   * This method is called in response of an operator action.
+   * Apart the case when the operator explicitly acknowledges an Alarm,
+   * state transitions set the acknowledgement state too.
+   */
+  def acknowledge(): AlarmValue = this.copy(acknowledgement=AckState.Acknowledged)
+  
 }
 
 
@@ -40,11 +89,6 @@ case class AlarmValue(
  *  The events to switch state
  */
 trait Event
-
-/**
- *  A active or cleared alarm has been acknowledged
- */
-case class Ack() extends Event
 
 /**
  *  A new or acknowledged alarm became inactive
@@ -61,12 +105,9 @@ case class Set() extends Event
  */
 class InvalidStateTransitionException(
     actualState: AlarmState.State,
-    transition: Event) extends Exception {
-  
-  override def toString(): String = {
-    return "Invalid transition "+transition+" from "+actualState+" state"
-  }
-}
+    transition: Event) extends Exception(
+       "Invalid transition "+transition+" from "+actualState+" state"
+    )
 
 /**
  * The AlarmValue companion implements the state class.
@@ -82,35 +123,22 @@ object AlarmValue {
    */
   def transition(a: AlarmValue, e: Event): AlarmValue = {
     a.alarmState match {
-      case AlarmState.ActiveAndNew =>
-        e match {
-          case Ack() => a.copy(alarmState = AlarmState.ActiveAndAcknowledged)
-          case Clear() => a.copy(alarmState = AlarmState.Cleared)
-          case _ => a
-        }
-      case AlarmState.ActiveAndAcknowledged =>
+      case AlarmState.Active =>
         e match {
           case Clear() => a.copy(alarmState = AlarmState.Cleared)
-          case _ => a
+          case Set() => a
         }
       case AlarmState.Cleared =>
         e match {
-          case Set() => a.copy(alarmState = AlarmState.ActiveAndNew)
+          case Set() =>  a.copy(alarmState = AlarmState.Active,acknowledgement=AckState.New)
           case _ => a
         }
       case AlarmState.Unknown =>
         e match {
           case Clear() => a.copy(alarmState = AlarmState.Cleared)
-          case Set() => a.copy(alarmState = AlarmState.ActiveAndNew)
-          case Ack() => throw new InvalidStateTransitionException(a.alarmState,e)
+          case Set() => a.copy(alarmState = AlarmState.Active,acknowledgement=AckState.New)
         }
       case _ => throw new InvalidStateTransitionException(a.alarmState,e)
     }
   }
-  
-  def shelve(a: AlarmValue): AlarmValue = a.copy(shelved=true)
-  
-  def unshelve(a: AlarmValue): AlarmValue = a.copy(shelved=false)
-  
-  
 }
