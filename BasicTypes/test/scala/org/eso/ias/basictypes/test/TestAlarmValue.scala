@@ -12,7 +12,7 @@ import org.eso.ias.prototype.input.AckState
 /**
  * Test the AlarmValue State Machine
  */
-class TestAlarmValueSM extends FlatSpec {
+class TestAlarmValue extends FlatSpec {
    
    "The AlarmValue" must "initially have a Unknown state" in {
      val v = new AlarmValue()
