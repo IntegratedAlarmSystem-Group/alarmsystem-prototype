@@ -3,7 +3,6 @@ package org.eso.ias.basictypes.test
 import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.AlarmState
-import org.eso.ias.prototype.input.Ack
 import org.eso.ias.prototype.input.InvalidStateTransitionException
 import org.eso.ias.prototype.input.Set
 import org.eso.ias.prototype.input.Clear
