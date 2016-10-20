@@ -1,0 +1,25 @@
+<configuration debug="false" scan="false"  packagingData="false">
+  <!--
+  	debug: logs logback status messages
+  	scan: dynamically check if the configuration has been changed
+  	      and update the loggging without restarting the application
+  	packagingData: nicely print stack traces (expansive)  
+   -->
+
+  <shutdownHook/>
+  
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%file:%line] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT" />
+  </root>
+  
+  <!-- logger name="IAS-Global-Logger" level="DEBUG"/ -->
+  
+</configuration>
