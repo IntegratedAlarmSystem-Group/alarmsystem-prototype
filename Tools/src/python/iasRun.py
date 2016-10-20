@@ -8,6 +8,46 @@ Created on Sep 26, 2016
 import argparse
 from IASTools.CommonDefs import CommonDefs
 from subprocess import call
+from IASTools.FileSupport import FileSupport
+import cmd
+
+def setProps(propsDict):
+    """
+    Define default properties to be passed to all java.scala executable.
+    
+    These properties are common to all IAS executables and can for example 
+    be configuration properties.
+    
+    @param propsDict: A dictionary of properties in the form name:value
+    @return: A dictionary properties like { "p1name":"p1value", "p2":"v2"}
+    """
+    # Set the config file for sl4j (defined in Logging)
+    log4jConfigFileName="log4j.config"
+    fs = FileSupport(log4jConfigFileName,"config")
+    try:
+        path = fs.findFile()
+        propsDict["log4j.configuration"]=path
+    except:
+        print "No log4j config file ("+log4jConfigFileName+") found: using defaults"
+    
+def formatProps(propsDict):
+    """
+    Format the dictionary of properties in a list of strings
+    list [ "-Dp1=v1", -Dp2=v2"]
+    
+    @param propsDict: A dictionary of properties in the form name:value
+    @return A list of java/scala properties 
+    """
+    if len(propsDict)==0:
+        return []
+    
+    ret = []
+    
+    keys = propsDict.keys()
+    for key in keys:
+        propStr = "-D"+key+"="+propsDict[key]
+        ret.append(propStr)
+    return ret
 
 if __name__ == '__main__':
     """
@@ -32,6 +72,19 @@ if __name__ == '__main__':
     else:
         cmd=['java']
     
+    # Add the properties
+    #
+    # Default and user defined properties are in a dictionary:
+    # this way it is easy for the user to overrride default properties.
+    props={}
+    setProps(props)
+    if len(props)>0:
+        stingOfPros = formatProps(props)
+        # Sort to enhance readability
+        stingOfPros.sort()
+        cmd.extend(formatProps(props))
+    
+    
     #add the classpath
     cmd.append("-cp")
     cmd.append(CommonDefs.buildClasspath())
@@ -42,6 +95,11 @@ if __name__ == '__main__':
     # Finally the command line parameters
     if len(args.params)>0:
         cmd.extend(args.params)
+    
+    print
+    print "Going to run:"
+    print cmd
+    print
         
     call(cmd)
     
