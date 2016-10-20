@@ -22,13 +22,13 @@ def setProps(propsDict):
     @return: A dictionary properties like { "p1name":"p1value", "p2":"v2"}
     """
     # Set the config file for sl4j (defined in Logging)
-    log4jConfigFileName="log4j.config"
-    fs = FileSupport(log4jConfigFileName,"config")
+    logbackConfigFileName="logback.xml"
+    fs = FileSupport(logbackConfigFileName,"config")
     try:
         path = fs.findFile()
-        propsDict["log4j.configuration"]=path
+        propsDict["logback.configurationFile"]=path
     except:
-        print "No log4j config file ("+log4jConfigFileName+") found: using defaults"
+        print "No log4j config file ("+logbackConfigFileName+") found: using defaults"
     
 def formatProps(propsDict):
     """
