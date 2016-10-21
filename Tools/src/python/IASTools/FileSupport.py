@@ -3,7 +3,7 @@ Created on Sep 23, 2016
 
 @author: acaproni
 '''
-from os import environ,getcwd, walk, path
+from os import environ,getcwd, walk, path, makedirs, access, W_OK, X_OK
 
 class FileSupport(object):
     '''
@@ -149,3 +149,21 @@ class FileSupport(object):
             folders.append(path.join(folder,fileType.lower()))
         return folders
     
+    @classmethod
+    def createLogsFolder(cls):
+        """
+        Create the folder of los as defined in IAS_LOGS_FOLDER
+        if it does not exists ALREADY
+        
+        An exception is thrown in case of error
+        """
+        logsFolder=environ["IAS_LOGS_FOLDER"]
+        if not path.exists(logsFolder):
+            makedirs(logsFolder)
+        else:
+            if not path.isdir(logsFolder):
+                raise IOError(logsFolder+" is not a directory")
+            # Can write?
+            if not access(logsFolder, W_OK | X_OK):
+                raise IOError(logsFolder+" is not writable")
+        
