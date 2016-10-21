@@ -6,10 +6,13 @@ Created on Sep 26, 2016
 '''
 
 import argparse
+import cmd
+import os
+import sys
 from IASTools.CommonDefs import CommonDefs
 from subprocess import call
 from IASTools.FileSupport import FileSupport
-import cmd
+
 
 def setProps(propsDict):
     """
@@ -21,6 +24,11 @@ def setProps(propsDict):
     @param propsDict: A dictionary of properties in the form name:value
     @return: A dictionary properties like { "p1name":"p1value", "p2":"v2"}
     """
+    # Environment variables
+    propsDict["ias.root.folder"]=os.environ["IAS_ROOT"]
+    propsDict["ias.logs.folder"]=os.environ["IAS_LOGS_FOLDER"]
+    propsDict["user.home.folder"]=os.environ["HOME"]
+    
     # Set the config file for sl4j (defined in Logging)
     logbackConfigFileName="logback.xml"
     fs = FileSupport(logbackConfigFileName,"config")
@@ -29,6 +37,9 @@ def setProps(propsDict):
         propsDict["logback.configurationFile"]=path
     except:
         print "No log4j config file ("+logbackConfigFileName+") found: using defaults"
+    
+    # Add environment variables
+    
     
 def formatProps(propsDict):
     """
@@ -71,6 +82,17 @@ if __name__ == '__main__':
         cmd=['scala']
     else:
         cmd=['java']
+        
+    # Is the environment ok?
+    # Fail fast!
+    if not CommonDefs.checkEnvironment():
+        print "Some setting missing in IAS environment."
+        print "Set the environment with ias-bash_profile before running IAS applications"
+        print
+        sys.exit(-1)
+    
+    # Create logs folder if not exists already
+    FileSupport.createLogsFolder()
     
     # Add the properties
     #
