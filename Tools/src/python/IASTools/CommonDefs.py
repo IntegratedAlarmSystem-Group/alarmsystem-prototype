@@ -8,6 +8,10 @@ from os import environ, getcwd, walk, path
 import FileSupport
 
 class CommonDefs(object):
+    """
+    A collection of useful methods.
+    Some of them could probably be moved somewhere else...
+    """
     
     # Classpath separator for jars
     __classPathSeparator=":"
@@ -32,4 +36,22 @@ class CommonDefs(object):
                         classpath=classpath+filePath
         return classpath
                             
-                        
+    @classmethod
+    def checkEnvironment(cls):
+        """
+        Check if IAS enviroment is correctly set up
+        
+        @return: True is the enviroment is correctly set;
+                 False otherwise
+        """
+        try:
+            environ["JAVA_HOME"]
+            environ["JRE_HOME"]
+            environ["SCALA_HOME"]
+            environ["PYTHONPATH"]
+            environ["IAS_ROOT"]
+            environ["IAS_LOGS_FOLDER"]
+            return True
+        except:
+            return False
+        
