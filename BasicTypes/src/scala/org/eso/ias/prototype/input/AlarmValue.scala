@@ -57,6 +57,8 @@ object AckState extends Enumeration {
  * @param shelved True if the alarm is shelved, false otherwise
  * @param acknowledgement Tell is the operator acknowledged the alarm
  * @see org.eso.ias.prototype.input.typedmp.Alarm
+ * 
+ * @author acaproni
  */
 case class AlarmValue(
     alarmState: AlarmState.State = AlarmState.Unknown,  

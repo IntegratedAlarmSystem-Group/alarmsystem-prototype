@@ -16,7 +16,9 @@ object OperationalMode extends Enumeration {
  * <code>MonitorPoint</code> is intended for internal use only:
  * objects of this type shall not be instantiated directly (this class has, in fact abstract).
  * <code>org.eso.ias.prototype.input.typedmp</code> provides a set of types
- * for the monitor points.    
+ * for the monitor points.
+ * 
+ * @author acaproni
  */
 abstract class MonitorPoint[A](
     val id: String,
