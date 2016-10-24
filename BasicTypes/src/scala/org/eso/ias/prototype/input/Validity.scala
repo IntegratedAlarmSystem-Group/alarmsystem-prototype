@@ -6,7 +6,16 @@ package org.eso.ias.prototype.input
  * 
  * @author acaproni
  */
-trait Validity extends Enumeration {
+object Validity extends Enumeration {
   val Reliable = Value("Reliable") // Reliable
   val Unreliable = Value("Unreliable") // Unreliable
+  
+  /**
+   * Check if the passed validity is "valid"
+   * 
+   * @param v: The validity to check
+   * @return True if the passed validity is Reliable;
+   * 			   False otherwise
+   */
+  def isValid(v: Validity.Value): Boolean = v==Reliable
 }
