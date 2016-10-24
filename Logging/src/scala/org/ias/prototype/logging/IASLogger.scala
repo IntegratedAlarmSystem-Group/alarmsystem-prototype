@@ -26,8 +26,6 @@ object IASLogger {
    * The global logger.
    */
   private val globalLogger = Logger("IAS-Global-Logger")
-  globalLogger.info("IAS-Global-Logger INFO log message")
-  globalLogger.debug("IAS-Global-Logger DEBUG log message")
   
   //printLoggerStatus()
   /**
@@ -51,10 +49,4 @@ object IASLogger {
     }
     StatusPrinter.print(lc);
   }
-  
-  def main(args: Array[String]) {
-    val logger = Logger("test")
-    logger.info("Test log message")
-  }
-  
 }
