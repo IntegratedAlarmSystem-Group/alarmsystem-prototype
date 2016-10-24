@@ -9,51 +9,66 @@ object OperationalMode extends Enumeration {
 }
 
 /**
- * A monitor point holds the value of a monitor point.
- * It is parametrized because a monitor point can be a double an integer, an
+ * The value of the monitoring point is associated 
+ * to a timestamp corresponding to the update time of 
+ * the value
+*/
+class MonitorPointValue[A](
+    val value:A) {
+  val timestamp: Long = System.currentTimeMillis()
+}
+
+/**
+ * A immutable MonitorPoint holds the value of a monitor point.
+ * 
+ * It is parametrized because a monitor point can be a double, an integer, an
  * array of integers and many other types. (Should we look for a better name?)
  * 
  * <code>MonitorPoint</code> is intended for internal use only:
- * objects of this type shall not be instantiated directly (this class has, in fact abstract).
- * <code>org.eso.ias.prototype.input.typedmp</code> provides a set of types
- * for the monitor points.
+ * objects of this type shall not be instantiated directly but accessed
+ * through objects defined in <code>org.eso.ias.prototype.input.typedmp</code>.
  * 
+ * @param id The unique ID of the monitor point
+ * @param runningMode The operational mode
+ * @param vailidty: The validity of the monitor point
  * @author acaproni
  */
-abstract class MonitorPoint[A](
+class MonitorPoint[A] protected (
     val id: String,
-    val runningMode: OperationalMode.Mode = OperationalMode.Unknown) {
+    val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
+    val runningMode: OperationalMode.Mode = OperationalMode.Unknown,
+    val validity: Validity.Value = Validity.Unreliable) {
   
-    /**
-     * The value of the monitoring point is associated 
-     * to a timestamp corrsponding to the update time of 
-     * the value
-     */
-    class MonitorPointValue[A](
-        val value:A) {
-      
-      val timestamp: Long = System.currentTimeMillis()
-    }
-  
+
   /**
-   *  The value of the monitor point
-   *  Uninitialized at build time
-   *  
-   *  
+   * Update the value of the monitor point
+   * 
+   * @param v: the new value of the monitor point
+   * @return a new MonitorPoint with the value set to v
+   * 
    */
-  private var actualValue: Option[MonitorPointValue[A]] = None
-  
-  /**
-   * Getter
-   */
-  protected def setValue(v: A): Unit = {
-    actualValue = Option(new MonitorPointValue[A](v))
+  def updateValue(v: A): MonitorPoint[A] = {
+    val opt: Option[MonitorPointValue[A]] =  if (v==None) None else Some(new MonitorPointValue[A](v))
+    new MonitorPoint[A](id,opt,runningMode,validity)
   }
   
   /**
-   * Setter
+   * Update the operational mode of the monitor point
+   * 
+   * @param mode The new operational mode
+   * @return A new monitor point with the update operational mode 
    */
-  def getValue: Option[MonitorPointValue[A]] = {
-    actualValue
+  def switchOperationalMode(mode: OperationalMode.Mode): MonitorPoint[A] = {
+    new MonitorPoint[A](id,actualValue,mode,validity)
+  }
+  
+  /**
+   * Update the validity of the monitor point
+   * 
+   * @param validity The new validity
+   * @return A new monitor point with the passed validity
+   */
+  def setValidity(newValidity: Validity.Value): MonitorPoint[A] = {
+    new MonitorPoint[A](id,actualValue,runningMode,newValidity)
   }
 }
