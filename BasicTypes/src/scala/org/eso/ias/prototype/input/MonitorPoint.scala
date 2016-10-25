@@ -1,5 +1,7 @@
 package org.eso.ias.prototype.input
 
+import org.eso.ias.prototype.utils.ISO8601Helper
+
 /**
  * The context in which the monitor point is actually running
  */
@@ -16,6 +18,11 @@ object OperationalMode extends Enumeration {
 class MonitorPointValue[A](
     val value:A) {
   val timestamp: Long = System.currentTimeMillis()
+  
+  override def toString(): String = { 
+    "Value "+value.toString() +
+    " updated at "+ISO8601Helper.getTimestamp(timestamp)
+  }
 }
 
 /**
@@ -30,15 +37,17 @@ class MonitorPointValue[A](
  * 
  * @param id The unique ID of the monitor point
  * @param runningMode The operational mode
- * @param vailidty: The validity of the monitor point
+ * @param validty: The validity of the monitor point
  * @author acaproni
  */
 class MonitorPoint[A] protected (
-    val id: String,
+    val id: Identifier, // The unique ID of this MonitorPoint
     val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
     val runningMode: OperationalMode.Mode = OperationalMode.Unknown,
     val validity: Validity.Value = Validity.Unreliable) {
-  
+  require(Option(id) != None)
+  require(Option(runningMode) != None)
+  require(Option(validity) != None)
 
   /**
    * Update the value of the monitor point
@@ -70,5 +79,12 @@ class MonitorPoint[A] protected (
    */
   def setValidity(newValidity: Validity.Value): MonitorPoint[A] = {
     new MonitorPoint[A](id,actualValue,runningMode,newValidity)
+  }
+  
+  override def toString(): String = {
+    "Monitor point " + id.toString() + "\n\t" + 
+    runningMode.toString() + "\n\t" +
+    validity.toString() +"\n\t" +
+    actualValue.get.toString()
   }
 }

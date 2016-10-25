@@ -84,6 +84,11 @@ case class AlarmValue(
    */
   def acknowledge(): AlarmValue = this.copy(acknowledgement=AckState.Acknowledged)
   
+  override def toString(): String = {
+    alarmState.toString() + " " + acknowledgement.toString() +
+      (if (shelved) " shelved" else " not shelved")
+  }
+  
 }
 
 

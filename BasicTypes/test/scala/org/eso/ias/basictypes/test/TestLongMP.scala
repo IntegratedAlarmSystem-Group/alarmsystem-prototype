@@ -4,6 +4,7 @@ import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.typedmp.LongMP
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.OperationalMode
+import org.eso.ias.prototype.input.Identifier
 
 /**
  * Test the LongMP
@@ -12,7 +13,7 @@ import org.eso.ias.prototype.input.OperationalMode
  */
 class TestLongMP extends FlatSpec {
   // The ID of the alarms built bin this test 
-  val id = "TheUniqueID"
+  val id = new Identifier("LongMPID", "ParentID"+Identifier.separator+"host")
   
   "A long monitor point" must "have an ID" in {
     val mp: LongMP = new LongMP(id)
