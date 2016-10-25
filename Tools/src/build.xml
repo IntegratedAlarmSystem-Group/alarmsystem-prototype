@@ -31,7 +31,7 @@
 	
 	<target name="install" depends="ias.install" />
 	
-	<!-- Expect scalaJarName to be set  otherwise the build is skipped -->
+	<property name="scalaJarName" value="ias-tools.jar"/>
 	<target name="build" depends="ias.build" />
 	
 </project>
