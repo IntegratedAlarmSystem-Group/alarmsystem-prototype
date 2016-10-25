@@ -78,6 +78,7 @@
 		<mkdir dir="${mods.python.dir}" />
   		<mkdir dir="${bin.dir}" />
 		<mkdir dir="${config.dir}" />
+		<mkdir dir="${ias.lib.ExtTools.dir}" />
 	</target>
 	
 	<!-- Initialization of scala build -->
@@ -220,7 +221,7 @@
 		Compile java sources (*.scala) into ../classes
 		
 		${scalaJarName}: the name of the jar to build
-		                 if not set skpis the compliation
+		                 if not set skip the compliation
 	-->
 	<target name="scalacompile" depends="init-scala-build" if="scalaJarName">
 		<echo>Building in scala sources in ${src.scala.dir}</echo>
