@@ -24,6 +24,7 @@
 	     Example of property setting:
 		 <property name="scalaJarName" value="ias-basic-types.jar"/>
 	-->
+	<property name="scalaJarName" value="ias-tools.jar"/>
 	
 	<!-- ####################### TARGETS ####################### -->
 	
@@ -31,7 +32,6 @@
 	
 	<target name="install" depends="ias.install" />
 	
-	<property name="scalaJarName" value="ias-tools.jar"/>
 	<target name="build" depends="ias.build" />
 	
 </project>
