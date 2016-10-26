@@ -55,9 +55,12 @@ object Validity extends Enumeration {
    * @return The min validity between those in the passed 
    *         non-empty List;
    *         Reliable if the list is empty
+   * @see sortingFunction
    */
   def min(vals: List[Validity.Value]): Validity.Value = {
-        if (vals.isEmpty) Reliable
-        else vals.sortWith( (l,r) => Validity.ValueOrdering.lteq(l, r))(0)
+    // The function to sort the list
+    val sortingFunction = (l,r) => Validity.ValueOrdering.lteq(l, r)
+    if (vals.isEmpty) Reliable
+    else vals.sortWith(sortingFunction)(0)
   }
 }
