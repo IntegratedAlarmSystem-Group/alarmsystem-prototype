@@ -37,7 +37,7 @@ class MonitorPointValue[A](
  * 
  * @param id The unique ID of the monitor point
  * @param runningMode The operational mode
- * @param validty: The validity of the monitor point
+ * @param validity: The validity of the monitor point
  * @author acaproni
  */
 class MonitorPoint[A] protected (
@@ -85,6 +85,6 @@ class MonitorPoint[A] protected (
     "Monitor point " + id.toString() + "\n\t" + 
     runningMode.toString() + "\n\t" +
     validity.toString() +"\n\t" +
-    actualValue.get.toString()
+    (if (actualValue==None) "No value" else actualValue.get.toString())
   }
 }
