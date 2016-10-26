@@ -3,14 +3,6 @@ package org.eso.ias.prototype.input
 import org.eso.ias.prototype.utils.ISO8601Helper
 
 /**
- * The context in which the monitor point is actually running
- */
-object OperationalMode extends Enumeration {
-  type Mode = Value
-  val StartUp, ShutDown, Maintenance, Operational, Unknown = Value
-}
-
-/**
  * The value of the monitoring point is associated 
  * to a timestamp corresponding to the update time of 
  * the value
@@ -26,7 +18,8 @@ class MonitorPointValue[A](
 }
 
 /**
- * A immutable MonitorPoint holds the value of a monitor point.
+ * A  <code>MonitorPoint</code> extends  <code>MonitorPointBase</code> 
+ * by holding the value of a monitor point.
  * 
  * It is parametrized because a monitor point can be a double, an integer, an
  * array of integers and many other types. (Should we look for a better name?)
@@ -35,19 +28,19 @@ class MonitorPointValue[A](
  * objects of this type shall not be instantiated directly but accessed
  * through objects defined in <code>org.eso.ias.prototype.input.typedmp</code>.
  * 
+ * <code>MonitorPoint</code> is immutable.
+ * 
  * @param id The unique ID of the monitor point
  * @param runningMode The operational mode
  * @param validity: The validity of the monitor point
  * @author acaproni
  */
 class MonitorPoint[A] protected (
-    val id: Identifier, // The unique ID of this MonitorPoint
+    id: Identifier, // The unique ID of this MonitorPoint
     val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
-    val runningMode: OperationalMode.Mode = OperationalMode.Unknown,
-    val validity: Validity.Value = Validity.Unreliable) {
-  require(Option(id) != None)
-  require(Option(runningMode) != None)
-  require(Option(validity) != None)
+    runningMode: OperationalMode.Mode = OperationalMode.Unknown,
+    validity: Validity.Value = Validity.Unreliable) 
+extends MonitorPointBase(id,runningMode,validity) {
 
   /**
    * Update the value of the monitor point
