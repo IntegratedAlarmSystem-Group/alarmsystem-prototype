@@ -30,17 +30,17 @@ class MonitorPointValue[A](
  * 
  * <code>MonitorPoint</code> is immutable.
  * 
- * @param id The unique ID of the monitor point
- * @param runningMode The operational mode
- * @param validity: The validity of the monitor point
+ * @param ident The unique ID of the monitor point
+ * @param mode The operational mode
+ * @param valid: The validity of the monitor point
  * @author acaproni
  */
 class MonitorPoint[A] protected (
-    id: Identifier, // The unique ID of this MonitorPoint
+    ident: Identifier, // The unique ID of this MonitorPoint
     val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
-    runningMode: OperationalMode.Mode = OperationalMode.Unknown,
-    validity: Validity.Value = Validity.Unreliable) 
-extends MonitorPointBase(id,runningMode,validity) {
+    mode: OperationalMode.Mode = OperationalMode.Unknown,
+    valid: Validity.Value = Validity.Unreliable) 
+extends MonitorPointBase(ident,mode,valid) {
 
   /**
    * Update the value of the monitor point
