@@ -12,7 +12,7 @@ import org.eso.ias.prototype.input.MonitorPointValue
  * 
  * @author acaproni
  */
-class TestLongMP extends FlatSpec {
+class TestTypedMonitorPoint extends FlatSpec {
   // The ID of the alarms built bin this test 
   val id = new Identifier("TypedLongMPID", "ParentID"+Identifier.separator+"host")
   
