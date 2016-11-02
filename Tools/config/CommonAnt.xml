@@ -272,7 +272,11 @@
 			<fileset dir="${build.java.dir}"  includes="**/*"/>
 	  	</delete>
 
-  		<javac srcdir="${src.java.dir}" destdir="${build.java.dir}" classpathref="build.classpath">
+  		<javac 
+  			srcdir="${src.java.dir}" 
+  			destdir="${build.java.dir}" 
+  			classpathref="build.classpath"
+  			includeantruntime="false">
           	<!-- addparams="-Yclosure-elim -optimise" -->
   			<include name="**/*.java"/>
   		</javac>
