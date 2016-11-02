@@ -250,9 +250,10 @@
 		                 if not set skpis the build
 	-->
 	<target name="scalabuild" depends="scalacompile" if="scalaJarName">
-		<property name="jarFileToBuild" value="${lib.dir}/${scalaJarName}"/>
-		 <delete file="${jarFileToBuild}" />
-		 <jar destfile="${jarFileToBuild}" >
+		<property name="scalaJarFileName" value="${lib.dir}/${scalaJarName}"/>
+		<echo>Building jar ${scalaJarFileName}</echo>
+		 <delete file="${scalaJarFileName}" />
+		 <jar destfile="${scalaJarFileName}" >
 		 	<fileset dir="${build.scala.dir}" />
 		 	<fileset dir="${src.scala.dir}" includes="**/*.scala,**/*.java" />
 	 	</jar>
@@ -286,9 +287,10 @@
 		                 if not set skpis the build
 	-->
 	<target name="javabuild" depends="javacompile" if="javaJarName">
-		<property name="jarFileToBuild" value="${lib.dir}/${javaJarName}"/>
-		 <delete file="${jarFileToBuild}" />
-		 <jar destfile="${jarFileToBuild}" >
+		<property name="javaJarFileName" value="${lib.dir}/${javaJarName}"/>
+		<echo>Building jar ${javaJarFileName}</echo>
+		 <delete file="${javaJarFileName}" />
+		 <jar destfile="${javaJarFileName}" >
 		 	<fileset dir="${build.java.dir}" />
 		 	<fileset dir="${src.java.dir}" includes="**/*.java" />
 	 	</jar>
