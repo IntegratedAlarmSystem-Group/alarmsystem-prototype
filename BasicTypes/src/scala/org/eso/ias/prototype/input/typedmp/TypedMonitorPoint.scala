@@ -38,8 +38,8 @@ class TypedMonitorPoint[A] protected ( // protected to allow only the companion
   if (!TypedMonitorPoint.isSupportedType(actualVal)) throw new UnsupportedOperationException("Unsupported typed monitor type")
   
   override def toString(): String = {
-    "Typed Monitor point " + id.toString() + 
-    (if (actualValue==None) "\n\t" else actualValue.get.value.getClass().getName())+"\n\t" +  
+    "Typed Monitor point " + id.toString() + "\n\t" +
+    (if (actualValue==None) "None value" else "Value of type " +actualValue.get.value.getClass().getName())+"\n\t" +  
     runningMode.toString() + "\n\t" +
     validity.toString() +"\n\t" +
     (if (actualValue==None) "No value" else actualValue.get.toString())
