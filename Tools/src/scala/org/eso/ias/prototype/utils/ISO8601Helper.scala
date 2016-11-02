@@ -22,9 +22,7 @@ object ISO8601Helper {
    * @return the ISO8601 time representation of the passed time
    */
   def getTimestamp(time: Long): String = {
-    val s=ISO8601Helper.getTimestamp(new Date(time))
-    println("====>>"+s+" for long="+time)
-    s
+    ISO8601Helper.getTimestamp(new Date(time))
   }
   
   /**
@@ -33,9 +31,7 @@ object ISO8601Helper {
    */
   def getTimestamp(date: Date): String = {
      ISO8601Helper.df.synchronized {
-       val s =df.format(date)
-       println("\t====>>"+s)
-       s
+       df.format(date)
      }
   }
 }
