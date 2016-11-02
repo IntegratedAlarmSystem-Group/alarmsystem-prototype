@@ -11,7 +11,10 @@
 		<property environment="env" />
 		<property name="src.dir" value="${basedir}" />
 		<property name="src.java.dir" value="${basedir}/java" />
-		<property name="src.scala.dir" value="${basedir}/scala" />
+		<!-- scala source dir is src (or test) to allow
+		     importing java files from src/java together
+		     with scala sources fromsrc/scala --> 
+		<property name="src.scala.dir" value="${basedir}" />
 		<property name="src.python.dir" value="${basedir}/python" />
 		<property name="src.python.dir" value="${basedir}/python" />
 		<property name="build.dir" value="../classes" />
@@ -44,7 +47,7 @@
 	</target>
 	
 	<target 
-		name="buildScalaClasspath"
+		name="buildClasspath"
 		description="Build the classpath including all the jars from the current module and IAS_ROOT">
 		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
 		<path id="build.classpath">
@@ -85,7 +88,7 @@
 	<target 
 		description="Initialization of scala build"
 		name="init-scala-build" 
-		depends="init-ias-folders,buildScalaClasspath" 
+		depends="init-ias-folders,buildClasspath" 
 		if="scalaJarName">
 		<echo>Initing scala build...</echo>
 	    <taskdef resource="scala/tools/ant/antlib.xml">
@@ -218,13 +221,13 @@
 	</target>
 	
 	<!--
-		Compile java sources (*.scala) into ../classes
+		Compile scala sources (*.scala) into ../classes
 		
 		${scalaJarName}: the name of the jar to build
 		                 if not set skip the compliation
 	-->
 	<target name="scalacompile" depends="init-scala-build" if="scalaJarName">
-		<echo>Building in scala sources in ${src.scala.dir}</echo>
+		<echo>Building scala sources in ${src.scala.dir}</echo>
 		<mkdir dir="${build.scala.dir}"/>
 		<delete>
 			<fileset dir="${build.scala.dir}"  includes="**/*"/>
@@ -232,8 +235,9 @@
 
   		<scalac srcdir="${src.scala.dir}" destdir="${build.scala.dir}" classpathref="build.classpath" force="changed">
           	<!-- addparams="-Yclosure-elim -optimise" -->
-    		<include name="**/*.scala"/>
-  			<include name="**/*.java"/>
+  			<include name="scala/**/*.scala"/>
+	        <include name="scala/**/*.java"/>
+  			<include name="java/**/*.java"/>
   		</scalac>
 	</target>
 	
@@ -254,8 +258,44 @@
 	 	</jar>
 	</target>
 	
+	<!--
+		Compile java sources (*.java) into ../classes
+		
+		${javaJarName}: the name of the jar to build
+		                 if not set skip the compliation
+	-->
+	<target name="javacompile" depends="init-ias-folders,buildClasspath" if="javaJarName">
+		<echo>Building java sources in ${src.java.dir}</echo>
+		<mkdir dir="${build.java.dir}"/>
+		<delete>
+			<fileset dir="${build.java.dir}"  includes="**/*"/>
+	  	</delete>
+
+  		<javac srcdir="${src.java.dir}" destdir="${build.java.dir}" classpathref="build.classpath">
+          	<!-- addparams="-Yclosure-elim -optimise" -->
+  			<include name="**/*.java"/>
+  		</javac>
+	</target>
+	
+	<!--
+		Build the jar from java sources.
+		The jar is created into the lib folder of the module
+		
+		
+		${javaJarName}: the name of the jar to build
+		                 if not set skpis the build
+	-->
+	<target name="javabuild" depends="javacompile" if="javaJarName">
+		<property name="jarFileToBuild" value="${lib.dir}/${javaJarName}"/>
+		 <delete file="${jarFileToBuild}" />
+		 <jar destfile="${jarFileToBuild}" >
+		 	<fileset dir="${build.java.dir}" />
+		 	<fileset dir="${src.java.dir}" includes="**/*.java" />
+	 	</jar>
+	</target>
+	
 	<target 
 		name="build" 
-		depends="localinstallbinaries,localInstallThirdPartyJars,scalabuild,localInstallPyModules" />
+		depends="localinstallbinaries,localInstallThirdPartyJars,scalabuild,javabuild,localInstallPyModules" />
 	
 </project>
