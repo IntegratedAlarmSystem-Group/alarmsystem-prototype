@@ -148,21 +148,47 @@ class TestComponent extends FlatSpec {
   }
   
   it must " update the output when input changes" in {
-     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
+    val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
     val mpVal: Option[MonitorPointValue[AlarmValue]] = Some(new MonitorPointValue[AlarmValue](alarmVal))
     val output: TypedMonitorPoint[AlarmValue] = TypedMonitorPoint.typedMonitor(
       outId,
       mpVal, 
       OperationalMode.Operational,
       Validity.Unreliable)
+     
+     // Creates 3 MPs for inputs
+    val mp1Id = new Identifier("MP1-ID",compId.runningID)
+    val mp1Val = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
+    val mp1Opt: Option[MonitorPointValue[AlarmValue]] = Some(new MonitorPointValue[AlarmValue](mp1Val))
+    val mp1: TypedMonitorPoint[AlarmValue] = TypedMonitorPoint.typedMonitor(
+      mp1Id,
+      mp1Opt, 
+      OperationalMode.Operational,
+      Validity.Unreliable)
       
+    val mp2Id = new Identifier("MP2-ID",compId.runningID)
+    val mp2Opt: Option[MonitorPointValue[Long]] = Some(new MonitorPointValue[Long](2L))
+    val mp2: TypedMonitorPoint[Long] = TypedMonitorPoint.typedMonitor(
+      mp2Id,
+      mp2Opt, 
+      OperationalMode.StartUp,
+      Validity.Unreliable)
+      
+    val mp3Id = new Identifier("MP3-ID",compId.runningID)
+    val mp3Opt: Option[MonitorPointValue[Long]] = Some(new MonitorPointValue[Long](5L))
+    val mp3: TypedMonitorPoint[Long] = TypedMonitorPoint.typedMonitor(
+      mp3Id,
+      mp3Opt, 
+      OperationalMode.Maintenance,
+      Validity.Reliable)
+     
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
        Nil,
        "");
-     
-     val computed= comp.inputChanged(Nil)
+    
+    val computed= comp.inputChanged(mp1::mp2::mp3::Nil)
   }
   
 }

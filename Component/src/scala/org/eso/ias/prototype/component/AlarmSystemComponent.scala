@@ -8,6 +8,9 @@ import scala.util.control.NonFatal
 import org.eso.ias.prototype.input.typedmp.TypedMonitorPoint
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
+import org.eso.ias.prototype.behavior.BehaviorRunner
+import org.eso.ias.prototype.behavior.BehaviorRunnerImpl
+import org.eso.ias.prototype.behavior.JavaConverter
 
 /**
  * The immutable Integrated Alarm System Component (ASC) 
@@ -69,15 +72,13 @@ class AlarmSystemComponent[T] (
    * @return The new output
    */
   def inputChanged(theInputs: List[MonitorPointBase]): AlarmSystemComponent[T] = {
-    println("Evaluating output...")
+    println("Evaluating output..."+theInputs.length)
     
-    val sem = new ScriptEngineManager()
-    val pyEngine: ScriptEngine = sem.getEngineByName("python");
-    try {
-      pyEngine.eval("print \"Python - Hello, world!\"");
-    } catch {
-      case ex: Exception => println(ex); throw ex
-    }
+    val runner: BehaviorRunner[T] = new BehaviorRunnerImpl[T](id)
+    runner.initialize()
+    val converter = new JavaConverter(theInputs,ident)
+    runner.eval(converter.javaInputs)
+    runner.tearDown()
     
     this
   }
