@@ -14,7 +14,7 @@ import org.eso.ias.prototype.input.MonitorPointValue
  */
 class TestTypedMonitorPoint extends FlatSpec {
   // The ID of the alarms built bin this test 
-  val id = new Identifier("TypedLongMPID", "ParentID"+Identifier.separator+"host")
+  val id = new Identifier(Some[String]("TypedLongMPID"), None)
   
   "A typed monitor point" must "have an ID" in {
     val mp: TypedMonitorPoint[Long] = TypedMonitorPoint.typedMonitor(id)
