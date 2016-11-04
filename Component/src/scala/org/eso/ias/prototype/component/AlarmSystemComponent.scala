@@ -2,10 +2,10 @@ package org.eso.ias.prototype.component
 
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.MonitorPointBase
+import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmValue
 import scala.util.control.NonFatal
-import org.eso.ias.prototype.input.typedmp.TypedMonitorPoint
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 import org.eso.ias.prototype.behavior.BehaviorRunner
@@ -45,7 +45,7 @@ import org.eso.ias.prototype.behavior.JavaConverter
  */
 class AlarmSystemComponent[T] (
     ident: Identifier,
-    out: TypedMonitorPoint[T],
+    out: MonitorPoint[T],
     inputList: List[MonitorPointBase],
     script: String)
     extends ASCState[T](ident,out,inputList,script) {
@@ -119,7 +119,7 @@ class AlarmSystemComponent[T] (
     val value: AlarmValue = getOutAlarmValue
     val newValue = value.shelve(newShelveState)
     
-    val shelvedTypedMP=TypedMonitorPoint.updateValue(out,newValue.asInstanceOf[T])
+    val shelvedTypedMP=MonitorPoint.updateValue(out,newValue.asInstanceOf[T])
     
     new AlarmSystemComponent[T](ident,shelvedTypedMP,inputList,script)
     
@@ -138,7 +138,7 @@ class AlarmSystemComponent[T] (
     val value: AlarmValue = getOutAlarmValue
     val newValue = value.acknowledge()
     
-    val ackedTypedMP=TypedMonitorPoint.updateValue(out,newValue.asInstanceOf[T]) 
+    val ackedTypedMP=MonitorPoint.updateValue(out,newValue.asInstanceOf[T]) 
     
     new AlarmSystemComponent[T](ident,ackedTypedMP,inputList,script)
   }
