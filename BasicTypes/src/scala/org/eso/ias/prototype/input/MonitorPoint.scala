@@ -30,6 +30,8 @@ class MonitorPointValue[A](
  * 
  * <code>MonitorPoint</code> is immutable.
  * 
+ * MonitorPoint have an order that is the order of their Identifier
+ * 
  * @param ident The unique ID of the monitor point
  * @param actualValue The value of the monitor point
  * @param mode The operational mode
@@ -41,7 +43,18 @@ class MonitorPoint[A] protected (
     val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
     mode: OperationalMode.Mode = OperationalMode.Unknown,
     valid: Validity.Value = Validity.Unreliable) 
-extends MonitorPointBase(ident,mode,valid) {
+extends MonitorPointBase(ident,mode,valid) with Ordered[MonitorPointBase] {
+  
+  /**
+   * Compare two monitor points.
+   * 
+   * The ordering of MonitorPoints is the same of their identifier.
+   * 
+   * @see Ordered
+   */
+  def compare(that: MonitorPointBase): Int = {
+    ident.compare(that.id)
+  }
   
   override def toString(): String = {
     "Monitor point " + id.toString() +
