@@ -138,7 +138,8 @@ object MonitorPoint {
    * @return updates the passed monitor point with the given new mode
    */
   def updateMode[A](oldMP: MonitorPoint[A], newMode: OperationalMode.Mode):MonitorPoint[A] = {
-    new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,newMode,oldMP.validity)
+    if (newMode==oldMP.runningMode) oldMP
+    else new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,newMode,oldMP.validity)
   }
   
   /**
@@ -149,6 +150,7 @@ object MonitorPoint {
    * @return updates the passed monitor point with the given new validity
    */
   def updateValidity[A](oldMP: MonitorPoint[A], valid: Validity.Value):MonitorPoint[A] = {
-    new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,oldMP.runningMode,valid)
+    if (valid==oldMP.validity) oldMP
+    else new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,oldMP.runningMode,valid)
   }
 }
