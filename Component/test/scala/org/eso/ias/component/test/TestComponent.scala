@@ -21,6 +21,10 @@ class TestComponent extends FlatSpec {
   // The ID of the component to test
   val compId = new Identifier(Some[String]("ComponentId"), Option[Identifier](dasId))
   
+  val mpRefreshRate = MonitorPoint.MinRefreshRate+50
+  
+  val requiredInputIDs = List("ID1", "ID2")
+  
   behavior of "A Component"
   
   it must "be correctly initialized" in {
@@ -28,13 +32,15 @@ class TestComponent extends FlatSpec {
       outId,
       None,
       OperationalMode.Unknown,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
-       "");
+       "")
     
     assert(comp.id==compId)
     assert(comp.inputs.isEmpty)
@@ -46,11 +52,13 @@ class TestComponent extends FlatSpec {
       outId,
       None, 
       OperationalMode.Unknown,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     assertThrows[IllegalStateException] {
@@ -63,11 +71,13 @@ class TestComponent extends FlatSpec {
       outId,
       None, 
       OperationalMode.Unknown,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[Long] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     assertThrows[IllegalStateException] {
@@ -82,11 +92,13 @@ class TestComponent extends FlatSpec {
       outId,
       mpVal, 
       OperationalMode.Operational,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     
@@ -102,11 +114,13 @@ class TestComponent extends FlatSpec {
       outId,
       None, 
       OperationalMode.Unknown,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     assertThrows[IllegalStateException] {
@@ -119,11 +133,13 @@ class TestComponent extends FlatSpec {
       outId,
       None, 
       OperationalMode.Unknown,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[Long] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     assertThrows[IllegalStateException] {
@@ -138,11 +154,13 @@ class TestComponent extends FlatSpec {
       outId,
       mpVal, 
       OperationalMode.Operational,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     
@@ -160,6 +178,7 @@ class TestComponent extends FlatSpec {
       outId,
       mpVal, 
       OperationalMode.Operational,
+      mpRefreshRate,
       Validity.Unreliable)
      
      // Creates 3 MPs for inputs
@@ -170,6 +189,7 @@ class TestComponent extends FlatSpec {
       mp1Id,
       mp1Opt, 
       OperationalMode.Operational,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val mp2Id = new Identifier(Some[String]("MP2-ID"),Option[Identifier](dasId))
@@ -178,6 +198,7 @@ class TestComponent extends FlatSpec {
       mp2Id,
       mp2Opt, 
       OperationalMode.StartUp,
+      mpRefreshRate,
       Validity.Unreliable)
       
     val mp3Id = new Identifier(Some[String]("MP3-ID"),Option[Identifier](dasId))
@@ -186,11 +207,13 @@ class TestComponent extends FlatSpec {
       mp3Id,
       mp3Opt, 
       OperationalMode.Maintenance,
+      mpRefreshRate,
       Validity.Reliable)
      
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
+       requiredInputIDs,
        Nil,
        "");
     
