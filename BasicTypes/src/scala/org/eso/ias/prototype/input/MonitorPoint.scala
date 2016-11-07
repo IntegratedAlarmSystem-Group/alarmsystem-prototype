@@ -43,18 +43,7 @@ class MonitorPoint[A] protected (
     val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
     mode: OperationalMode.Mode = OperationalMode.Unknown,
     valid: Validity.Value = Validity.Unreliable) 
-extends MonitorPointBase(ident,mode,valid) with Ordered[MonitorPointBase] {
-  
-  /**
-   * Compare two monitor points.
-   * 
-   * The ordering of MonitorPoints is the same of their identifier.
-   * 
-   * @see Ordered
-   */
-  def compare(that: MonitorPointBase): Int = {
-    ident.compare(that.id)
-  }
+extends MonitorPointBase(ident,mode,valid) {
   
   override def toString(): String = {
     "Monitor point " + id.toString() +

@@ -25,8 +25,19 @@ object OperationalMode extends Enumeration {
 class MonitorPointBase protected (
     val id: Identifier, // The unique ID of this MonitorPoint
     val runningMode: OperationalMode.Mode = OperationalMode.Unknown,
-    val validity: Validity.Value = Validity.Unreliable) {
+    val validity: Validity.Value = Validity.Unreliable) extends Ordered[MonitorPointBase] {
   require(Option(id) != None)
   require(Option(runningMode) != None)
   require(Option(validity) != None)
+  
+  /**
+   * Compare two monitor points.
+   * 
+   * The ordering of MonitorPoints is the same of their identifier.
+   * 
+   * @see Ordered
+   */
+  def compare(that: MonitorPointBase): Int = {
+    this.id.compare(that.id)
+  }
 }
