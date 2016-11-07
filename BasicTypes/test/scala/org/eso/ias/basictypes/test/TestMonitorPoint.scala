@@ -15,9 +15,10 @@ import org.eso.ias.prototype.input.MonitorPoint
 class TestMonitorPoint extends FlatSpec {
   // The ID of the alarms built bin this test 
   val id = new Identifier(Some[String]("LongMPID"), None)
+  val refreshRate=MonitorPoint.MinRefreshRate+10;
   
   "A monitor point" must "have an ID" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id)
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
     assert(mp.id == id)
     
     assert (!mp.actualValue.isDefined)
@@ -26,7 +27,7 @@ class TestMonitorPoint extends FlatSpec {
   }
   
   it must "Have the same ID after changing other props" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id)
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
     
     // Change the value of the previous MP
     val mp2 = MonitorPoint.updateValue(mp, 3L)

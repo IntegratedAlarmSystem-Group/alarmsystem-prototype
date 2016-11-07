@@ -35,15 +35,20 @@ class MonitorPointValue[A](
  * @param ident The unique ID of the monitor point
  * @param actualValue The value of the monitor point
  * @param mode The operational mode
+ * @param refreshRate: The expected refresh rate (msec) of this monitor point
+ *                     (to be used to assess its validity)
  * @param valid: The validity of the monitor point
  * @author acaproni
  */
 class MonitorPoint[A] protected (
     ident: Identifier, // The unique ID of this MonitorPoint
+    val refreshRate: Int,
     val actualValue: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
     mode: OperationalMode.Mode = OperationalMode.Unknown,
     valid: Validity.Value = Validity.Unreliable) 
 extends MonitorPointBase(ident,mode,valid) {
+  require(ident!=None)
+  require(refreshRate>=MonitorPoint.MinRefreshRate)
   
   override def toString(): String = {
     "Monitor point " + id.toString() +
@@ -60,6 +65,14 @@ extends MonitorPointBase(ident,mode,valid) {
 object MonitorPoint {
   
   /**
+   * The min possible value for the refresh rate
+   * If it is too little the MP will be invalid most of the time; if too 
+   * big it is not possible to understand if it has been properly refreshed or
+   * the source is stuck/dead.
+   */
+  val MinRefreshRate = 50;
+  
+  /**
    * Check if the type of the value is one of the supported type
    * for a monitor point
    */
@@ -72,8 +85,7 @@ object MonitorPoint {
   }
   
   /**
-   * Build a new MonitorPoint delegating to the TypedMonitorPoint
-   * main constructor
+   * Factory method to build a new MonitorPoint
    * 
    * @param ident: The unique ID of the monitor point
 	 * @param actualVal: The value of the monitor point
@@ -83,8 +95,9 @@ object MonitorPoint {
   def monitorPoint[A](ident: Identifier, // The unique ID of this MonitorPoint
     actualVal: Option[MonitorPointValue[A]] = None, // Uninitialized at build time
     mode: OperationalMode.Mode = OperationalMode.Unknown,
+    refreshRate: Int,
     valid: Validity.Value = Validity.Unreliable): MonitorPoint[A] = {
-      new MonitorPoint[A](ident,actualVal,mode,valid)
+      new MonitorPoint[A](ident,refreshRate,actualVal,mode,valid)
   }
     
     /**
@@ -92,9 +105,12 @@ object MonitorPoint {
      * 
      * This factory method must be used to create a new monitor point,
      * not to update an existing one as it uses only defaults values
+     * 
+     * @param ident: The identifier of th eMP
+     * @param refreshRate: The expected refresh rate of the MP
      */
-  def monitorPoint[A](ident: Identifier):MonitorPoint[A] = {
-    new MonitorPoint[A](ident)
+  def monitorPoint[A](ident: Identifier, refreshRate: Int):MonitorPoint[A] = {
+    new MonitorPoint[A](ident,refreshRate)
   }
   
   /**
@@ -110,7 +126,7 @@ object MonitorPoint {
       val value = Option(new MonitorPointValue[A](newValue))
       if (!MonitorPoint.isSupportedType(value)) 
         throw new UnsupportedOperationException("Unsupported typed monitor type")
-      new MonitorPoint[A](oldMP.id,value,oldMP.runningMode,oldMP.validity)
+      new MonitorPoint[A](oldMP.id,oldMP.refreshRate,value,oldMP.runningMode,oldMP.validity)
     }
   }
   
@@ -122,7 +138,7 @@ object MonitorPoint {
    * @return updates the passed monitor point with the given new mode
    */
   def updateMode[A](oldMP: MonitorPoint[A], newMode: OperationalMode.Mode):MonitorPoint[A] = {
-    new MonitorPoint[A](oldMP.id,oldMP.actualValue,newMode,oldMP.validity)
+    new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,newMode,oldMP.validity)
   }
   
   /**
@@ -133,6 +149,6 @@ object MonitorPoint {
    * @return updates the passed monitor point with the given new validity
    */
   def updateValidity[A](oldMP: MonitorPoint[A], valid: Validity.Value):MonitorPoint[A] = {
-    new MonitorPoint[A](oldMP.id,oldMP.actualValue,oldMP.runningMode,valid)
+    new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,oldMP.runningMode,valid)
   }
 }
