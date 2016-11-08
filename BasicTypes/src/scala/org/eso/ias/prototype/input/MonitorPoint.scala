@@ -59,14 +59,30 @@ extends MonitorPointBase(ident,mode,valid) {
   }
   
   /**
-   * Factory method to get a new monitor point with updated value
+   * Update the value and validity of the monitor point
+   */
+  def update(newValue: A,valid: Validity.Value) = {
+    if (
+        actualValue!=None && 
+        actualValue.get.value == newValue &&
+        valid==validity) this
+    else {
+      val value = Option(new MonitorPointValue[A](newValue))
+      if (!MonitorPoint.isSupportedType(value)) 
+        throw new UnsupportedOperationException("Unsupported typed monitor type")
+      new MonitorPoint[A](id,refreshRate,value,runningMode,valid)
+    }
+  }
+  
+  /**
+   * Update the value of the monitor point
    * 
    * @param oldMP: The monitor point to update
    * @param newValue: The new value of the monitor point
    * @return updates the passed monitor point with the given new value
    */
   def updateValue(newValue: A):MonitorPoint[A] = {
-    if (actualValue!=None && actualValue.get == newValue) this
+    if (actualValue!=None && actualValue.get.value == newValue) this
     else {
       val value = Option(new MonitorPointValue[A](newValue))
       if (!MonitorPoint.isSupportedType(value)) 
@@ -76,7 +92,7 @@ extends MonitorPointBase(ident,mode,valid) {
   }
   
   /**
-   * Factory method to get a new monitor point with updated mode
+   * Update the mode of the monitor point
    * 
    * @param oldMP: The monitor point to update
    * @param newMode: The new mode of the monitor point
@@ -88,7 +104,7 @@ extends MonitorPointBase(ident,mode,valid) {
   }
   
   /**
-   * Factory method to get a new monitor point with updated validity
+   * Update the validity of the monitor point
    * 
    * @param oldMP: The monitor point to update
    * @param validMode: The new validity of the monitor point

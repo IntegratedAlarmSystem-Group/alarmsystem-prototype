@@ -17,7 +17,9 @@ class TestMonitorPoint extends FlatSpec {
   val id = new Identifier(Some[String]("LongMPID"), None)
   val refreshRate=MonitorPoint.MinRefreshRate+10;
   
-  "A monitor point" must "have an ID" in {
+  behavior of "A monitor point" 
+  
+  it must "have an ID" in {
     val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
     assert(mp.id == id)
     
@@ -55,4 +57,60 @@ class TestMonitorPoint extends FlatSpec {
     assert(mp4.runningMode == OperationalMode.Operational)
     assert(mp4.validity == mp3.validity)
   }
+  
+  it must "allow to update the value" in {
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mpUpdatedValue = mp.updateValue(5L)
+    assert(mpUpdatedValue.actualValue.get.value==5L,"The values differ")    
+  }
+  
+  it must "allow to update the validity" in {
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mpUpdatedValidityRelaible = mp.updateValidity(Validity.Reliable)
+    assert(mpUpdatedValidityRelaible.validity==Validity.Reliable,"The validities differ")
+    
+    val mpUpdatedValidityUnRelaible = mp.updateValidity(Validity.Unreliable)
+    assert(mpUpdatedValidityUnRelaible.validity==Validity.Unreliable,"The validities differ")
+  }
+  
+  it must "allow to update the mode" in {
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mpUpdatedMode= mp.updateMode(OperationalMode.Operational)
+    assert(mpUpdatedMode.runningMode==OperationalMode.Operational,"The modes differ")
+  }
+  
+  it must "allow to update the value and validity at once" in {
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mpUpdated = mp.update(15L,Validity.Reliable)
+    assert(mpUpdated.actualValue.get.value==15L,"The values differ")
+    assert(mpUpdated.validity==Validity.Reliable,"The validities differ")
+  }
+  
+  it must "return the same object if values, validity or mode did not change" in {
+    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    
+    val upVal = mp.updateValue(10L)
+    assert(upVal.actualValue.get.value==10L,"The values differ")
+    val upValAgain = upVal.updateValue(10L)
+    assert(upValAgain.actualValue.get.value==10L,"The value differ")
+    assert(upVal eq upValAgain,"Unexpected new object after updating the value\n"+upVal.toString()+"\n"+upValAgain.toString())
+    
+    val upValidity = mp.updateValidity(Validity.Reliable)
+    assert(upValidity.validity==Validity.Reliable,"The validity differ")
+    val upValidityAgain = upValidity.updateValidity(Validity.Reliable)
+    assert(upValidityAgain.validity==Validity.Reliable,"The validity differ")
+    assert(upValidityAgain eq upValidity,"Unexpected new object after updating the validity")
+    
+    val upMode = mp.updateMode(OperationalMode.StartUp)
+    assert(upMode.runningMode==OperationalMode.StartUp,"The mode differ")
+    val upModeAgain = upMode.updateMode(OperationalMode.StartUp)
+    assert(upModeAgain.runningMode==OperationalMode.StartUp,"The mode differ")
+    assert(upMode eq upModeAgain,"Unexpected new object after updating the mode")
+        
+    val mpUpdated = mp.update(15L,Validity.Unreliable)
+    val mpUpdated2 = mpUpdated.update(15L,Validity.Unreliable)
+    assert(mpUpdated eq mpUpdated2,"Unexpected new object after updating value and validity")
+    
+  }
+  
 }
