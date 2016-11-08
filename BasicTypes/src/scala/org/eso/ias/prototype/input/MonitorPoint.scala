@@ -47,8 +47,8 @@ class MonitorPoint[A] protected (
     mode: OperationalMode.Mode = OperationalMode.Unknown,
     valid: Validity.Value = Validity.Unreliable) 
 extends MonitorPointBase(ident,mode,valid) {
-  require(ident!=None)
-  require(refreshRate>=MonitorPoint.MinRefreshRate)
+  require(ident!=None,"The identifier can't be None")
+  require(refreshRate>=MonitorPoint.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
   
   override def toString(): String = {
     "Monitor point " + id.toString() +
@@ -56,6 +56,47 @@ extends MonitorPointBase(ident,mode,valid) {
     runningMode.toString() + "\n\t" +
     validity.toString() +"\n\t" +
     (if (actualValue==None) "No value" else "Value: "+actualValue.get.toString())
+  }
+  
+  /**
+   * Factory method to get a new monitor point with updated value
+   * 
+   * @param oldMP: The monitor point to update
+   * @param newValue: The new value of the monitor point
+   * @return updates the passed monitor point with the given new value
+   */
+  def updateValue(newValue: A):MonitorPoint[A] = {
+    if (actualValue!=None && actualValue.get == newValue) this
+    else {
+      val value = Option(new MonitorPointValue[A](newValue))
+      if (!MonitorPoint.isSupportedType(value)) 
+        throw new UnsupportedOperationException("Unsupported typed monitor type")
+      new MonitorPoint[A](id,refreshRate,value,runningMode,validity)
+    }
+  }
+  
+  /**
+   * Factory method to get a new monitor point with updated mode
+   * 
+   * @param oldMP: The monitor point to update
+   * @param newMode: The new mode of the monitor point
+   * @return updates the passed monitor point with the given new mode
+   */
+  def updateMode(newMode: OperationalMode.Mode):MonitorPoint[A] = {
+    if (newMode==runningMode) this
+    else new MonitorPoint[A](id,refreshRate,actualValue,newMode,validity)
+  }
+  
+  /**
+   * Factory method to get a new monitor point with updated validity
+   * 
+   * @param oldMP: The monitor point to update
+   * @param validMode: The new validity of the monitor point
+   * @return updates the passed monitor point with the given new validity
+   */
+  def updateValidity(valid: Validity.Value):MonitorPoint[A] = {
+    if (valid==validity) this
+    else new MonitorPoint[A](id,refreshRate,actualValue,runningMode,valid)
   }
 }
 
@@ -113,44 +154,5 @@ object MonitorPoint {
     new MonitorPoint[A](ident,refreshRate)
   }
   
-  /**
-   * Factory method to get a new monitor point with updated value
-   * 
-   * @param oldMP: The monitor point to update
-   * @param newValue: The new value of the monitor point
-   * @return updates the passed monitor point with the given new value
-   */
-  def updateValue[A](oldMP: MonitorPoint[A], newValue: A):MonitorPoint[A] = {
-    if (oldMP.actualValue!=None && oldMP.actualValue.get == newValue) oldMP
-    else {
-      val value = Option(new MonitorPointValue[A](newValue))
-      if (!MonitorPoint.isSupportedType(value)) 
-        throw new UnsupportedOperationException("Unsupported typed monitor type")
-      new MonitorPoint[A](oldMP.id,oldMP.refreshRate,value,oldMP.runningMode,oldMP.validity)
-    }
-  }
   
-  /**
-   * Factory method to get a new monitor point with updated mode
-   * 
-   * @param oldMP: The monitor point to update
-   * @param newMode: The new mode of the monitor point
-   * @return updates the passed monitor point with the given new mode
-   */
-  def updateMode[A](oldMP: MonitorPoint[A], newMode: OperationalMode.Mode):MonitorPoint[A] = {
-    if (newMode==oldMP.runningMode) oldMP
-    else new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,newMode,oldMP.validity)
-  }
-  
-  /**
-   * Factory method to get a new monitor point with updated validity
-   * 
-   * @param oldMP: The monitor point to update
-   * @param validMode: The new validity of the monitor point
-   * @return updates the passed monitor point with the given new validity
-   */
-  def updateValidity[A](oldMP: MonitorPoint[A], valid: Validity.Value):MonitorPoint[A] = {
-    if (valid==oldMP.validity) oldMP
-    else new MonitorPoint[A](oldMP.id,oldMP.refreshRate,oldMP.actualValue,oldMP.runningMode,valid)
-  }
 }

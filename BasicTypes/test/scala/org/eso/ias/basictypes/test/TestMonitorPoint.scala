@@ -30,7 +30,7 @@ class TestMonitorPoint extends FlatSpec {
     val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
     
     // Change the value of the previous MP
-    val mp2 = MonitorPoint.updateValue(mp, 3L)
+    val mp2 = mp.updateValue(3L)
     assert(mp2.id == mp.id)
     assert(mp2.actualValue.isDefined)
     assert(mp2.actualValue.get.value == 3L)
@@ -40,7 +40,7 @@ class TestMonitorPoint extends FlatSpec {
     assert(mp2.validity == Validity.Unreliable)
     
     // Change validity of the previous MP
-    val mp3 = MonitorPoint.updateValidity(mp2,Validity.Reliable)
+    val mp3 = mp2.updateValidity(Validity.Reliable)
     assert(mp3.id == mp.id)
     assert(mp3.actualValue.isDefined)
     assert(mp3.actualValue.get  == mp2.actualValue.get)
@@ -48,7 +48,7 @@ class TestMonitorPoint extends FlatSpec {
     assert(mp3.validity == Validity.Reliable)
     
     // Change mode of the previous MP
-    val mp4 = MonitorPoint.updateMode(mp3,OperationalMode.Operational)
+    val mp4 = mp3.updateMode(OperationalMode.Operational)
     assert(mp4.id == mp.id)
     assert(mp4.actualValue.isDefined)
     assert(mp4.actualValue.get  == mp3.actualValue.get)
