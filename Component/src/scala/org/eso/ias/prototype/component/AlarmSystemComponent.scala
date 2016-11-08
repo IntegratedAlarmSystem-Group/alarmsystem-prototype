@@ -159,7 +159,7 @@ class AlarmSystemComponent[T] (
     if (value.shelved==newShelveState) this // No change
     val newValue = value.shelve(newShelveState)
     
-    val shelvedTypedMP=MonitorPoint.updateValue(out,newValue.asInstanceOf[T])
+    val shelvedTypedMP=out.updateValue(newValue.asInstanceOf[T])
     
     new AlarmSystemComponent[T](ident,shelvedTypedMP,requiredInputs,actualInputs,script,newInputs)
     
@@ -179,7 +179,7 @@ class AlarmSystemComponent[T] (
     if (value.acknowledgement==AckState.Acknowledged) this // No change
     val newValue = value.acknowledge()
     
-    val ackedTypedMP=MonitorPoint.updateValue(out,newValue.asInstanceOf[T]) 
+    val ackedTypedMP=out.updateValue(newValue.asInstanceOf[T]) 
     
     new AlarmSystemComponent[T](ident,ackedTypedMP,requiredInputs,actualInputs,script,newInputs)
   }
