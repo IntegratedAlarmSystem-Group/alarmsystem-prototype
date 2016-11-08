@@ -51,6 +51,7 @@ class TestComponent extends FlatSpec {
       mpRefreshRate,
       Validity.Unreliable)
   intialMPs(mpID2.id.id.get)=mpID1
+  val actualInputs: List[MonitorPointBase] = List(mpID1,mpID2)
   
   behavior of "A Component"
   
@@ -66,12 +67,12 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs)
     
     assert(comp.id==compId)
-    assert(comp.inputs.isEmpty)
+    assert(comp.inputs.size==requiredInputIDs.size)
     assert(comp.output.id==outId)
   }
   
@@ -87,7 +88,7 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs);
     assertThrows[IllegalStateException] {
@@ -107,7 +108,7 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs);
     assertThrows[IllegalStateException] {
@@ -129,7 +130,7 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs);
     
@@ -152,7 +153,7 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs)
     assertThrows[IllegalStateException] {
@@ -172,7 +173,7 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs)
     assertThrows[IllegalStateException] {
@@ -194,7 +195,7 @@ class TestComponent extends FlatSpec {
        compId,
        output,
        requiredInputIDs,
-       List[MonitorPointBase](),
+       actualInputs,
        "",
        intialMPs)
     
@@ -215,8 +216,9 @@ class TestComponent extends FlatSpec {
       mpRefreshRate,
       Validity.Unreliable)
      
-     // Creates 3 MPs for inputs
-    val mp1Id = new Identifier(Some[String]("MP1-ID"),Option[Identifier](dasId))
+    val inputIDs= List("MP1-ID","MP2-ID","MP3-ID")   
+    // Creates 3 MPs for inputs
+    val mp1Id = new Identifier(Some[String](inputIDs(0)),Option[Identifier](dasId))
     val mp1Val = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
     val mp1Opt: Option[MonitorPointValue[AlarmValue]] = Some(new MonitorPointValue[AlarmValue](mp1Val))
     val mp1: MonitorPoint[AlarmValue] = MonitorPoint.monitorPoint(
@@ -226,7 +228,7 @@ class TestComponent extends FlatSpec {
       mpRefreshRate,
       Validity.Unreliable)
       
-    val mp2Id = new Identifier(Some[String]("MP2-ID"),Option[Identifier](dasId))
+    val mp2Id = new Identifier(Some[String](inputIDs(1)),Option[Identifier](dasId))
     val mp2Opt: Option[MonitorPointValue[Long]] = Some(new MonitorPointValue[Long](2L))
     val mp2: MonitorPoint[Long] = MonitorPoint.monitorPoint(
       mp2Id,
@@ -235,7 +237,7 @@ class TestComponent extends FlatSpec {
       mpRefreshRate,
       Validity.Unreliable)
       
-    val mp3Id = new Identifier(Some[String]("MP3-ID"),Option[Identifier](dasId))
+    val mp3Id = new Identifier(Some[String](inputIDs(2)),Option[Identifier](dasId))
     val mp3Opt: Option[MonitorPointValue[Long]] = Some(new MonitorPointValue[Long](5L))
     val mp3: MonitorPoint[Long] = MonitorPoint.monitorPoint(
       mp3Id,
@@ -247,12 +249,12 @@ class TestComponent extends FlatSpec {
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
        compId,
        output,
-       requiredInputIDs,
-       List[MonitorPointBase](),
+       inputIDs,
+       List(mp1,mp2,mp3),
        "",
        intialMPs)
     
-    val computed= comp.inputChanged(mp1::mp2::mp3::Nil)
+    val computed= comp.transfer()
   }
   
 }
