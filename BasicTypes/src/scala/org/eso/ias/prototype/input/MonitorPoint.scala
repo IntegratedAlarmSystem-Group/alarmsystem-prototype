@@ -98,7 +98,7 @@ extends MonitorPointBase(ident,mode,valid) {
    * @param newMode: The new mode of the monitor point
    * @return updates the passed monitor point with the given new mode
    */
-  def updateMode(newMode: OperationalMode.Mode):MonitorPoint[A] = {
+  override def updateMode(newMode: OperationalMode.Mode):MonitorPoint[A] = {
     if (newMode==runningMode) this
     else new MonitorPoint[A](id,refreshRate,actualValue,newMode,validity)
   }
@@ -110,7 +110,7 @@ extends MonitorPointBase(ident,mode,valid) {
    * @param validMode: The new validity of the monitor point
    * @return updates the passed monitor point with the given new validity
    */
-  def updateValidity(valid: Validity.Value):MonitorPoint[A] = {
+  override def updateValidity(valid: Validity.Value):MonitorPoint[A] = {
     if (valid==validity) this
     else new MonitorPoint[A](id,refreshRate,actualValue,runningMode,valid)
   }

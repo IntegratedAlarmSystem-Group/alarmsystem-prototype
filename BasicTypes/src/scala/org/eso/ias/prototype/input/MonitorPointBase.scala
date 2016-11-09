@@ -22,7 +22,7 @@ object OperationalMode extends Enumeration {
  * @see Monitorpoint
  * @author acaproni
  */
-class MonitorPointBase protected (
+abstract class MonitorPointBase protected (
     val id: Identifier, // The unique ID of this MonitorPoint
     val runningMode: OperationalMode.Mode = OperationalMode.Unknown,
     val validity: Validity.Value = Validity.Unreliable) extends Ordered[MonitorPointBase] {
@@ -40,4 +40,22 @@ class MonitorPointBase protected (
   def compare(that: MonitorPointBase): Int = {
     this.id.compare(that.id)
   }
+  
+  /**
+   * Update the mode of the monitor point
+   * 
+   * @param oldMP: The monitor point to update
+   * @param newMode: The new mode of the monitor point
+   * @return updates the passed monitor point with the given new mode
+   */
+  def updateMode(newMode: OperationalMode.Mode): MonitorPointBase
+  
+  /**
+   * Update the validity of the monitor point
+   * 
+   * @param oldMP: The monitor point to update
+   * @param validMode: The new validity of the monitor point
+   * @return updates the passed monitor point with the given new validity
+   */
+  def updateValidity(valid: Validity.Value): MonitorPointBase
 }
