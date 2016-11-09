@@ -17,13 +17,12 @@ import org.eso.ias.prototype.component.AlarmSystemComponentBase
 trait JavaTransfer[T] extends AlarmSystemComponentBase[T] {
   
    abstract override def transfer(
-      actualInputs: List[MonitorPointBase], 
-      updatedInputs: HashMap[String, MonitorPointBase], 
+      inputs: List[MonitorPointBase], 
       id: Identifier,
-      actualOutput:MonitorPointBase): AlarmSystemComponentBase[T] = {
+      actualOutput:MonitorPoint[T]): MonitorPoint[T] = {
     println("JavaTransfer.transfer")
     
-    super.transfer(actualInputs, updatedInputs, id, actualOutput)
+    super.transfer(inputs, id, actualOutput)
   }
   
 }
