@@ -6,6 +6,10 @@ import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.MonitorPointValue
 import org.eso.ias.prototype.input.MonitorPoint
+import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.MonitorPointBase
+import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
+import org.eso.ias.prototype.input.typedmp.LongMP
 
 /**
  * Test the LongMP
@@ -20,8 +24,8 @@ class TestMonitorPoint extends FlatSpec {
   behavior of "A monitor point" 
   
   it must "have an ID" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
-    assert(mp.id == id)
+    val mp: LongMP = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType).asInstanceOf[LongMP]
+    assert(mp.asInstanceOf[MonitorPoint[Long]].id == id)
     
     assert (!mp.actualValue.isDefined)
     assert(mp.runningMode == OperationalMode.Unknown)
@@ -29,10 +33,10 @@ class TestMonitorPoint extends FlatSpec {
   }
   
   it must "Have the same ID after changing other props" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mp: LongMP = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType).asInstanceOf[LongMP]
     
     // Change the value of the previous MP
-    val mp2 = mp.updateValue(3L)
+    val mp2 = mp.updateValue(3L).asInstanceOf[LongMP]
     assert(mp2.id == mp.id)
     assert(mp2.actualValue.isDefined)
     assert(mp2.actualValue.get.value == 3L)
@@ -42,7 +46,7 @@ class TestMonitorPoint extends FlatSpec {
     assert(mp2.validity == Validity.Unreliable)
     
     // Change validity of the previous MP
-    val mp3 = mp2.updateValidity(Validity.Reliable)
+    val mp3 = mp2.updateValidity(Validity.Reliable).asInstanceOf[LongMP]
     assert(mp3.id == mp.id)
     assert(mp3.actualValue.isDefined)
     assert(mp3.actualValue.get  == mp2.actualValue.get)
@@ -50,7 +54,7 @@ class TestMonitorPoint extends FlatSpec {
     assert(mp3.validity == Validity.Reliable)
     
     // Change mode of the previous MP
-    val mp4 = mp3.updateMode(OperationalMode.Operational)
+    val mp4 = mp3.updateMode(OperationalMode.Operational).asInstanceOf[LongMP]
     assert(mp4.id == mp.id)
     assert(mp4.actualValue.isDefined)
     assert(mp4.actualValue.get  == mp3.actualValue.get)
@@ -59,13 +63,13 @@ class TestMonitorPoint extends FlatSpec {
   }
   
   it must "allow to update the value" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
-    val mpUpdatedValue = mp.updateValue(5L)
+    val mp: LongMP = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType).asInstanceOf[LongMP]
+    val mpUpdatedValue = mp.updateValue(5L).asInstanceOf[LongMP]
     assert(mpUpdatedValue.actualValue.get.value==5L,"The values differ")    
   }
   
   it must "allow to update the validity" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mp: MonitorPointBase = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType)
     val mpUpdatedValidityRelaible = mp.updateValidity(Validity.Reliable)
     assert(mpUpdatedValidityRelaible.validity==Validity.Reliable,"The validities differ")
     
@@ -74,24 +78,24 @@ class TestMonitorPoint extends FlatSpec {
   }
   
   it must "allow to update the mode" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
-    val mpUpdatedMode= mp.updateMode(OperationalMode.Operational)
+    val mp: LongMP = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType).asInstanceOf[LongMP]
+    val mpUpdatedMode= mp.updateMode(OperationalMode.Operational).asInstanceOf[LongMP]
     assert(mpUpdatedMode.runningMode==OperationalMode.Operational,"The modes differ")
   }
   
   it must "allow to update the value and validity at once" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
-    val mpUpdated = mp.update(15L,Validity.Reliable)
+    val mp: LongMP = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType).asInstanceOf[LongMP]
+    val mpUpdated = mp.update(15L,Validity.Reliable).asInstanceOf[LongMP]
     assert(mpUpdated.actualValue.get.value==15L,"The values differ")
     assert(mpUpdated.validity==Validity.Reliable,"The validities differ")
   }
   
   it must "return the same object if values, validity or mode did not change" in {
-    val mp: MonitorPoint[Long] = MonitorPoint.monitorPoint(id,refreshRate)
+    val mp: LongMP = MonitorPointFactory.monitorPoint[Long](id,refreshRate,IASTypes.LongType).asInstanceOf[LongMP]
     
-    val upVal = mp.updateValue(10L)
+    val upVal = mp.updateValue(10L).asInstanceOf[LongMP]
     assert(upVal.actualValue.get.value==10L,"The values differ")
-    val upValAgain = upVal.updateValue(10L)
+    val upValAgain = upVal.updateValue(10L).asInstanceOf[LongMP]
     assert(upValAgain.actualValue.get.value==10L,"The value differ")
     assert(upVal eq upValAgain,"Unexpected new object after updating the value\n"+upVal.toString()+"\n"+upValAgain.toString())
     
@@ -103,12 +107,12 @@ class TestMonitorPoint extends FlatSpec {
     
     val upMode = mp.updateMode(OperationalMode.StartUp)
     assert(upMode.runningMode==OperationalMode.StartUp,"The mode differ")
-    val upModeAgain = upMode.updateMode(OperationalMode.StartUp)
+    val upModeAgain = upMode.updateMode(OperationalMode.StartUp).asInstanceOf[LongMP]
     assert(upModeAgain.runningMode==OperationalMode.StartUp,"The mode differ")
     assert(upMode eq upModeAgain,"Unexpected new object after updating the mode")
         
-    val mpUpdated = mp.update(15L,Validity.Unreliable)
-    val mpUpdated2 = mpUpdated.update(15L,Validity.Unreliable)
+    val mpUpdated = mp.update(15L,Validity.Unreliable).asInstanceOf[LongMP]
+    val mpUpdated2 = mpUpdated.update(15L,Validity.Unreliable).asInstanceOf[LongMP]
     assert(mpUpdated eq mpUpdated2,"Unexpected new object after updating value and validity")
     
   }

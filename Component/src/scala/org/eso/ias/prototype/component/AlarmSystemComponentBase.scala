@@ -15,6 +15,7 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import org.eso.ias.prototype.behavior.JavaTransfer
 import scala.collection.mutable.{Set => MutableSet }
+import org.eso.ias.prototype.input.typedmp.IASTypes
 
 /**
  * The Integrated Alarm System Component (ASC) 
@@ -140,7 +141,7 @@ abstract class AlarmSystemComponentBase[T] (
     outStr.append("\n>ID of inputs<\n")
     outStr.append(requiredInputs.mkString(", "))
     outStr.append("\n>Not yet processed inputs<\n")
-    outStr.append(newInputs.values.mkString(", "))
+    newInputs.synchronized( { outStr.append(newInputs.values.mkString(", "))})
     outStr.toString()
   }
 }

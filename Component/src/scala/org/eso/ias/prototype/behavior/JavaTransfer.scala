@@ -5,6 +5,9 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.component.AlarmSystemComponentBase
+import org.eso.ias.prototype.input.MonitorPointValue
+import org.eso.ias.prototype.input.AlarmValue
+import org.eso.ias.prototype.input.typedmp.LongMP
 
 /**
  * <code>JavaTransfer</code> implements the
@@ -21,6 +24,12 @@ trait JavaTransfer[T] extends AlarmSystemComponentBase[T] {
       id: Identifier,
       actualOutput:MonitorPoint[T]): MonitorPoint[T] = {
     println("JavaTransfer.transfer")
+    
+    val mpL = inputs(0)
+    println("mpL.isInstanceOf[LongMP]="+mpL.isInstanceOf[LongMP])
+    
+    val mpA = inputs(1)
+    println("mpA.isInstanceOf[LongMP]="+mpA.isInstanceOf[LongMP])
     
     super.transfer(inputs, id, actualOutput)
   }
