@@ -10,8 +10,8 @@ object Validity extends Enumeration {
   
   // Scala uses the ID of the Value to order 
   // the Validity following the declaration order
-  // of the Values. To avoid confusion we set the
-  // id esplicitly
+  // of the Values. 
+  // To make it esplicit we set the the id of each item
   val Unreliable = Value(0,"Unreliable") // Unreliable
   val Reliable = Value(1,"Reliable") // Reliable
   
@@ -27,11 +27,8 @@ object Validity extends Enumeration {
    * to forget updating the hardcoded value when adding new
    * Valitiy.Values to this Enumeration
    */
-  private val minID: Int = {
-    val validities =Validity.values.toList
-    val ids = for (validity <- validities) yield validity.id 
-    val sorted = ids.sortWith( (l,r) => l<=r)
-    sorted(0)
+  private lazy val minID: Int = {
+    Validity.values.toList.sorted.head.id
   }
   
   /**
@@ -42,10 +39,6 @@ object Validity extends Enumeration {
    * 			   False otherwise
    */
   def isValid(v: Validity.Value): Boolean = v==Reliable
-  
-  def min(left: Validity.Value, right: Validity.Value): Validity.Value = {
-    Validity.ValueOrdering.min(left, right)
-  }
   
   /**
    * Look for the min value between all the validities in the
@@ -59,8 +52,7 @@ object Validity extends Enumeration {
    */
   def min(vals: List[Validity.Value]): Validity.Value = {
     // The function to sort the list
-    val sortingFunction = (l,r) => Validity.ValueOrdering.lteq(l, r)
     if (vals.isEmpty) Reliable
-    else vals.sortWith(sortingFunction)(0)
+    else vals.sorted.head
   }
 }

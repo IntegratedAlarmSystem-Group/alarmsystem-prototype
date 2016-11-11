@@ -19,13 +19,6 @@ class TestValidity extends FlatSpec {
     assert(Validity.isValid(Validity.Reliable))
   }
   
-  "Validity.min(a,b)" must "always return the min validity" in {
-    assert(Validity.min(Validity.Reliable, Validity.Reliable)==Validity.Reliable)
-    assert(Validity.min(Validity.Reliable, Validity.Unreliable)==Validity.Unreliable)
-    assert(Validity.min(Validity.Unreliable, Validity.Unreliable)==Validity.Unreliable)
-    assert(Validity.min(Validity.Unreliable, Validity.Unreliable)==Validity.Unreliable)
-  }
-  
   "Validity.min(list)" must "always return the min validity" in {
     // Build few "interesting" lists to submit to Validity.min
     val l1= List(Validity.Reliable,Validity.Reliable,Validity.Reliable,Validity.Reliable,Validity.Reliable)
