@@ -114,7 +114,7 @@ class TestTransferFunction extends FlatSpec {
       component.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
       
       component=component.transfer()
-      if (i<inputsMPs.size-1) assert(comp.output.validity==Validity.Unreliable)
+      if (i<inputsMPs.size-1) assert(component.output.validity==Validity.Unreliable)
       else assert(component.output.validity==Validity.Reliable)
     }
   }
