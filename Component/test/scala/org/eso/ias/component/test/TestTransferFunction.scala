@@ -19,7 +19,9 @@ class TestTransferFunction extends FlatSpec {
   /**
    * Builds a Component with a set of inputs to test the transfer method
    */
-  def fixture(numOfInputs: Int) = new {
+  trait CompBuilder {
+    
+    val numOfInputs = 5
     
     // The ID of the DAS where the components runs
     val dasId = new Identifier(Some[String]("DAS-ID"),None)
@@ -80,47 +82,41 @@ class TestTransferFunction extends FlatSpec {
   
   behavior of "The Component transfer function"
   
-  it must "set the validity to Unreliable when at least one MP is Unreliable" in {
-    val f = fixture(5)
+  it must "set the validity to Unreliable when at least one MP is Unreliable" in new CompBuilder {
     
-    println("---------------------------------------------")
-    println(f.comp.toString())
-    println("---------------------------------------------")
-//    
-//    val computed= f.comp.transfer()
-//    
-//    var comp: AlarmSystemComponentBase[AlarmValue] = f.comp
-//    for (i <- 1 until f.inputsMPs.size) {
-//      
-//      val changedMP = f.inputsMPs(i).updateValidity(Validity.Reliable)
-//          
-//      comp.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
-//      
-//      comp=comp.transfer()
-//      assert(comp.output.validity==Validity.Unreliable)
-//    }
+    val computed= comp.transfer()
+    
+    var component: AlarmSystemComponentBase[AlarmValue] = comp
+    for (i <- 1 until inputsMPs.size) {
+      
+      val changedMP = inputsMPs(i).updateValidity(Validity.Reliable)
+          
+      comp.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
+      
+      component=component.transfer()
+      assert(component.output.validity==Validity.Unreliable)
+    }
   }
   
-//  it must "set the validity to the lower value" in {
-//    // This test checks if the validity is set to Reliable if all the
-//    // validities have this level
-//    // At the present, this is the only test we can do with only 2 values for the
-//    // validity
-//    val f = fixture(5)
-//    val computed= f.comp.transfer()
-//    
-//    var comp: AlarmSystemComponentBase[AlarmValue] = f.comp
-//    
-//    for (i <- 0 until f.inputsMPs.size) {
-//      
-//      val changedMP = f.inputsMPs(i).updateValidity(Validity.Reliable)
-//          
-//      comp.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
-//      
-//      comp=comp.transfer()
-//      if (i<f.inputsMPs.size-1) assert(comp.output.validity==Validity.Unreliable)
-//      else assert(comp.output.validity==Validity.Reliable)
-//    }
-//  }
+  it must "set the validity to the lower value" in new CompBuilder {
+    // This test checks if the validity is set to Reliable if all the
+    // validities have this level
+    // At the present, this is the only test we can do with only 2 values for the
+    // validity
+    val computed= comp.transfer()
+    
+    var component: AlarmSystemComponentBase[AlarmValue] = comp
+    
+    for (i <- 0 until inputsMPs.size) {
+      
+      val changedMP = inputsMPs(i).updateValidity(Validity.Reliable)
+          
+      component.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
+      
+      component=component.transfer()
+      if (i<inputsMPs.size-1) assert(comp.output.validity==Validity.Unreliable)
+      else assert(component.output.validity==Validity.Reliable)
+    }
+  }
   
 }
