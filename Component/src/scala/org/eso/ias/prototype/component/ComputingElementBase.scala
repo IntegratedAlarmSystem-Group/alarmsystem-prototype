@@ -6,8 +6,6 @@ import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmValue
 import scala.util.control.NonFatal
-import org.eso.ias.prototype.behavior.BehaviorRunner
-import org.eso.ias.prototype.behavior.BehaviorRunnerImpl
 import org.eso.ias.prototype.behavior.JavaConverter
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
