@@ -59,8 +59,7 @@ extends MonitorPointBase(ident,mode,valid,theType) {
   
    
   override def toString(): String = {
-    "Monitor point " + id.toString() +
-    (if (actualValue==None) "\n\t" else " with a value of type " +actualValue.get.value.getClass().getName())+"\n\t" +  
+    "Monitor point " + id.toString() +" of IAS type " +iasType+"\n\t" +  
     runningMode.toString() + "\n\t" +
     validity.toString() +"\n\t" +
     (if (actualValue==None) "No value" else "Value: "+actualValue.get.toString())
