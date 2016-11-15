@@ -1,5 +1,6 @@
 package org.eso.ias.prototype.component
 
+import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.MonitorPointBase
 import org.eso.ias.prototype.utils.ISO8601Helper
@@ -25,20 +26,28 @@ import org.eso.ias.prototype.utils.ISO8601Helper
  * In fact, an object is created also when one of its input changed even if
  * it did not trigger a change of the output.
  * 
- * Objects of this class are immutable.
+ * Objects of this class are mutable.
+ * 
+ * The id of the ASCE does not change over time unless the ASCE is relocated.
+ * In such case a new ASCE must be built to correctly initialize
+ * the classes implementing the transfer function. For the same reason,  
+ * if the transfer function, implemented by the user changes, 
+ * then a new ASCE must be implemented
  * 
  * @param id: the unique identifier of the ASCE
  * @param output: The output alarm produced applying the script to the inputs
  * @param inputs: The inputs (i.e. monitor points and alarms) of the Component
- * @param behaviorScript: The script to update the output depending on the
-   *                      values of the inputs.
+ * @param transferFunction: The script to update the output depending on the
+ *                          values of the inputs.
  */
 class ComputingElementState (
-    val id: Identifier,
-    val output: MonitorPointBase,
-    val inputs: List[MonitorPointBase],
-    val behaviorScript: String)
+    final val id: Identifier,
+    var output: MonitorPointBase,
+    final val inputs: MutableMap[String, MonitorPointBase],
+    final val transferFunction: String)
 {
+  require(Option[MonitorPointBase](output)!=None)
+  
   /**
    * The point in time when this objects (i.e. the snapshot) has been
    * built.
@@ -55,7 +64,7 @@ class ComputingElementState (
     outStr.append("\n>Inputs<\n")
     for (mp <- inputs) outStr.append(mp.toString())
     outStr.append("\n>Script<\n")
-    outStr.append(behaviorScript)
+    outStr.append(transferFunction)
     outStr.toString()
   }
 }

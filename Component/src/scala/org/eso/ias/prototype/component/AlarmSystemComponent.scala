@@ -7,6 +7,7 @@ import org.eso.ias.prototype.input.MonitorPointBase
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.AckState
+import scala.collection.mutable.{Map => MutableMap }
 
 /**
  * It consists of a state (<code>ASCState</code>) and methods
@@ -46,17 +47,18 @@ import org.eso.ias.prototype.input.AckState
  * @param script: The script that manipulated the inputs and generate the output
  * @param newInputs: the map with the value of the monitor points in input
  *                   received after the last update of the output  
- * @see AlarmSystemComponentBase, ASCState
+ * @see AlarmSystemComponentBase, ComputingElementState
+ * 
  * @author acaproni
  */
 class AlarmSystemComponent[T](
     ident: Identifier,
     out: MonitorPoint[T],
     requiredInputs: List[String],
-    actualInputs: List[MonitorPointBase],
+    actualInputs: MutableMap[String, MonitorPointBase],
     script: String,
-    newInputs: HashMap[String, MonitorPointBase] =  new HashMap[String,MonitorPointBase]()) 
-    extends AlarmSystemComponentBase[T](ident,out,requiredInputs,actualInputs,script,newInputs) with JavaTransfer[T] {
+    newInputs: MutableMap[String, MonitorPointBase] =  new HashMap[String,MonitorPointBase]()) 
+    extends AlarmSystemComponentBase[T](ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer[T] {
   
   /**
    * A monitor point changed: it is stored in the map
@@ -70,7 +72,7 @@ class AlarmSystemComponent[T](
       throw new IllegalStateException("Trying to pass a MP to a component that does not want it: "+mp.get.id.id.get+" not in "+requiredInputs.mkString(", "))
     }
     newInputs.synchronized {
-      newInputs(mp.get.id.runningID)=mp.get
+      newInputs(mp.get.id.id.get)=mp.get
     }
   }
   
@@ -86,12 +88,12 @@ class AlarmSystemComponent[T](
     //
     // Having a output with a value of None should never happen because its value is
     // updated depending on the value of the inputs
-    if (out.actualValue == None) {
-      throw new IllegalStateException("Trying get an alarm but the value is None (alarm ID "+out.id+")") 
+    if (output.asInstanceOf[MonitorPoint[T]].actualValue== None) {
+      throw new IllegalStateException("Trying get an alarm but the value is None (alarm ID "+output.id+")") 
     }
-    val value: Any = out.actualValue.get.value
+    val value: Any = output.asInstanceOf[MonitorPoint[T]].actualValue.get.value
     if (! value.isInstanceOf[AlarmValue]) {
-      throw new IllegalStateException("Trying to get an alarm but the value has wrong type "+value.getClass()+" (alarm ID "+out.id+")")
+      throw new IllegalStateException("Trying to get an alarm but the value has wrong type "+value.getClass()+" (alarm ID "+output.id+")")
     }
     value.asInstanceOf[AlarmValue]
   }
@@ -103,18 +105,15 @@ class AlarmSystemComponent[T](
    * It is not needed to recalculate the output from the inputs when shelving an alarm.
    * 
    * @param newShelveState: True to shelve the alarm; false otherwise 
-   * @return The ASC shelved
+   * @return The ASCE shelved
    */
-  def shelve(newShelveState: Boolean): AlarmSystemComponentBase[T] = {
+  def shelve(newShelveState: Boolean) = {
     
     val value: AlarmValue = getOutAlarmValue
     if (value.shelved==newShelveState) this // No change
     val newValue = value.shelve(newShelveState)
     
-    val shelvedTypedMP=out.updateValue(newValue.asInstanceOf[T])
-    
-    new AlarmSystemComponent[T](ident,shelvedTypedMP,requiredInputs,actualInputs,script,newInputs)
-    
+    output=output.asInstanceOf[MonitorPoint[T]].updateValue(newValue.asInstanceOf[T])    
   }
   
   /**
@@ -123,16 +122,14 @@ class AlarmSystemComponent[T](
    * This action is possible only if the output is a MonitorPoint[AlarmValue].
    * It is not needed to recalculate the output from the inputs when shelving an alarm.
    * 
-   * @return The ASC acknowledged
+   * @return The ASCE acknowledged
    */
-  def ack(): AlarmSystemComponentBase[T] = {
+  def ack() = {
     
     val value: AlarmValue = getOutAlarmValue
     if (value.acknowledgement==AckState.Acknowledged) this // No change
     val newValue = value.acknowledge()
     
-    val ackedTypedMP=out.updateValue(newValue.asInstanceOf[T]) 
-    
-    new AlarmSystemComponent[T](ident,ackedTypedMP,requiredInputs,actualInputs,script,newInputs)
+    output=output.asInstanceOf[MonitorPoint[T]].updateValue(newValue.asInstanceOf[T])
   }
 }

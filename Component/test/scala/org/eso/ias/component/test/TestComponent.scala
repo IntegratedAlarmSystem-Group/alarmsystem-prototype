@@ -16,6 +16,7 @@ import org.eso.ias.prototype.input.typedmp.AlarmMP
 import org.eso.ias.prototype.input.typedmp.IASTypes
 import org.eso.ias.prototype.input.typedmp.LongMP
 import org.eso.ias.prototype.input.MonitorPoint
+import scala.collection.mutable.{Map => MutableMap }
 
 /**
  * Test the basic functionalities of the IAS Component,
@@ -43,26 +44,26 @@ class TestComponent extends FlatSpec {
   
   // The ID of the first MP
   val mpI1Identifier = new Identifier(Some[String](requiredInputIDs(0)), Option[Identifier](compId))
-  val mpID1: AlarmMP = MonitorPointFactory.monitorPoint(
+  val mp1: AlarmMP = MonitorPointFactory.monitorPoint(
       mpI1Identifier,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
-  intialMPs(mpID1.id.id.get)=mpID1
+  intialMPs(mp1.id.id.get)=mp1
   
   // The ID of the second MP
   val mpI2Identifier = new Identifier(Some[String](requiredInputIDs(1)), Option[Identifier](compId))
-  val mpID2: AlarmMP = MonitorPointFactory.monitorPoint(
+  val mp2: AlarmMP = MonitorPointFactory.monitorPoint(
       mpI2Identifier,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
-  intialMPs(mpID2.id.id.get)=mpID1
-  val actualInputs: List[MonitorPointBase] = List(mpID1,mpID2)
+  intialMPs(mp2.id.id.get)=mp1
+  val actualInputs: MutableMap[String, MonitorPointBase] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
   
   behavior of "A Component"
   
@@ -105,7 +106,7 @@ class TestComponent extends FlatSpec {
        "",
        intialMPs);
     assertThrows[IllegalStateException] {
-      val shelved = comp.shelve(true);
+      comp.shelve(true);
     }
   }
   
@@ -126,7 +127,7 @@ class TestComponent extends FlatSpec {
        "",
        intialMPs);
     assertThrows[IllegalStateException] {
-      val shelved = comp.shelve(true);
+      comp.shelve(true);
     }
   }
   
@@ -149,10 +150,9 @@ class TestComponent extends FlatSpec {
        "",
        intialMPs);
     
-    val shelved = comp.shelve(true);
+    comp.shelve(true);
     
-    
-    val shelvedVal = shelved.output.asInstanceOf[AlarmMP].actualValue.get.value
+    val shelvedVal = comp.output.asInstanceOf[AlarmMP].actualValue.get.value
     assert(shelvedVal.shelved)
     
   }
@@ -174,7 +174,7 @@ class TestComponent extends FlatSpec {
        "",
        intialMPs)
     assertThrows[IllegalStateException] {
-      val acked = comp.ack();
+      comp.ack();
     }
   }
   
@@ -195,7 +195,7 @@ class TestComponent extends FlatSpec {
        "",
        intialMPs)
     assertThrows[IllegalStateException] {
-      val acked = comp.ack() 
+      comp.ack() 
     }
   }
   
@@ -218,11 +218,10 @@ class TestComponent extends FlatSpec {
        "",
        intialMPs)
     
-    val acked = comp.ack()
+    comp.ack()
     
-    val ackedVal = acked.output.asInstanceOf[AlarmMP].actualValue.get.value
+    val ackedVal = comp.output.asInstanceOf[AlarmMP].actualValue.get.value
     assert(ackedVal.acknowledgement==AckState.Acknowledged)
-    
   }
   
 }

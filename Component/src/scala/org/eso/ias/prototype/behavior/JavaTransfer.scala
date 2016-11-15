@@ -20,16 +20,10 @@ import org.eso.ias.prototype.input.typedmp.LongMP
 trait JavaTransfer[T] extends AlarmSystemComponentBase[T] {
   
    abstract override def transfer(
-      inputs: List[MonitorPointBase], 
+      inputs: Map[String, MonitorPointBase], 
       id: Identifier,
       actualOutput:MonitorPoint[T]): MonitorPoint[T] = {
     println("JavaTransfer.transfer")
-    
-    val mpL = inputs(0)
-    println("mpL.isInstanceOf[LongMP]="+mpL.isInstanceOf[LongMP])
-    
-    val mpA = inputs(1)
-    println("mpA.isInstanceOf[LongMP]="+mpA.isInstanceOf[LongMP])
     
     super.transfer(inputs, id, actualOutput)
   }

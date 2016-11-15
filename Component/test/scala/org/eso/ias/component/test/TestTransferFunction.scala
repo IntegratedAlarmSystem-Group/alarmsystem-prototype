@@ -13,6 +13,7 @@ import org.eso.ias.prototype.input.MonitorPointValue
 import org.eso.ias.prototype.component.AlarmSystemComponentBase
 import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
 import org.eso.ias.prototype.input.typedmp.IASTypes
+import scala.collection.mutable.{Map => MutableMap }
 
 class TestTransferFunction extends FlatSpec {
   
@@ -50,10 +51,11 @@ class TestTransferFunction extends FlatSpec {
     
     // Create numOfInputs MPs
     var i=0 // To create different types of MPs
-    val inputsMPs: List[MonitorPointBase] = for (id <- requiredInputIDs) yield {
+    val inputsMPs: MutableMap[String, MonitorPointBase] = MutableMap[String, MonitorPointBase]()
+    for (id <- requiredInputIDs) {
       val mpId = new Identifier(Some[String](id),Option[Identifier](compID))
       i=i+1
-      if ((i%2)==0) {
+      val mp = if ((i%2)==0) {
         val mpVal = Option[MonitorPointValue[AlarmValue]](new MonitorPointValue[AlarmValue](new AlarmValue()))
         MonitorPointFactory.monitorPoint(
           mpId,
@@ -70,7 +72,7 @@ class TestTransferFunction extends FlatSpec {
           OperationalMode.Operational,
           Validity.Unreliable, IASTypes.LongType)
       }
-      
+      inputsMPs+=(mp.id.id.get -> mp)
     }
     val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent[AlarmValue](
        compID,
@@ -82,40 +84,23 @@ class TestTransferFunction extends FlatSpec {
   
   behavior of "The Component transfer function"
   
-  it must "set the validity to Unreliable when at least one MP is Unreliable" in new CompBuilder {
-    
-    val computed= comp.transfer()
-    
-    var component: AlarmSystemComponentBase[AlarmValue] = comp
-    for (i <- 1 until inputsMPs.size) {
-      
-      val changedMP = inputsMPs(i).updateValidity(Validity.Reliable)
-          
-      comp.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
-      
-      component=component.transfer()
-      assert(component.output.validity==Validity.Unreliable)
-    }
-  }
-  
   it must "set the validity to the lower value" in new CompBuilder {
     // This test checks if the validity is set to Reliable if all the
     // validities have this level
     // At the present, this is the only test we can do with only 2 values for the
     // validity
-    val computed= comp.transfer()
+    val component: AlarmSystemComponentBase[AlarmValue] = comp
     
-    var component: AlarmSystemComponentBase[AlarmValue] = comp
-    
-    for (i <- 0 until inputsMPs.size) {
-      
-      val changedMP = inputsMPs(i).updateValidity(Validity.Reliable)
+    val keys=inputsMPs.keys.toList.sorted
+    keys.foreach { key  => {
+      val changedMP = inputsMPs(key).updateValidity(Validity.Reliable)
           
       component.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
       
-      component=component.transfer()
-      if (i<inputsMPs.size-1) assert(component.output.validity==Validity.Unreliable)
+      component.transfer()
+      if (key!=keys.last) assert(component.output.validity==Validity.Unreliable)
       else assert(component.output.validity==Validity.Reliable)
+      } 
     }
   }
   

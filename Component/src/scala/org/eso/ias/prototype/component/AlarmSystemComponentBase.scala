@@ -15,6 +15,7 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import org.eso.ias.prototype.behavior.JavaTransfer
 import scala.collection.mutable.{Set => MutableSet }
+import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.typedmp.IASTypes
 
 /**
@@ -40,16 +41,16 @@ abstract class AlarmSystemComponentBase[T] (
     ident: Identifier,
     out: MonitorPoint[T],
     requiredInputs: List[String],
-    actualInputs: List[MonitorPointBase],
+    actualInputs: MutableMap[String,MonitorPointBase],
     script: String,
-    val newInputs: HashMap[String, MonitorPointBase])
+    val newInputs: MutableMap[String, MonitorPointBase])
     extends ComputingElementState(ident,out,actualInputs,script) {
   require(requiredInputs!=None && !requiredInputs.isEmpty,"Invalid (empty or null) list of required inputs to the component")
   require(requiredInputs.size==actualInputs.size,"Inconsistent size of lists of inputs")
   
   /**
    * Update the output by running the user provided script/class against the inputs.
-   * This is actually the core of the ASC.
+   * This is actually the core of the ASCE.
    * 
    * A change of the inputs means a change in at least one of
    * the inputs of the list. 
@@ -59,7 +60,7 @@ abstract class AlarmSystemComponentBase[T] (
    * - mode 
    * The change triggers a recalculation of the Validity.
    * 
-   * The number of inputs of a ASC does not change during the
+   * The number of inputs of a ASCE does not change during the
    * life span of a component, what changes are the values,
    * validity or mode of the inputs.
    * 
@@ -72,41 +73,34 @@ abstract class AlarmSystemComponentBase[T] (
    * 
    * @see transfer(...)
    */
-  def transfer() : AlarmSystemComponentBase[T] = {
-    println("AlarmSystemComponent[T].transfer()")
+  def transfer(): Unit = {
+    
+    mixInputs(inputs,newInputs)
     
     // Prepare the list of the inputs by replacing the ones in the 
-    // actualInputs with those in the newInputs
-    val mixedInputs: List[MonitorPointBase] = newInputs.synchronized {
-      val temp = mixInputs(actualInputs,newInputs)
-      newInputs.clear()
-      temp
-    }
+    // inputs with those in the newInputs
+    val immutableMapOfInputs: Map[String, MonitorPointBase] = Map.empty++inputs
     
-    println("mixedInputs contains "+mixedInputs.size+" items:")
-    println(mixedInputs.mkString("\n"))
-    
-    val newOut=transfer(mixedInputs,ident,out)
-    
-    if ((out eq newOut) && mixedInputs==actualInputs) this
-    else new AlarmSystemComponent[T](ident,newOut, requiredInputs, mixedInputs, script, newInputs)    
+    output = transfer(immutableMapOfInputs,id,output.asInstanceOf[MonitorPoint[T]])
   }
   
   /**
-   * Generate a new list of inputs by replacing the newly received inputs 
-   * to those in the list of inputs
+   * Flush the received inputs into the actual inputs.
    * 
    * @param oldInput: The inputs that generated the old output of the Component
    * @param receivedInputs: the inputs that have been updated since the refresh
    *                        of the output of the component
    */
   private def mixInputs(
-      oldInputs: List[MonitorPointBase], 
-      receivedInputs: HashMap[String,MonitorPointBase] ): List[MonitorPointBase] = {
-      
+      oldInputs: MutableMap[String, MonitorPointBase], 
+      receivedInputs: MutableMap[String, MonitorPointBase] ) = {
+    
+    val len= inputs.size
     receivedInputs.synchronized {
-      for (oldMP <- oldInputs; newMP=receivedInputs.getOrElse(oldMP.id.runningID,oldMP)) yield newMP
+      receivedInputs.keys.foreach { id => oldInputs(id)=receivedInputs(id) }
+      receivedInputs.clear()
     }
+    assert(len==inputs.size,"The map of inputs increased!")
   } 
   
   /**
@@ -116,19 +110,19 @@ abstract class AlarmSystemComponentBase[T] (
    * 
    * This method sets the validity of the output from the validity of its inputs.
    * 
-   * @param theInputs: The list of inputs 
+   * @param theInputs: The inputs, sorted by their IDs 
    * @return The new output
    */
   def transfer(
-      inputs: List[MonitorPointBase], 
+      inputs: Map[String, MonitorPointBase], 
       id: Identifier,
       actualOutput:MonitorPoint[T]) : MonitorPoint[T] = {
     
     val valitiesSet = MutableSet[Validity.Value]()
-    for ( monitorPoint <- inputs ) valitiesSet += monitorPoint.validity
+    for ( monitorPoint <- inputs.values ) valitiesSet += monitorPoint.validity
     val newValidity = Validity.min(valitiesSet.toList) 
     
-    out.updateValidity(newValidity)
+    output.updateValidity(newValidity).asInstanceOf[MonitorPoint[T]]
   }
   
   override def toString() = {
