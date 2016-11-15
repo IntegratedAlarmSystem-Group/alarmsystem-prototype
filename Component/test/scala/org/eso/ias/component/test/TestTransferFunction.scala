@@ -8,9 +8,9 @@ import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.MonitorPointBase
-import org.eso.ias.prototype.component.AlarmSystemComponent
+import org.eso.ias.prototype.component.ComputingElement
 import org.eso.ias.prototype.input.MonitorPointValue
-import org.eso.ias.prototype.component.AlarmSystemComponentBase
+import org.eso.ias.prototype.component.ComputingElementBase
 import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
 import org.eso.ias.prototype.input.typedmp.IASTypes
 import scala.collection.mutable.{Map => MutableMap }
@@ -74,7 +74,7 @@ class TestTransferFunction extends FlatSpec {
       }
       inputsMPs+=(mp.id.id.get -> mp)
     }
-    val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent[AlarmValue](
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compID,
        output,
        requiredInputIDs,
@@ -89,13 +89,13 @@ class TestTransferFunction extends FlatSpec {
     // validities have this level
     // At the present, this is the only test we can do with only 2 values for the
     // validity
-    val component: AlarmSystemComponentBase[AlarmValue] = comp
+    val component: ComputingElementBase[AlarmValue] = comp
     
     val keys=inputsMPs.keys.toList.sorted
     keys.foreach { key  => {
       val changedMP = inputsMPs(key).updateValidity(Validity.Reliable)
           
-      component.asInstanceOf[AlarmSystemComponent[AlarmValue]].inputChanged(Some(changedMP))
+      component.asInstanceOf[ComputingElement[AlarmValue]].inputChanged(Some(changedMP))
       
       component.transfer()
       if (key!=keys.last) assert(component.output.validity==Validity.Unreliable)

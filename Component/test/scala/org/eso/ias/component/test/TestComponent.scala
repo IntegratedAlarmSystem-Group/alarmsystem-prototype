@@ -2,7 +2,7 @@ package org.eso.ias.component.test
 
 import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.component.AlarmSystemComponent
+import org.eso.ias.prototype.component.ComputingElement
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Validity
@@ -76,7 +76,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
       
-    val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -98,7 +98,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
       
-    val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -119,7 +119,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.LongType).asInstanceOf[LongMP]
       
-    val comp: AlarmSystemComponent[Long] = new AlarmSystemComponent(
+    val comp: ComputingElement[Long] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -142,7 +142,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
       
-    val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -166,7 +166,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
       
-    val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -187,7 +187,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.LongType).asInstanceOf[LongMP]
       
-    val comp: AlarmSystemComponent[Long] = new AlarmSystemComponent(
+    val comp: ComputingElement[Long] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -210,7 +210,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType).asInstanceOf[AlarmMP]
       
-    val comp: AlarmSystemComponent[AlarmValue] = new AlarmSystemComponent(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
        output,
        requiredInputIDs,

@@ -37,7 +37,7 @@ import org.eso.ias.prototype.input.typedmp.IASTypes
  * @see AlarmSystemComponent, ASCState
  * @author acaproni
  */
-abstract class AlarmSystemComponentBase[T] (
+abstract class ComputingElementBase[T] (
     ident: Identifier,
     out: MonitorPoint[T],
     requiredInputs: List[String],

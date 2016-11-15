@@ -51,14 +51,14 @@ import scala.collection.mutable.{Map => MutableMap }
  * 
  * @author acaproni
  */
-class AlarmSystemComponent[T](
+class ComputingElement[T](
     ident: Identifier,
     out: MonitorPoint[T],
     requiredInputs: List[String],
     actualInputs: MutableMap[String, MonitorPointBase],
     script: String,
     newInputs: MutableMap[String, MonitorPointBase] =  new HashMap[String,MonitorPointBase]()) 
-    extends AlarmSystemComponentBase[T](ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer[T] {
+    extends ComputingElementBase[T](ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer[T] {
   
   /**
    * A monitor point changed: it is stored in the map
