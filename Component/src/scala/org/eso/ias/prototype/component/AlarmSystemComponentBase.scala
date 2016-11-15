@@ -18,7 +18,7 @@ import scala.collection.mutable.{Set => MutableSet }
 import org.eso.ias.prototype.input.typedmp.IASTypes
 
 /**
- * The Integrated Alarm System Component (ASC) 
+ * The Integrated Alarm System Computing Element (ASCE) 
  * is the basic unit of the IAS. This  base class 
  * allows to implement stackable modifications
  * 
@@ -43,7 +43,7 @@ abstract class AlarmSystemComponentBase[T] (
     actualInputs: List[MonitorPointBase],
     script: String,
     val newInputs: HashMap[String, MonitorPointBase])
-    extends ASCState[T](ident,out,actualInputs,script) {
+    extends ComputingElementState(ident,out,actualInputs,script) {
   require(requiredInputs!=None && !requiredInputs.isEmpty,"Invalid (empty or null) list of required inputs to the component")
   require(requiredInputs.size==actualInputs.size,"Inconsistent size of lists of inputs")
   
@@ -124,14 +124,9 @@ abstract class AlarmSystemComponentBase[T] (
       id: Identifier,
       actualOutput:MonitorPoint[T]) : MonitorPoint[T] = {
     
-    println("AlarmSystemComponent[T].transfer(....) checking the validity")
-    
     val valitiesSet = MutableSet[Validity.Value]()
     for ( monitorPoint <- inputs ) valitiesSet += monitorPoint.validity
-    println("Checking validities"+valitiesSet.mkString(", "))
     val newValidity = Validity.min(valitiesSet.toList) 
-    
-    println("New validity="+newValidity)
     
     out.updateValidity(newValidity)
   }

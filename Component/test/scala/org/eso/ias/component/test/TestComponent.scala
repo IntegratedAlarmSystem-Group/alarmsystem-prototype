@@ -151,7 +151,8 @@ class TestComponent extends FlatSpec {
     
     val shelved = comp.shelve(true);
     
-    val shelvedVal = shelved.output.actualValue.get.value
+    
+    val shelvedVal = shelved.output.asInstanceOf[AlarmMP].actualValue.get.value
     assert(shelvedVal.shelved)
     
   }
@@ -219,7 +220,7 @@ class TestComponent extends FlatSpec {
     
     val acked = comp.ack()
     
-    val ackedVal = acked.output.actualValue.get.value
+    val ackedVal = acked.output.asInstanceOf[AlarmMP].actualValue.get.value
     assert(ackedVal.acknowledgement==AckState.Acknowledged)
     
   }
