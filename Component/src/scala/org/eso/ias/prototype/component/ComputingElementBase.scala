@@ -6,8 +6,6 @@ import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmValue
 import scala.util.control.NonFatal
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
 import org.eso.ias.prototype.behavior.BehaviorRunner
 import org.eso.ias.prototype.behavior.BehaviorRunnerImpl
 import org.eso.ias.prototype.behavior.JavaConverter
@@ -17,6 +15,7 @@ import org.eso.ias.prototype.behavior.JavaTransfer
 import scala.collection.mutable.{Set => MutableSet }
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.typedmp.IASTypes
+import java.util.Properties
 
 /**
  * The Integrated Alarm System Computing Element (ASCE) 
@@ -81,7 +80,7 @@ abstract class ComputingElementBase[T] (
     // inputs with those in the newInputs
     val immutableMapOfInputs: Map[String, MonitorPointBase] = Map.empty++inputs
     
-    output = transfer(immutableMapOfInputs,id,output.asInstanceOf[MonitorPoint[T]])
+    output = transfer(immutableMapOfInputs,id,output.asInstanceOf[MonitorPoint[T]],System.getProperties)
   }
   
   /**
@@ -111,12 +110,16 @@ abstract class ComputingElementBase[T] (
    * This method sets the validity of the output from the validity of its inputs.
    * 
    * @param theInputs: The inputs, sorted by their IDs 
+   * @param id: the ID of this computing element
+   * @param actualOutput: the actual output
+   * @param pros: properties to pass to the implementors
    * @return The new output
    */
   def transfer(
       inputs: Map[String, MonitorPointBase], 
       id: Identifier,
-      actualOutput:MonitorPoint[T]) : MonitorPoint[T] = {
+      actualOutput: MonitorPoint[T],
+      props: Properties) : MonitorPoint[T] = {
     
     val valitiesSet = MutableSet[Validity.Value]()
     for ( monitorPoint <- inputs.values ) valitiesSet += monitorPoint.validity

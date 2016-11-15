@@ -8,6 +8,7 @@ import org.eso.ias.prototype.component.ComputingElementBase
 import org.eso.ias.prototype.input.MonitorPointValue
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.typedmp.LongMP
+import java.util.Properties
 
 /**
  * <code>JavaTransfer</code> implements the
@@ -22,10 +23,11 @@ trait JavaTransfer[T] extends ComputingElementBase[T] {
    abstract override def transfer(
       inputs: Map[String, MonitorPointBase], 
       id: Identifier,
-      actualOutput:MonitorPoint[T]): MonitorPoint[T] = {
+      actualOutput: MonitorPoint[T],
+      props: Properties): MonitorPoint[T] = {
     println("JavaTransfer.transfer")
     
-    super.transfer(inputs, id, actualOutput)
+    super.transfer(inputs, id, actualOutput,props)
   }
   
 }
