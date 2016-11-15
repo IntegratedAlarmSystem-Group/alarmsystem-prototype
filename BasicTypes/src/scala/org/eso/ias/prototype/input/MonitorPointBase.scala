@@ -1,5 +1,7 @@
 package org.eso.ias.prototype.input
 
+import org.eso.ias.prototype.input.typedmp.IASTypes
+
 /**
  * The context in which the monitor point is actually running
  */
@@ -18,14 +20,16 @@ object OperationalMode extends Enumeration {
  * @param id The unique ID of the monitor point
  * @param runningMode The operational mode
  * @param validity: The validity of the monitor point
+ * @param iasType: is the IAS type of this MonitorPoint
  * 
- * @see Monitorpoint
+ * @see Monitorpoint, IASTypes
  * @author acaproni
  */
 abstract class MonitorPointBase protected (
     val id: Identifier, // The unique ID of this MonitorPoint
     val runningMode: OperationalMode.Mode = OperationalMode.Unknown,
-    val validity: Validity.Value = Validity.Unreliable) extends Ordered[MonitorPointBase] {
+    val validity: Validity.Value = Validity.Unreliable,
+    val iasType: IASTypes.Value) extends Ordered[MonitorPointBase] {
   require(Option(id) != None)
   require(Option(runningMode) != None)
   require(Option(validity) != None)

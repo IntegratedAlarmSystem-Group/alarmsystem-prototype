@@ -40,6 +40,10 @@ class MonitorPointValue[A](
  * @param refreshRate: The expected refresh rate (msec) of this monitor point
  *                     (to be used to assess its validity)
  * @param valid: The validity of the monitor point
+ * @param theType: is the IAS type of this MonitorPoint
+ * 
+ * @see IASTYpe
+ * 
  * @author acaproni
  */
 class MonitorPoint[A] protected[input] (
@@ -48,8 +52,8 @@ class MonitorPoint[A] protected[input] (
     val actualValue: Option[MonitorPointValue[A]],
     mode: OperationalMode.Mode,
     valid: Validity.Value,
-    val iasType: IASTypes.Value) 
-extends MonitorPointBase(ident,mode,valid) {
+    theType: IASTypes.Value) 
+extends MonitorPointBase(ident,mode,valid,theType) {
   require(ident!=None,"The identifier can't be None")
   require(refreshRate>=MonitorPoint.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
   
