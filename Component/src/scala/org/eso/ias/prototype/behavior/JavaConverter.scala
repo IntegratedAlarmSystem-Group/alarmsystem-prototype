@@ -5,20 +5,19 @@ import scala.collection.mutable.Buffer
 import scala.collection.JavaConversions
 import java.util.Collection
 import org.eso.ias.prototype.input.Identifier
+import org.eso.ias.prototype.input.MonitorPoint
+import org.eso.ias.prototype.input.typedmp.IASTypes
 
 /**
- * <code>JavaConverter</code> converts scala inputs to java.
+ * <code>JavaConverter</code> offers commodity methods 
+ * to convert scala data structures to java.
  * 
- * The purpose of this class is to offer to java developers data structs 
- * they are used to deal with, hiding scala details.
+ * The purpose of this methods is to offer to java developers 
+ * data structs they are used to deal with, hiding scala details.
  * 
- * @param inputs The inputs of the component
- * @param ident: The identifier of this component
  * @author acaproni
  */
-class JavaConverter(
-    inputs: List[MonitorPointBase],
-    ident: Identifier) {
-    val javaInputs: Collection[MonitorPointBase] = JavaConversions.asJavaCollection(inputs)
-    val id: String = ident.runningID
+object JavaConverter {
+    
+     
 }

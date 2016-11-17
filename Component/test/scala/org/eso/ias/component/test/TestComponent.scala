@@ -8,13 +8,8 @@ import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmState
 import org.eso.ias.prototype.input.AckState
-import org.eso.ias.prototype.input.MonitorPointValue
 import scala.collection.mutable.HashMap
-import org.eso.ias.prototype.input.MonitorPointBase
-import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
-import org.eso.ias.prototype.input.typedmp.AlarmMP
 import org.eso.ias.prototype.input.typedmp.IASTypes
-import org.eso.ias.prototype.input.typedmp.LongMP
 import org.eso.ias.prototype.input.MonitorPoint
 import scala.collection.mutable.{Map => MutableMap }
 
@@ -40,41 +35,41 @@ class TestComponent extends FlatSpec {
   val requiredInputIDs = List("ID1", "ID2")
   // The HashMap with the monitor points in input
   // to pass when building a Component
-  val intialMPs = new HashMap[String,MonitorPointBase]()
+  val intialMPs = new HashMap[String,MonitorPoint]()
   
   // The ID of the first MP
   val mpI1Identifier = new Identifier(Some[String](requiredInputIDs(0)), Option[Identifier](compId))
-  val mp1: AlarmMP = MonitorPointFactory.monitorPoint(
+  val mp1 = MonitorPoint.monitorPoint(
       mpI1Identifier,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
   intialMPs(mp1.id.id.get)=mp1
   
   // The ID of the second MP
   val mpI2Identifier = new Identifier(Some[String](requiredInputIDs(1)), Option[Identifier](compId))
-  val mp2: AlarmMP = MonitorPointFactory.monitorPoint(
+  val mp2 = MonitorPoint.monitorPoint(
       mpI2Identifier,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
   intialMPs(mp2.id.id.get)=mp1
-  val actualInputs: MutableMap[String, MonitorPointBase] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
+  val actualInputs: MutableMap[String, MonitorPoint] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
   
   behavior of "A Component"
   
   it must "be correctly initialized" in {
-    val output: AlarmMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
       None,
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
       
     val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
@@ -90,13 +85,13 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to shelve a None AlarmValue" in {
-    val output: AlarmMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
       
     val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
@@ -111,13 +106,13 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to shelve a Non-AlarmValue output" in {
-    val output: LongMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.LongType).asInstanceOf[LongMP]
+      IASTypes.LongType)
       
     val comp: ComputingElement[Long] = new ComputingElement(
        compId,
@@ -133,14 +128,13 @@ class TestComponent extends FlatSpec {
   
   it must "shelve AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val mpVal: Option[MonitorPointValue[AlarmValue]] = Some(new MonitorPointValue[AlarmValue](alarmVal))
-    val output: AlarmMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
-      mpVal, 
+      alarmVal, 
       OperationalMode.Operational,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
       
     val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
@@ -152,19 +146,19 @@ class TestComponent extends FlatSpec {
     
     comp.shelve(true);
     
-    val shelvedVal = comp.output.asInstanceOf[AlarmMP].actualValue.get.value
+    val shelvedVal = comp.output.actualValue.get.value.asInstanceOf[AlarmValue]
     assert(shelvedVal.shelved)
     
   }
   
   it must "not allow to ack a None AlarmValue" in {
-    val output: AlarmMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
       
     val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
@@ -179,13 +173,13 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to ack a Non-AlarmValue output" in {
-    val output: LongMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
       OperationalMode.Unknown,
       Validity.Unreliable,
-      IASTypes.LongType).asInstanceOf[LongMP]
+      IASTypes.LongType)
       
     val comp: ComputingElement[Long] = new ComputingElement(
        compId,
@@ -201,14 +195,13 @@ class TestComponent extends FlatSpec {
   
   it must "ack an AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val mpVal: Option[MonitorPointValue[AlarmValue]] = Some(new MonitorPointValue[AlarmValue](alarmVal))
-    val output: AlarmMP = MonitorPointFactory.monitorPoint(
+    val output = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
-      mpVal, 
+      alarmVal, 
       OperationalMode.Operational,
       Validity.Unreliable,
-      IASTypes.AlarmType).asInstanceOf[AlarmMP]
+      IASTypes.AlarmType)
       
     val comp: ComputingElement[AlarmValue] = new ComputingElement(
        compId,
@@ -220,7 +213,7 @@ class TestComponent extends FlatSpec {
     
     comp.ack()
     
-    val ackedVal = comp.output.asInstanceOf[AlarmMP].actualValue.get.value
+    val ackedVal = comp.output.actualValue.get.value.asInstanceOf[AlarmValue]
     assert(ackedVal.acknowledgement==AckState.Acknowledged)
   }
   

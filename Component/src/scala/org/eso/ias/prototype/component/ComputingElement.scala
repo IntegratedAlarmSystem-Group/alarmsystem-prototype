@@ -3,11 +3,11 @@ package org.eso.ias.prototype.component
 import org.eso.ias.prototype.behavior.JavaTransfer
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.MonitorPoint
-import org.eso.ias.prototype.input.MonitorPointBase
 import scala.collection.mutable.HashMap
-import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.{Map => MutableMap }
+import org.eso.ias.prototype.input.AlarmValue
+import org.eso.ias.prototype.input.typedmp.IASTypes
 
 /**
  * It consists of a state (<code>ASCState</code>) and methods
@@ -53,12 +53,25 @@ import scala.collection.mutable.{Map => MutableMap }
  */
 class ComputingElement[T](
     ident: Identifier,
-    out: MonitorPoint[T],
+    out: MonitorPoint,
     requiredInputs: List[String],
-    actualInputs: MutableMap[String, MonitorPointBase],
+    actualInputs: MutableMap[String, MonitorPoint],
     script: String,
-    newInputs: MutableMap[String, MonitorPointBase] =  new HashMap[String,MonitorPointBase]()) 
+    newInputs: MutableMap[String, MonitorPoint] =  new HashMap[String,MonitorPoint]()) 
     extends ComputingElementBase[T](ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer[T] {
+  
+  
+  /**
+   * @return true if this component produces a synthetic parameter instead of an alarm
+   * @see isAlarmComponent
+   */
+  def isSyntheticParameterComponent = out.iasType!=IASTypes.AlarmType
+  
+  /**
+   * @return true if this component generates an alarm
+   * @see #isSyntheticParameterComponent
+   */
+  def isAlarmComponent = out.iasType!=IASTypes.AlarmType
   
   /**
    * A monitor point changed: it is stored in the map
@@ -67,7 +80,7 @@ class ComputingElement[T](
    * 
    * @param mp: The new value of a monitor point in input
    */
-  def inputChanged(mp: Some[MonitorPointBase]) {
+  def inputChanged(mp: Some[MonitorPoint]) {
     if (!requiredInputs.contains(mp.get.id.id.get)) {
       throw new IllegalStateException("Trying to pass a MP to a component that does not want it: "+mp.get.id.id.get+" not in "+requiredInputs.mkString(", "))
     }
@@ -88,12 +101,16 @@ class ComputingElement[T](
     //
     // Having a output with a value of None should never happen because its value is
     // updated depending on the value of the inputs
-    if (output.asInstanceOf[MonitorPoint[T]].actualValue== None) {
+    if (output.actualValue== None) {
       throw new IllegalStateException("Trying get an alarm but the value is None (alarm ID "+output.id+")") 
     }
-    val value: Any = output.asInstanceOf[MonitorPoint[T]].actualValue.get.value
+    if (output.iasType!=IASTypes.AlarmType) {
+      throw new IllegalStateException("Trying to get an alarm but the value has IAS type "+output.iasType+" (alarm ID "+output.id+")")
+    }
+    val value: Any = output.actualValue.get.value
+    
     if (! value.isInstanceOf[AlarmValue]) {
-      throw new IllegalStateException("Trying to get an alarm but the value has wrong type "+value.getClass()+" (alarm ID "+output.id+")")
+      throw new IllegalStateException("Type mismatch: IAS type is "+output.iasType+" but the class of the valueis "+value.getClass()+" (alarm ID "+output.id+")")
     }
     value.asInstanceOf[AlarmValue]
   }
@@ -113,7 +130,7 @@ class ComputingElement[T](
     if (value.shelved==newShelveState) this // No change
     val newValue = value.shelve(newShelveState)
     
-    output=output.asInstanceOf[MonitorPoint[T]].updateValue(newValue.asInstanceOf[T])    
+    output=output.updateValue(newValue)    
   }
   
   /**
@@ -130,6 +147,6 @@ class ComputingElement[T](
     if (value.acknowledgement==AckState.Acknowledged) this // No change
     val newValue = value.acknowledge()
     
-    output=output.asInstanceOf[MonitorPoint[T]].updateValue(newValue.asInstanceOf[T])
+    output=output.updateValue(newValue)
   }
 }

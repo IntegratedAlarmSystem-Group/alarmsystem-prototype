@@ -5,30 +5,22 @@ import org.eso.ias.prototype.input.typedmp.IASTypes
 import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
 
 /**
- * The value of the monitoring point is associated 
- * to a timestamp corresponding to the update time of 
- * the value
-*/
-class MonitorPointValue[A](
-    val value:A) {
-  val timestamp: Long = System.currentTimeMillis()
-  
-  override def toString(): String = { 
-    "Value "+value.toString() +
-    " updated at "+ISO8601Helper.getTimestamp(timestamp)
-  }
+ * The context in which the monitor point is actually running
+ */
+object OperationalMode extends Enumeration {
+  type Mode = Value
+  val StartUp, ShutDown, Maintenance, Operational, Unknown = Value
 }
 
 /**
- * A  <code>MonitorPoint</code> extends  <code>MonitorPointBase</code> 
- * by holding the value of a monitor point.
+ * A  <code>MonitorPoint</code> holds the value of a monitor point.
  * 
- * It is parametrized because a monitor point can be a double, an integer, an
- * array of integers and many other types. (Should we look for a better name?)
- * 
- * <code>MonitorPoint</code> is intended for internal use only:
- * objects of this type shall not be instantiated directly but accessed
- * through objects defined in <code>org.eso.ias.prototype.input.typedmp</code>.
+ * The type of the value that objects of this class hold is abstract
+ * in an attempt to get rid of java type erasure
+ * The type of a monitor point can be a double, an integer, an
+ * array of integers and many other types and must be set before
+ * instantiating an object of the class (@see the factory methods in the
+ * companion object).
  * 
  * <code>MonitorPoint</code> is immutable.
  * 
@@ -46,21 +38,50 @@ class MonitorPointValue[A](
  * 
  * @author acaproni
  */
-class MonitorPoint[A] protected[input] (
-    ident: Identifier,
-    val refreshRate: Int,
-    val actualValue: Option[MonitorPointValue[A]],
-    mode: OperationalMode.Mode,
-    valid: Validity.Value,
-    theType: IASTypes.Value) 
-extends MonitorPointBase(ident,mode,valid,theType) {
-  require(ident!=None,"The identifier can't be None")
+abstract class MonitorPoint private[input] (
+    val id: Identifier,
+    val refreshRate: Int,    
+    val mode: OperationalMode.Mode,
+    val validity: Validity.Value,
+    val iasType: IASTypes.Value) {
+  require(id!=None,"The identifier can't be None")
   require(refreshRate>=MonitorPoint.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
   
-   
+  /**
+   * Abstract type. 
+   * The type is defined by the factory when building a MonitorPoint
+   */
+  type MonitorPointType
+  
+  val theValue: Option[MonitorPointType]
+  
+  /**
+   * This property is abstract because its type depends
+   * on the abstract MonitorPointType
+   */
+  lazy val actualValue: Option[MonitorPointValue] = {
+    if (theValue==None) None else 
+    Option[MonitorPointValue](new MonitorPointValue(theValue.get.asInstanceOf[MonitorPointType]))
+  }
+  
+  /**
+   * The value of the monitor point is associated 
+   * to a timestamp corresponding to the update time of 
+   * the value
+   */
+  class MonitorPointValue(
+    val value: MonitorPointType) {
+    val timestamp: Long = System.currentTimeMillis()
+    
+    override def toString(): String = { 
+      "Value "+value.toString() +
+      " updated at "+ISO8601Helper.getTimestamp(timestamp)
+    }
+  }
+  
   override def toString(): String = {
     "Monitor point " + id.toString() +" of IAS type " +iasType+"\n\t" +  
-    runningMode.toString() + "\n\t" +
+    mode.toString() + "\n\t" +
     validity.toString() +"\n\t" +
     (if (actualValue==None) "No value" else "Value: "+actualValue.get.toString())
   }
@@ -68,14 +89,17 @@ extends MonitorPointBase(ident,mode,valid,theType) {
   /**
    * Update the value and validity of the monitor point
    */
-  def update(newValue: A,valid: Validity.Value):MonitorPoint[A]= {
+  def update[T](newValue: T,valid: Validity.Value): MonitorPoint = {
+    if (!Option[T](newValue).isDefined) throw new IllegalArgumentException("Inavalid new value for "+id.id.get+": "+newValue)
     if (
         actualValue!=None && 
-        actualValue.get.value == newValue &&
-        valid==validity) this
+        actualValue.get.value == newValue.asInstanceOf[MonitorPointType] &&
+        valid==validity) {
+      this
+    }
     else {
-      val value = Option(new MonitorPointValue[A](newValue))
-      MonitorPointFactory.monitorPoint[A](id,refreshRate,value,runningMode,valid,iasType).asInstanceOf[MonitorPoint[A]]
+      val value = if (newValue==None) None else newValue //Option(new MonitorPointValue(newValue.asInstanceOf[MonitorPointType]))
+      MonitorPoint.monitorPoint(id,refreshRate,value,mode,valid,iasType)
     }
   }
   
@@ -86,18 +110,8 @@ extends MonitorPointBase(ident,mode,valid,theType) {
    * @param newValue: The new value of the monitor point
    * @return updates the passed monitor point with the given new value
    */
-  def updateValue(newValue: A):MonitorPoint[A] = {
-    if (actualValue!=None && actualValue.get.value == newValue) this
-    else {
-      val value = Option(new MonitorPointValue[A](newValue))
-      MonitorPointFactory.monitorPoint[A](
-          id, 
-          refreshRate, 
-          value,
-          runningMode, 
-          validity,
-          iasType).asInstanceOf[MonitorPoint[A]]
-    }
+  def updateValue[T](newValue: T): MonitorPoint = {
+    update[T](newValue,validity)
   }
   
   /**
@@ -107,9 +121,10 @@ extends MonitorPointBase(ident,mode,valid,theType) {
    * @param newMode: The new mode of the monitor point
    * @return updates the passed monitor point with the given new mode
    */
-  override def updateMode(newMode: OperationalMode.Mode):MonitorPoint[A] = {
-    if (newMode==runningMode) this
-    else MonitorPointFactory.monitorPoint[A](id,refreshRate,actualValue,newMode,validity,iasType).asInstanceOf[MonitorPoint[A]]
+  def updateMode(newMode: OperationalMode.Mode):MonitorPoint = {
+    if (newMode==mode) this
+    else  if (theValue==None) MonitorPoint.monitorPoint(id,refreshRate,None,newMode,validity,iasType)
+    else MonitorPoint.monitorPoint(id,refreshRate,theValue.get,newMode,validity,iasType)
   }
   
   /**
@@ -119,9 +134,10 @@ extends MonitorPointBase(ident,mode,valid,theType) {
    * @param validMode: The new validity of the monitor point
    * @return updates the passed monitor point with the given new validity
    */
-  override def updateValidity(valid: Validity.Value):MonitorPoint[A] = {
+  def updateValidity(valid: Validity.Value):MonitorPoint = {
     if (valid==validity) this
-    else MonitorPointFactory.monitorPoint[A](id,refreshRate,actualValue,runningMode,valid,iasType).asInstanceOf[MonitorPoint[A]]
+    else if (theValue==None) MonitorPoint.monitorPoint(id,refreshRate,None,mode,valid,iasType)
+    else MonitorPoint.monitorPoint(id,refreshRate,theValue.get,mode,valid,iasType)
   }
 }
 
@@ -137,4 +153,71 @@ object MonitorPoint {
    * the source is stuck/dead.
    */
   val MinRefreshRate = 50;
+  
+  /**
+   * Check if the passed value is of the proper type
+   * 
+   * @param value: The value to check they type against the iasType
+   * @param iasType: The IAS type
+   */
+  def checkType[T](value: T, iasType: IASTypes.Value): Boolean = {
+    if (value==None) true
+    else iasType match {
+      case IASTypes.LongType => value.isInstanceOf[Long]
+      case IASTypes.AlarmType =>value.isInstanceOf[AlarmValue] 
+      case _ => false
+    }
+  }
+  
+    /**
+   * Build a monitor point without a value, mode and validity.
+   * 
+   * This factory method must be used to create a new monitor point,
+   * not to update an existing one as it uses only defaults values
+   * 
+   * @param ident: The identifier of the MP
+   * @param refreshRate: The expected refresh rate of the MP
+   */
+  def monitorPoint(
+      ident: Identifier, 
+      refreshRate: Int,
+      iasType: IASTypes.Value): MonitorPoint = {
+    iasType match {
+      case IASTypes.LongType => new MonitorPoint(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType) {type MonitorPointType=Long; val theValue=None} 
+      case IASTypes.AlarmType => new MonitorPoint(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType){type MonitorPointType=AlarmValue; val theValue=None} 
+      case _ => throw new UnsupportedOperationException("Unsupported IAS type")
+    }
+    
+  }
+  
+  /**
+   * Factory method to build a new MonitorPoint
+   * 
+   * @param ident: The unique ID of the monitor point
+   * @param refreshRate: The expected refresh rate of the MP
+	 * @param value: The value of the monitor point
+ 	 * @param mode: The operational mode
+ 	 * @param valid: The validity of the monitor point
+ 	 * @param iasType: The type of the monitor point
+   */
+  def monitorPoint[T](
+      ident: Identifier,
+      refreshRate: Int,
+      value: T,
+      mode: OperationalMode.Mode = OperationalMode.Unknown,
+      valid: Validity.Value = Validity.Unreliable,
+      iasType: IASTypes.Value): MonitorPoint = {
+    
+    if (!checkType(value, iasType)) throw new ClassCastException("The value ["+value+"] is not a "+iasType.toString())
+    
+    iasType match {
+      case IASTypes.LongType => {
+        new MonitorPoint(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Long; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
+      }
+      case IASTypes.AlarmType => {
+        new MonitorPoint(ident,refreshRate,mode,valid,iasType){type MonitorPointType=AlarmValue; val theValue=if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
+      }
+       case _ => throw new UnsupportedOperationException("Unsupported IAS type")
+    }
+  }
 }

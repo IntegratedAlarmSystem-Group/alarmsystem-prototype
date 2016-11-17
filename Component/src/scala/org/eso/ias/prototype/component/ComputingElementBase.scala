@@ -1,7 +1,6 @@
 package org.eso.ias.prototype.component
 
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.MonitorPointBase
 import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmValue
@@ -36,11 +35,11 @@ import java.util.Properties
  */
 abstract class ComputingElementBase[T] (
     ident: Identifier,
-    out: MonitorPoint[T],
+    out: MonitorPoint,
     requiredInputs: List[String],
-    actualInputs: MutableMap[String,MonitorPointBase],
+    actualInputs: MutableMap[String,MonitorPoint],
     script: String,
-    val newInputs: MutableMap[String, MonitorPointBase])
+    val newInputs: MutableMap[String, MonitorPoint])
     extends ComputingElementState(ident,out,actualInputs,script) {
   require(requiredInputs!=None && !requiredInputs.isEmpty,"Invalid (empty or null) list of required inputs to the component")
   require(requiredInputs.size==actualInputs.size,"Inconsistent size of lists of inputs")
@@ -76,9 +75,9 @@ abstract class ComputingElementBase[T] (
     
     // Prepare the list of the inputs by replacing the ones in the 
     // inputs with those in the newInputs
-    val immutableMapOfInputs: Map[String, MonitorPointBase] = Map.empty++inputs
+    val immutableMapOfInputs: Map[String, MonitorPoint] = Map.empty++inputs
     
-    output = transfer(immutableMapOfInputs,id,output.asInstanceOf[MonitorPoint[T]],System.getProperties)
+    output = transfer(immutableMapOfInputs,id,output.asInstanceOf[MonitorPoint],System.getProperties)
   }
   
   /**
@@ -89,8 +88,8 @@ abstract class ComputingElementBase[T] (
    *                        of the output of the component
    */
   private def mixInputs(
-      oldInputs: MutableMap[String, MonitorPointBase], 
-      receivedInputs: MutableMap[String, MonitorPointBase] ) = {
+      oldInputs: MutableMap[String, MonitorPoint], 
+      receivedInputs: MutableMap[String, MonitorPoint] ) = {
     
     val len= inputs.size
     receivedInputs.synchronized {
@@ -114,16 +113,16 @@ abstract class ComputingElementBase[T] (
    * @return The new output
    */
   def transfer(
-      inputs: Map[String, MonitorPointBase], 
+      inputs: Map[String, MonitorPoint], 
       id: Identifier,
-      actualOutput: MonitorPoint[T],
-      props: Properties) : MonitorPoint[T] = {
+      actualOutput: MonitorPoint,
+      props: Properties) : MonitorPoint = {
     
     val valitiesSet = MutableSet[Validity.Value]()
     for ( monitorPoint <- inputs.values ) valitiesSet += monitorPoint.validity
     val newValidity = Validity.min(valitiesSet.toList) 
     
-    output.updateValidity(newValidity).asInstanceOf[MonitorPoint[T]]
+    output.updateValidity(newValidity).asInstanceOf[MonitorPoint]
   }
   
   override def toString() = {

@@ -2,16 +2,12 @@ package org.eso.ias.component.test
 
 import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.AlarmValue
-import org.eso.ias.prototype.input.MonitorPointValue
 import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Validity
-import org.eso.ias.prototype.input.MonitorPointBase
 import org.eso.ias.prototype.component.ComputingElement
-import org.eso.ias.prototype.input.MonitorPointValue
 import org.eso.ias.prototype.component.ComputingElementBase
-import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
 import org.eso.ias.prototype.input.typedmp.IASTypes
 import scala.collection.mutable.{Map => MutableMap }
 
@@ -37,13 +33,12 @@ class TestTransferFunction extends FlatSpec {
     val outId = new Identifier(Some[String]("OutputId"), None)
     // Build the MP in output
     val alarmVal = new AlarmValue()
-    val mpVal: Option[MonitorPointValue[AlarmValue]] = Some(new MonitorPointValue[AlarmValue](alarmVal))
-    val output: MonitorPoint[AlarmValue] = MonitorPointFactory.monitorPoint(
+    val output: MonitorPoint = MonitorPoint.monitorPoint(
       outId,
       mpRefreshRate,
-      mpVal, 
+      alarmVal, 
       OperationalMode.Operational,
-      Validity.Unreliable, IASTypes.AlarmType).asInstanceOf[MonitorPoint[AlarmValue]]
+      Validity.Unreliable, IASTypes.AlarmType)
       
     // The IDs of the monitor points in input 
     // to pass when building a Component
@@ -51,21 +46,21 @@ class TestTransferFunction extends FlatSpec {
     
     // Create numOfInputs MPs
     var i=0 // To create different types of MPs
-    val inputsMPs: MutableMap[String, MonitorPointBase] = MutableMap[String, MonitorPointBase]()
+    val inputsMPs: MutableMap[String, MonitorPoint] = MutableMap[String, MonitorPoint]()
     for (id <- requiredInputIDs) {
       val mpId = new Identifier(Some[String](id),Option[Identifier](compID))
       i=i+1
       val mp = if ((i%2)==0) {
-        val mpVal = Option[MonitorPointValue[AlarmValue]](new MonitorPointValue[AlarmValue](new AlarmValue()))
-        MonitorPointFactory.monitorPoint(
+        val mpVal = new AlarmValue()
+        MonitorPoint.monitorPoint(
           mpId,
           mpRefreshRate,
           mpVal, 
           OperationalMode.Operational,
           Validity.Unreliable, IASTypes.AlarmType)
       } else {
-        val mpVal = Option[MonitorPointValue[Long]](new MonitorPointValue[Long](1L))
-        MonitorPointFactory.monitorPoint(
+        val mpVal = 1L
+        MonitorPoint.monitorPoint(
           mpId,
           mpRefreshRate,
           mpVal, 

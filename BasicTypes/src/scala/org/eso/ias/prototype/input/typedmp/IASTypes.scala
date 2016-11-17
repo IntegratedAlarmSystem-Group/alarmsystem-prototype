@@ -1,5 +1,7 @@
 package org.eso.ias.prototype.input.typedmp
 
+import org.eso.ias.prototype.input.AlarmValue
+
 /**
  * The all and only possible types of the IAS MonitorPoints: * 
  * scala basic types and IAS custom types 

@@ -2,7 +2,7 @@ package org.eso.ias.prototype.component
 
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.MonitorPointBase
+import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.utils.ISO8601Helper
 
 /**
@@ -42,11 +42,14 @@ import org.eso.ias.prototype.utils.ISO8601Helper
  */
 class ComputingElementState (
     final val id: Identifier,
-    var output: MonitorPointBase,
-    final val inputs: MutableMap[String, MonitorPointBase],
+    var output: MonitorPoint,
+    final val inputs: MutableMap[String, MonitorPoint],
     final val transferFunction: String)
 {
-  require(Option[MonitorPointBase](output)!=None)
+  require(Option[MonitorPoint](output).isDefined)
+  require(Option[Identifier](id).isDefined)
+  require(Option[MutableMap[String, MonitorPoint]](inputs).isDefined)
+  require(Option[String](transferFunction).isDefined)
   
   /**
    * The point in time when this objects (i.e. the snapshot) has been
