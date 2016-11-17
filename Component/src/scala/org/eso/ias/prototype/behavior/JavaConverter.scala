@@ -1,6 +1,5 @@
 package org.eso.ias.prototype.behavior
 
-import org.eso.ias.prototype.input.MonitorPointBase
 import scala.collection.mutable.Buffer
 import scala.collection.JavaConversions
 import java.util.Collection

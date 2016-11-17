@@ -3,7 +3,7 @@ package org.eso.ias.prototype.behavior;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.eso.ias.prototype.input.MonitorPointBase;
+import org.eso.ias.prototype.input.MonitorPoint;
 
 public class TransferExecutorImpl<T>  extends TransferExecutor<T> {
 	
@@ -23,10 +23,10 @@ public class TransferExecutorImpl<T>  extends TransferExecutor<T> {
 		System.out.println("TransferExecutorImpl: shutting down");
 	}
 	
-	public IASValue eval(Collection<MonitorPointBase> compInputs) {
+	public IASValue eval(Collection<MonitorPoint> compInputs) {
 		System.out.println("TransferExecutorImpl: evaluating "+compInputs.size()+" inputs");
 		System.out.println("TransferExecutorImpl for comp. with ID="+compElementId);
-		for (MonitorPointBase input: compInputs) {
+		for (MonitorPoint input: compInputs) {
 			System.out.println(input);
 		}
 		return null;

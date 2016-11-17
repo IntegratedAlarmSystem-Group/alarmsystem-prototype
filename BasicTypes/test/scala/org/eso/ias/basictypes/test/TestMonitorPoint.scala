@@ -6,7 +6,6 @@ import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.MonitorPoint
 import org.eso.ias.prototype.input.typedmp.IASTypes
-import org.eso.ias.prototype.input.typedmp.MonitorPointFactory
 
 /**
  * Test the LongMP

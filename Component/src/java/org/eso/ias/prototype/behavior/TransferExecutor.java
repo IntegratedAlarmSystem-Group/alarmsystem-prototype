@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 import org.eso.ias.prototype.input.Identifier;
-import org.eso.ias.prototype.input.MonitorPointBase;
+import org.eso.ias.prototype.input.MonitorPoint;
 
 /**
  * 
@@ -85,5 +85,5 @@ public abstract class TransferExecutor<T> {
 	 * @param compInputs: the inputs to the ASCE
 	 * @return the computed value to set as output of the ASCE
 	 */
-	public abstract IASValue<T> eval(Collection<MonitorPointBase> compInputs);
+	public abstract IASValue<T> eval(Collection<MonitorPoint> compInputs);
 }
