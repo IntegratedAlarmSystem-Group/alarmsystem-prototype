@@ -39,7 +39,7 @@ class TestComponent extends FlatSpec {
   
   // The ID of the first MP
   val mpI1Identifier = new Identifier(Some[String](requiredInputIDs(0)), Option[Identifier](compId))
-  val mp1 = HeteroInOut.monitorPoint(
+  val mp1 = HeteroInOut(
       mpI1Identifier,
       mpRefreshRate,
       None, 
@@ -50,7 +50,7 @@ class TestComponent extends FlatSpec {
   
   // The ID of the second MP
   val mpI2Identifier = new Identifier(Some[String](requiredInputIDs(1)), Option[Identifier](compId))
-  val mp2 = HeteroInOut.monitorPoint(
+  val mp2 = HeteroInOut(
       mpI2Identifier,
       mpRefreshRate,
       None, 
@@ -63,7 +63,7 @@ class TestComponent extends FlatSpec {
   behavior of "A Component"
   
   it must "be correctly initialized" in {
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       None,
@@ -85,7 +85,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to shelve a None AlarmValue" in {
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       None, 
@@ -106,7 +106,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to shelve a Non-AlarmValue output" in {
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       None, 
@@ -128,7 +128,7 @@ class TestComponent extends FlatSpec {
   
   it must "shelve AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       alarmVal, 
@@ -152,7 +152,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to ack a None AlarmValue" in {
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       None, 
@@ -173,7 +173,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to ack a Non-AlarmValue output" in {
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       None, 
@@ -195,7 +195,7 @@ class TestComponent extends FlatSpec {
   
   it must "ack an AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val output = HeteroInOut.monitorPoint(
+    val output = HeteroInOut(
       outId,
       mpRefreshRate,
       alarmVal, 

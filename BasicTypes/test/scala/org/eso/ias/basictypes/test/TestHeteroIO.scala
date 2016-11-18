@@ -20,7 +20,7 @@ class TestHeteroIO extends FlatSpec {
   behavior of "A heterogeneous IO" 
   
   it must "have an ID" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     
     assert (!mp.actualValue.isDefined)
     assert(mp.mode == OperationalMode.Unknown)
@@ -28,7 +28,7 @@ class TestHeteroIO extends FlatSpec {
   }
   
   it must "Have the same ID after changing other props" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     
     // Change the value of the previous MP
     val mp2 = mp.updateValue(3L)
@@ -58,13 +58,13 @@ class TestHeteroIO extends FlatSpec {
   }
   
   it must "allow to update the value" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     val mpUpdatedValue = mp.updateValue(5L)
     assert(mpUpdatedValue.actualValue.get.value==5L,"The values differ")    
   }
   
   it must "allow to update the validity" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     val mpUpdatedValidityRelaible = mp.updateValidity(Validity.Reliable)
     assert(mpUpdatedValidityRelaible.validity==Validity.Reliable,"The validities differ")
     
@@ -73,20 +73,20 @@ class TestHeteroIO extends FlatSpec {
   }
   
   it must "allow to update the mode" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     val mpUpdatedMode= mp.updateMode(OperationalMode.Operational)
     assert(mpUpdatedMode.mode==OperationalMode.Operational,"The modes differ")
   }
   
   it must "allow to update the value and validity at once" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     val mpUpdated = mp.update(15L,Validity.Reliable)
     assert(mpUpdated.actualValue.get.value==15L,"The values differ")
     assert(mpUpdated.validity==Validity.Reliable,"The validities differ")
   }
   
   it must "return the same object if values, validity or mode did not change" in {
-    val mp: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
+    val mp: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
     
     val upVal = mp.updateValue(10L)
     assert(upVal.actualValue.get.value==10L,"The values differ")

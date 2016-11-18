@@ -18,8 +18,8 @@ class TestInputTypes  extends FlatSpec {
   
   it must "throws an exception with a type mismatch" in {
     
-    val mpLong:  HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.LongType)
-    val mpAlarm: HeteroInOut = HeteroInOut.monitorPoint(id,refreshRate,IASTypes.AlarmType)
+    val mpLong:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
+    val mpAlarm: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.AlarmType)
     
     assertThrows[ClassCastException] {
       mpLong.updateValue(new AlarmValue)

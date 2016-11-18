@@ -98,7 +98,7 @@ abstract class HeteroInOut private[input] (
     }
     else {
       val value = if (newValue==None) None else newValue //Option(new MonitorPointValue(newValue.asInstanceOf[MonitorPointType]))
-      HeteroInOut.monitorPoint(id,refreshRate,value,mode,valid,iasType)
+      HeteroInOut(id,refreshRate,value,mode,valid,iasType)
     }
   }
   
@@ -122,8 +122,8 @@ abstract class HeteroInOut private[input] (
    */
   def updateMode(newMode: OperationalMode.Mode):HeteroInOut = {
     if (newMode==mode) this
-    else  if (theValue==None) HeteroInOut.monitorPoint(id,refreshRate,None,newMode,validity,iasType)
-    else HeteroInOut.monitorPoint(id,refreshRate,theValue.get,newMode,validity,iasType)
+    else  if (theValue==None) HeteroInOut(id,refreshRate,None,newMode,validity,iasType)
+    else HeteroInOut(id,refreshRate,theValue.get,newMode,validity,iasType)
   }
   
   /**
@@ -135,8 +135,8 @@ abstract class HeteroInOut private[input] (
    */
   def updateValidity(valid: Validity.Value):HeteroInOut = {
     if (valid==validity) this
-    else if (theValue==None) HeteroInOut.monitorPoint(id,refreshRate,None,mode,valid,iasType)
-    else HeteroInOut.monitorPoint(id,refreshRate,theValue.get,mode,valid,iasType)
+    else if (theValue==None) HeteroInOut(id,refreshRate,None,mode,valid,iasType)
+    else HeteroInOut(id,refreshRate,theValue.get,mode,valid,iasType)
   }
 }
 
@@ -177,7 +177,7 @@ object HeteroInOut {
    * @param ident: The identifier of the MP
    * @param refreshRate: The expected refresh rate of the MP
    */
-  def monitorPoint(
+  def apply(
       ident: Identifier, 
       refreshRate: Int,
       iasType: IASTypes.Value): HeteroInOut = {
@@ -199,7 +199,7 @@ object HeteroInOut {
  	 * @param valid: The validity of the monitor point
  	 * @param iasType: The type of the monitor point
    */
-  def monitorPoint[T](
+  def apply[T](
       ident: Identifier,
       refreshRate: Int,
       value: T,

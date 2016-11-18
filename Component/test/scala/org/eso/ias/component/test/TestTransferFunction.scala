@@ -33,7 +33,7 @@ class TestTransferFunction extends FlatSpec {
     val outId = new Identifier(Some[String]("OutputId"), None)
     // Build the MP in output
     val alarmVal = new AlarmValue()
-    val output: HeteroInOut = HeteroInOut.monitorPoint(
+    val output: HeteroInOut = HeteroInOut(
       outId,
       mpRefreshRate,
       alarmVal, 
@@ -52,7 +52,7 @@ class TestTransferFunction extends FlatSpec {
       i=i+1
       val mp = if ((i%2)==0) {
         val mpVal = new AlarmValue()
-        HeteroInOut.monitorPoint(
+        HeteroInOut(
           mpId,
           mpRefreshRate,
           mpVal, 
@@ -60,7 +60,7 @@ class TestTransferFunction extends FlatSpec {
           Validity.Unreliable, IASTypes.AlarmType)
       } else {
         val mpVal = 1L
-        HeteroInOut.monitorPoint(
+        HeteroInOut(
           mpId,
           mpRefreshRate,
           mpVal, 
