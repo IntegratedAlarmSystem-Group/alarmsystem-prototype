@@ -33,7 +33,7 @@ import java.util.Properties
  * @see AlarmSystemComponent, ASCState
  * @author acaproni
  */
-abstract class ComputingElementBase[T] (
+abstract class ComputingElementBase (
     ident: Identifier,
     out: HeteroInOut,
     requiredInputs: List[String],

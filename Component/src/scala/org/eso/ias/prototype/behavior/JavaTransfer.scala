@@ -15,7 +15,7 @@ import java.util.Properties
  * Note that the Validity of the output is not set by the transfer function
  * but automatically implemented by the ASC
  */
-trait JavaTransfer[T] extends ComputingElementBase[T] {
+trait JavaTransfer extends ComputingElementBase {
   
    abstract override def transfer(
       inputs: Map[String, HeteroInOut], 

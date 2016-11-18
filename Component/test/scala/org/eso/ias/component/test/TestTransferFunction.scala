@@ -69,7 +69,7 @@ class TestTransferFunction extends FlatSpec {
       }
       inputsMPs+=(mp.id.id.get -> mp)
     }
-    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
+    val comp: ComputingElement = new ComputingElement(
        compID,
        output,
        requiredInputIDs,
@@ -84,13 +84,13 @@ class TestTransferFunction extends FlatSpec {
     // validities have this level
     // At the present, this is the only test we can do with only 2 values for the
     // validity
-    val component: ComputingElementBase[AlarmValue] = comp
+    val component: ComputingElementBase = comp
     
     val keys=inputsMPs.keys.toList.sorted
     keys.foreach { key  => {
       val changedMP = inputsMPs(key).updateValidity(Validity.Reliable)
           
-      component.asInstanceOf[ComputingElement[AlarmValue]].inputChanged(Some(changedMP))
+      component.asInstanceOf[ComputingElement].inputChanged(Some(changedMP))
       
       component.transfer()
       if (key!=keys.last) assert(component.output.validity==Validity.Unreliable)

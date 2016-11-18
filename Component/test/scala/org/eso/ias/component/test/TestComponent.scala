@@ -71,7 +71,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType)
       
-    val comp: ComputingElement[AlarmValue] = new ComputingElement(
+    val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -93,7 +93,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType)
       
-    val comp: ComputingElement[AlarmValue] = new ComputingElement(
+    val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -114,7 +114,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.LongType)
       
-    val comp: ComputingElement[Long] = new ComputingElement(
+    val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -136,7 +136,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType)
       
-    val comp: ComputingElement[AlarmValue] = new ComputingElement(
+    val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -160,7 +160,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType)
       
-    val comp: ComputingElement[AlarmValue] = new ComputingElement(
+    val comp: ComputingElement= new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -181,7 +181,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.LongType)
       
-    val comp: ComputingElement[Long] = new ComputingElement(
+    val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
@@ -203,7 +203,7 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType)
       
-    val comp: ComputingElement[AlarmValue] = new ComputingElement(
+    val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,

@@ -51,14 +51,14 @@ import org.eso.ias.prototype.input.typedmp.IASTypes
  * 
  * @author acaproni
  */
-class ComputingElement[T](
+class ComputingElement(
     ident: Identifier,
     out: HeteroInOut,
     requiredInputs: List[String],
     actualInputs: MutableMap[String, HeteroInOut],
     script: String,
     newInputs: MutableMap[String, HeteroInOut] =  new HashMap[String,HeteroInOut]()) 
-    extends ComputingElementBase[T](ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer[T] {
+    extends ComputingElementBase(ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer {
   
   
   /**
