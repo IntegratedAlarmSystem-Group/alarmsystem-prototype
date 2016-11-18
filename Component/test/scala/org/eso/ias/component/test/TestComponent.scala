@@ -10,7 +10,7 @@ import org.eso.ias.prototype.input.AlarmState
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.typedmp.IASTypes
-import org.eso.ias.prototype.input.MonitorPoint
+import org.eso.ias.prototype.input.HeteroInOut
 import scala.collection.mutable.{Map => MutableMap }
 
 /**
@@ -28,18 +28,18 @@ class TestComponent extends FlatSpec {
   // The ID of the component to test
   val compId = new Identifier(Some[String]("ComponentId"), Option[Identifier](dasId))
   
-  val mpRefreshRate = MonitorPoint.MinRefreshRate+50
+  val mpRefreshRate = HeteroInOut.MinRefreshRate+50
   
   // The IDs of the monitor points in input 
   // to pass when building a Component
   val requiredInputIDs = List("ID1", "ID2")
   // The HashMap with the monitor points in input
   // to pass when building a Component
-  val intialMPs = new HashMap[String,MonitorPoint]()
+  val intialMPs = new HashMap[String,HeteroInOut]()
   
   // The ID of the first MP
   val mpI1Identifier = new Identifier(Some[String](requiredInputIDs(0)), Option[Identifier](compId))
-  val mp1 = MonitorPoint.monitorPoint(
+  val mp1 = HeteroInOut.monitorPoint(
       mpI1Identifier,
       mpRefreshRate,
       None, 
@@ -50,7 +50,7 @@ class TestComponent extends FlatSpec {
   
   // The ID of the second MP
   val mpI2Identifier = new Identifier(Some[String](requiredInputIDs(1)), Option[Identifier](compId))
-  val mp2 = MonitorPoint.monitorPoint(
+  val mp2 = HeteroInOut.monitorPoint(
       mpI2Identifier,
       mpRefreshRate,
       None, 
@@ -58,12 +58,12 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.AlarmType)
   intialMPs(mp2.id.id.get)=mp1
-  val actualInputs: MutableMap[String, MonitorPoint] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
+  val actualInputs: MutableMap[String, HeteroInOut] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
   
   behavior of "A Component"
   
   it must "be correctly initialized" in {
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       None,
@@ -85,7 +85,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to shelve a None AlarmValue" in {
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
@@ -106,7 +106,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to shelve a Non-AlarmValue output" in {
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
@@ -128,7 +128,7 @@ class TestComponent extends FlatSpec {
   
   it must "shelve AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       alarmVal, 
@@ -152,7 +152,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to ack a None AlarmValue" in {
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
@@ -173,7 +173,7 @@ class TestComponent extends FlatSpec {
   }
   
   it must "not allow to ack a Non-AlarmValue output" in {
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       None, 
@@ -195,7 +195,7 @@ class TestComponent extends FlatSpec {
   
   it must "ack an AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val output = MonitorPoint.monitorPoint(
+    val output = HeteroInOut.monitorPoint(
       outId,
       mpRefreshRate,
       alarmVal, 

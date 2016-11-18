@@ -37,14 +37,14 @@ object OperationalMode extends Enumeration {
  * 
  * @author acaproni
  */
-abstract class MonitorPoint private[input] (
+abstract class HeteroInOut private[input] (
     val id: Identifier,
     val refreshRate: Int,    
     val mode: OperationalMode.Mode,
     val validity: Validity.Value,
     val iasType: IASTypes.Value) {
   require(id!=None,"The identifier can't be None")
-  require(refreshRate>=MonitorPoint.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
+  require(refreshRate>=HeteroInOut.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
   
   /**
    * Abstract type. 
@@ -88,7 +88,7 @@ abstract class MonitorPoint private[input] (
   /**
    * Update the value and validity of the monitor point
    */
-  def update[T](newValue: T,valid: Validity.Value): MonitorPoint = {
+  def update[T](newValue: T,valid: Validity.Value): HeteroInOut = {
     if (!Option[T](newValue).isDefined) throw new IllegalArgumentException("Inavalid new value for "+id.id.get+": "+newValue)
     if (
         actualValue!=None && 
@@ -98,7 +98,7 @@ abstract class MonitorPoint private[input] (
     }
     else {
       val value = if (newValue==None) None else newValue //Option(new MonitorPointValue(newValue.asInstanceOf[MonitorPointType]))
-      MonitorPoint.monitorPoint(id,refreshRate,value,mode,valid,iasType)
+      HeteroInOut.monitorPoint(id,refreshRate,value,mode,valid,iasType)
     }
   }
   
@@ -109,7 +109,7 @@ abstract class MonitorPoint private[input] (
    * @param newValue: The new value of the monitor point
    * @return updates the passed monitor point with the given new value
    */
-  def updateValue[T](newValue: T): MonitorPoint = {
+  def updateValue[T](newValue: T): HeteroInOut = {
     update[T](newValue,validity)
   }
   
@@ -120,10 +120,10 @@ abstract class MonitorPoint private[input] (
    * @param newMode: The new mode of the monitor point
    * @return updates the passed monitor point with the given new mode
    */
-  def updateMode(newMode: OperationalMode.Mode):MonitorPoint = {
+  def updateMode(newMode: OperationalMode.Mode):HeteroInOut = {
     if (newMode==mode) this
-    else  if (theValue==None) MonitorPoint.monitorPoint(id,refreshRate,None,newMode,validity,iasType)
-    else MonitorPoint.monitorPoint(id,refreshRate,theValue.get,newMode,validity,iasType)
+    else  if (theValue==None) HeteroInOut.monitorPoint(id,refreshRate,None,newMode,validity,iasType)
+    else HeteroInOut.monitorPoint(id,refreshRate,theValue.get,newMode,validity,iasType)
   }
   
   /**
@@ -133,17 +133,17 @@ abstract class MonitorPoint private[input] (
    * @param validMode: The new validity of the monitor point
    * @return updates the passed monitor point with the given new validity
    */
-  def updateValidity(valid: Validity.Value):MonitorPoint = {
+  def updateValidity(valid: Validity.Value):HeteroInOut = {
     if (valid==validity) this
-    else if (theValue==None) MonitorPoint.monitorPoint(id,refreshRate,None,mode,valid,iasType)
-    else MonitorPoint.monitorPoint(id,refreshRate,theValue.get,mode,valid,iasType)
+    else if (theValue==None) HeteroInOut.monitorPoint(id,refreshRate,None,mode,valid,iasType)
+    else HeteroInOut.monitorPoint(id,refreshRate,theValue.get,mode,valid,iasType)
   }
 }
 
 /** 
  *  Provides factory methods for building MonitorPoint objects
  */
-object MonitorPoint {
+object HeteroInOut {
   
   /**
    * The min possible value for the refresh rate
@@ -180,10 +180,10 @@ object MonitorPoint {
   def monitorPoint(
       ident: Identifier, 
       refreshRate: Int,
-      iasType: IASTypes.Value): MonitorPoint = {
+      iasType: IASTypes.Value): HeteroInOut = {
     iasType match {
-      case IASTypes.LongType => new MonitorPoint(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType) {type MonitorPointType=Long; val theValue=None} 
-      case IASTypes.AlarmType => new MonitorPoint(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType){type MonitorPointType=AlarmValue; val theValue=None} 
+      case IASTypes.LongType => new HeteroInOut(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType) {type MonitorPointType=Long; val theValue=None} 
+      case IASTypes.AlarmType => new HeteroInOut(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType){type MonitorPointType=AlarmValue; val theValue=None} 
       case _ => throw new UnsupportedOperationException("Unsupported IAS type")
     }
     
@@ -205,16 +205,16 @@ object MonitorPoint {
       value: T,
       mode: OperationalMode.Mode = OperationalMode.Unknown,
       valid: Validity.Value = Validity.Unreliable,
-      iasType: IASTypes.Value): MonitorPoint = {
+      iasType: IASTypes.Value): HeteroInOut = {
     
     if (!checkType(value, iasType)) throw new ClassCastException("The value ["+value+"] is not a "+iasType.toString())
     
     iasType match {
       case IASTypes.LongType => {
-        new MonitorPoint(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Long; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
+        new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Long; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
       }
       case IASTypes.AlarmType => {
-        new MonitorPoint(ident,refreshRate,mode,valid,iasType){type MonitorPointType=AlarmValue; val theValue=if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
+        new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=AlarmValue; val theValue=if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
       }
        case _ => throw new UnsupportedOperationException("Unsupported IAS type")
     }

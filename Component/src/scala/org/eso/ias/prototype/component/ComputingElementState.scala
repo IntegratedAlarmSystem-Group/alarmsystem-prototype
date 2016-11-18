@@ -2,7 +2,7 @@ package org.eso.ias.prototype.component
 
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.MonitorPoint
+import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.utils.ISO8601Helper
 
 /**
@@ -42,13 +42,13 @@ import org.eso.ias.prototype.utils.ISO8601Helper
  */
 class ComputingElementState (
     final val id: Identifier,
-    var output: MonitorPoint,
-    final val inputs: MutableMap[String, MonitorPoint],
+    var output: HeteroInOut,
+    final val inputs: MutableMap[String, HeteroInOut],
     final val transferFunction: String)
 {
-  require(Option[MonitorPoint](output).isDefined)
+  require(Option[HeteroInOut](output).isDefined)
   require(Option[Identifier](id).isDefined)
-  require(Option[MutableMap[String, MonitorPoint]](inputs).isDefined)
+  require(Option[MutableMap[String, HeteroInOut]](inputs).isDefined)
   require(Option[String](transferFunction).isDefined)
   
   /**

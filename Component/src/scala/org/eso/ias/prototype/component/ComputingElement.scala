@@ -2,7 +2,7 @@ package org.eso.ias.prototype.component
 
 import org.eso.ias.prototype.behavior.JavaTransfer
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.MonitorPoint
+import org.eso.ias.prototype.input.HeteroInOut
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.{Map => MutableMap }
@@ -53,11 +53,11 @@ import org.eso.ias.prototype.input.typedmp.IASTypes
  */
 class ComputingElement[T](
     ident: Identifier,
-    out: MonitorPoint,
+    out: HeteroInOut,
     requiredInputs: List[String],
-    actualInputs: MutableMap[String, MonitorPoint],
+    actualInputs: MutableMap[String, HeteroInOut],
     script: String,
-    newInputs: MutableMap[String, MonitorPoint] =  new HashMap[String,MonitorPoint]()) 
+    newInputs: MutableMap[String, HeteroInOut] =  new HashMap[String,HeteroInOut]()) 
     extends ComputingElementBase[T](ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer[T] {
   
   
@@ -80,7 +80,7 @@ class ComputingElement[T](
    * 
    * @param mp: The new value of a monitor point in input
    */
-  def inputChanged(mp: Some[MonitorPoint]) {
+  def inputChanged(mp: Some[HeteroInOut]) {
     if (!requiredInputs.contains(mp.get.id.id.get)) {
       throw new IllegalStateException("Trying to pass a MP to a component that does not want it: "+mp.get.id.id.get+" not in "+requiredInputs.mkString(", "))
     }

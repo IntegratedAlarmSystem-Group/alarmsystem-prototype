@@ -2,7 +2,7 @@ package org.eso.ias.prototype.behavior
 
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.MonitorPoint
+import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.component.ComputingElementBase
 import org.eso.ias.prototype.input.AlarmValue
 import java.util.Properties
@@ -18,10 +18,10 @@ import java.util.Properties
 trait JavaTransfer[T] extends ComputingElementBase[T] {
   
    abstract override def transfer(
-      inputs: Map[String, MonitorPoint], 
+      inputs: Map[String, HeteroInOut], 
       id: Identifier,
-      actualOutput: MonitorPoint,
-      props: Properties): MonitorPoint = {
+      actualOutput: HeteroInOut,
+      props: Properties): HeteroInOut = {
     println("JavaTransfer.transfer")
     
     super.transfer(inputs, id, actualOutput,props)
