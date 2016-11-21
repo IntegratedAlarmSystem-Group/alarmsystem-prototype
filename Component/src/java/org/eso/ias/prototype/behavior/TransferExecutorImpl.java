@@ -23,7 +23,7 @@ public class TransferExecutorImpl<T>  extends TransferExecutor<T> {
 		System.out.println("TransferExecutorImpl: shutting down");
 	}
 	
-	public IASValue eval(Collection<HeteroInOut> compInputs) {
+	public IASValue<T> eval(Collection<HeteroInOut> compInputs) {
 		System.out.println("TransferExecutorImpl: evaluating "+compInputs.size()+" inputs");
 		System.out.println("TransferExecutorImpl for comp. with ID="+compElementId);
 		for (HeteroInOut input: compInputs) {

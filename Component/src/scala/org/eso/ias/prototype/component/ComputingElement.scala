@@ -8,6 +8,7 @@ import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.behavior.ScalaTransfer
 
 /**
  * It consists of a state (<code>ASCState</code>) and methods
@@ -58,8 +59,8 @@ class ComputingElement(
     actualInputs: MutableMap[String, HeteroInOut],
     script: String,
     newInputs: MutableMap[String, HeteroInOut] =  new HashMap[String,HeteroInOut]()) 
-    extends ComputingElementBase(ident,out,requiredInputs.sorted,actualInputs,script,newInputs) with JavaTransfer {
-  
+extends ComputingElementBase(ident,out,requiredInputs.sorted,actualInputs,script,newInputs) 
+with JavaTransfer with ScalaTransfer {
   
   /**
    * @return true if this component produces a synthetic parameter instead of an alarm
@@ -149,4 +150,5 @@ class ComputingElement(
     
     output=output.updateValue(newValue)
   }
+  
 }
