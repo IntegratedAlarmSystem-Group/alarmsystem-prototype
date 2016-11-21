@@ -3,7 +3,7 @@ package org.eso.ias.basictypes.test
 import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
-import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.IASTypes
 import org.eso.ias.prototype.input.AlarmValue
 
 /**

@@ -5,7 +5,7 @@ import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
-import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.IASTypes
 
 /**
  * Test the LongMP

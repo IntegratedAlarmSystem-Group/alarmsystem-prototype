@@ -1,6 +1,4 @@
-package org.eso.ias.prototype.input.typedmp
-
-import org.eso.ias.prototype.input.AlarmValue
+package org.eso.ias.prototype.input
 
 /**
  * The all and only possible types of the IAS MonitorPoints: * 
