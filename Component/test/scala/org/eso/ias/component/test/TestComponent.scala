@@ -4,12 +4,12 @@ import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.component.ComputingElement
 import org.eso.ias.prototype.input.AlarmValue
-import org.eso.ias.prototype.input.OperationalMode
+import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmState
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.HashMap
-import org.eso.ias.prototype.input.IASTypes
+import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.input.HeteroInOut
 import scala.collection.mutable.{Map => MutableMap }
 
@@ -43,9 +43,9 @@ class TestComponent extends FlatSpec {
       mpI1Identifier,
       mpRefreshRate,
       None, 
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
   intialMPs(mp1.id.id.get)=mp1
   
   // The ID of the second MP
@@ -54,9 +54,9 @@ class TestComponent extends FlatSpec {
       mpI2Identifier,
       mpRefreshRate,
       None, 
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
   intialMPs(mp2.id.id.get)=mp1
   val actualInputs: MutableMap[String, HeteroInOut] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
   
@@ -67,9 +67,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       None,
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
       
     val comp: ComputingElement = new ComputingElement(
        compId,
@@ -89,9 +89,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       None, 
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
       
     val comp: ComputingElement = new ComputingElement(
        compId,
@@ -110,9 +110,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       None, 
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.LongType)
+      IASTypes.LONG)
       
     val comp: ComputingElement = new ComputingElement(
        compId,
@@ -132,9 +132,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       alarmVal, 
-      OperationalMode.Operational,
+      OperationalMode.OPERATIONAL,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
       
     val comp: ComputingElement = new ComputingElement(
        compId,
@@ -156,9 +156,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       None, 
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
       
     val comp: ComputingElement= new ComputingElement(
        compId,
@@ -177,9 +177,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       None, 
-      OperationalMode.Unknown,
+      OperationalMode.UNKNOWN,
       Validity.Unreliable,
-      IASTypes.LongType)
+      IASTypes.LONG)
       
     val comp: ComputingElement = new ComputingElement(
        compId,
@@ -199,9 +199,9 @@ class TestComponent extends FlatSpec {
       outId,
       mpRefreshRate,
       alarmVal, 
-      OperationalMode.Operational,
+      OperationalMode.OPERATIONAL,
       Validity.Unreliable,
-      IASTypes.AlarmType)
+      IASTypes.ALARM)
       
     val comp: ComputingElement = new ComputingElement(
        compId,

@@ -7,7 +7,7 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.AlarmValue
-import org.eso.ias.prototype.input.IASTypes
+import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.behavior.ScalaTransfer
 
 /**
@@ -66,13 +66,13 @@ with JavaTransfer with ScalaTransfer {
    * @return true if this component produces a synthetic parameter instead of an alarm
    * @see isAlarmComponent
    */
-  def isSyntheticParameterComponent = out.iasType!=IASTypes.AlarmType
+  def isSyntheticParameterComponent = out.iasType!=IASTypes.ALARM
   
   /**
    * @return true if this component generates an alarm
    * @see #isSyntheticParameterComponent
    */
-  def isAlarmComponent = out.iasType!=IASTypes.AlarmType
+  def isAlarmComponent = out.iasType!=IASTypes.ALARM
   
   /**
    * A monitor point changed: it is stored in the map
@@ -105,7 +105,7 @@ with JavaTransfer with ScalaTransfer {
     if (output.actualValue== None) {
       throw new IllegalStateException("Trying get an alarm but the value is None (alarm ID "+output.id+")") 
     }
-    if (output.iasType!=IASTypes.AlarmType) {
+    if (output.iasType!=IASTypes.ALARM) {
       throw new IllegalStateException("Trying to get an alarm but the value has IAS type "+output.iasType+" (alarm ID "+output.id+")")
     }
     val value: Any = output.actualValue.get.value

@@ -4,6 +4,7 @@ import scala.collection.mutable.Buffer
 import scala.collection.JavaConversions
 import java.util.Collection
 import org.eso.ias.prototype.input.Identifier
+import org.eso.ias.prototype.input.HeteroInOut
 
 /**
  * <code>JavaConverter</code> offers commodity methods 
@@ -16,5 +17,12 @@ import org.eso.ias.prototype.input.Identifier
  */
 object JavaConverter {
     
+  /**
+   * Convert the HIOs in input in a Ordered collection of
+   * IASValues (hpefully) easy to deal with from java
+   */
+  def buildInputs(inputs: Map[String, HeteroInOut]): Unit = {
+    
+  }
      
 }

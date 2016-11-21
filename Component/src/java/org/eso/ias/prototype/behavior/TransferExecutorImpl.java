@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 import org.eso.ias.prototype.input.HeteroInOut;
+import org.eso.ias.prototype.input.java.IASValue;
 
 public class TransferExecutorImpl<T>  extends TransferExecutor<T> {
 	

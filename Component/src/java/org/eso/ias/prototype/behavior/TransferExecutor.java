@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.eso.ias.prototype.input.Identifier;
 import org.eso.ias.prototype.input.HeteroInOut;
+import org.eso.ias.prototype.input.java.IASValue;
 
 /**
  * 
@@ -33,7 +34,7 @@ public abstract class TransferExecutor<T> {
 	protected final String compElementRunningId;
 	
 	/**
-	 * Propertis for this executor.
+	 * Properties for this executor.
 	 */
 	protected final Properties props;
 	

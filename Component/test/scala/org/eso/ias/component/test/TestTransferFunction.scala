@@ -4,11 +4,11 @@ import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.OperationalMode
+import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.component.ComputingElement
 import org.eso.ias.prototype.component.ComputingElementBase
-import org.eso.ias.prototype.input.IASTypes
+import org.eso.ias.prototype.input.java.IASTypes
 import scala.collection.mutable.{Map => MutableMap }
 
 class TestTransferFunction extends FlatSpec {
@@ -37,8 +37,8 @@ class TestTransferFunction extends FlatSpec {
       outId,
       mpRefreshRate,
       alarmVal, 
-      OperationalMode.Operational,
-      Validity.Unreliable, IASTypes.AlarmType)
+      OperationalMode.OPERATIONAL,
+      Validity.Unreliable, IASTypes.ALARM)
       
     // The IDs of the monitor points in input 
     // to pass when building a Component
@@ -56,16 +56,16 @@ class TestTransferFunction extends FlatSpec {
           mpId,
           mpRefreshRate,
           mpVal, 
-          OperationalMode.Operational,
-          Validity.Unreliable, IASTypes.AlarmType)
+          OperationalMode.OPERATIONAL,
+          Validity.Unreliable, IASTypes.ALARM)
       } else {
         val mpVal = 1L
         HeteroInOut(
           mpId,
           mpRefreshRate,
           mpVal, 
-          OperationalMode.Operational,
-          Validity.Unreliable, IASTypes.LongType)
+          OperationalMode.OPERATIONAL,
+          Validity.Unreliable, IASTypes.LONG)
       }
       inputsMPs+=(mp.id.id.get -> mp)
     }
