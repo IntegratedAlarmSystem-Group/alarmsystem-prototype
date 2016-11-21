@@ -3,7 +3,7 @@ package org.eso.ias.basictypes.test
 import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
-import org.eso.ias.prototype.input.IASTypes
+import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.input.AlarmValue
 
 /**
@@ -18,8 +18,8 @@ class TestInputTypes  extends FlatSpec {
   
   it must "throws an exception with a type mismatch" in {
     
-    val mpLong:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LongType)
-    val mpAlarm: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.AlarmType)
+    val mpLong:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LONG)
+    val mpAlarm: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.ALARM)
     
     assertThrows[ClassCastException] {
       mpLong.updateValue(new AlarmValue)

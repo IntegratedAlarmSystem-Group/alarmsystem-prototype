@@ -1,14 +1,8 @@
 package org.eso.ias.prototype.input
 
 import org.eso.ias.prototype.utils.ISO8601Helper
-
-/**
- * The context in which the monitor point is actually running
- */
-object OperationalMode extends Enumeration {
-  type Mode = Value
-  val StartUp, ShutDown, Maintenance, Operational, Unknown = Value
-}
+import org.eso.ias.prototype.input.java.OperationalMode
+import org.eso.ias.prototype.input.java.IASTypes
 
 /**
  * A  <code>MonitorPoint</code> holds the value of a monitor point.
@@ -39,9 +33,9 @@ object OperationalMode extends Enumeration {
 abstract class HeteroInOut private[input] (
     val id: Identifier,
     val refreshRate: Int,    
-    val mode: OperationalMode.Mode,
+    val mode: OperationalMode,
     val validity: Validity.Value,
-    val iasType: IASTypes.Value) {
+    val iasType: IASTypes) {
   require(id!=None,"The identifier can't be None")
   require(refreshRate>=HeteroInOut.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
   
@@ -119,7 +113,7 @@ abstract class HeteroInOut private[input] (
    * @param newMode: The new mode of the monitor point
    * @return updates the passed monitor point with the given new mode
    */
-  def updateMode(newMode: OperationalMode.Mode):HeteroInOut = {
+  def updateMode(newMode: OperationalMode):HeteroInOut = {
     if (newMode==mode) this
     else  if (theValue==None) HeteroInOut(id,refreshRate,None,newMode,validity,iasType)
     else HeteroInOut(id,refreshRate,theValue.get,newMode,validity,iasType)
@@ -158,11 +152,11 @@ object HeteroInOut {
    * @param value: The value to check they type against the iasType
    * @param iasType: The IAS type
    */
-  def checkType[T](value: T, iasType: IASTypes.Value): Boolean = {
+  def checkType[T](value: T, iasType: IASTypes): Boolean = {
     if (value==None) true
     else iasType match {
-      case IASTypes.LongType => value.isInstanceOf[Long]
-      case IASTypes.AlarmType =>value.isInstanceOf[AlarmValue] 
+      case IASTypes.LONG => value.isInstanceOf[Long]
+      case IASTypes.ALARM =>value.isInstanceOf[AlarmValue] 
       case _ => false
     }
   }
@@ -179,10 +173,10 @@ object HeteroInOut {
   def apply(
       ident: Identifier, 
       refreshRate: Int,
-      iasType: IASTypes.Value): HeteroInOut = {
+      iasType: IASTypes): HeteroInOut = {
     iasType match {
-      case IASTypes.LongType => new HeteroInOut(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType) {type MonitorPointType=Long; val theValue=None} 
-      case IASTypes.AlarmType => new HeteroInOut(ident,refreshRate,OperationalMode.Unknown,Validity.Unreliable,iasType){type MonitorPointType=AlarmValue; val theValue=None} 
+      case IASTypes.LONG=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Long; val theValue=None} 
+      case IASTypes.ALARM=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType){type MonitorPointType=AlarmValue; val theValue=None} 
       case _ => throw new UnsupportedOperationException("Unsupported IAS type")
     }
     
@@ -202,17 +196,17 @@ object HeteroInOut {
       ident: Identifier,
       refreshRate: Int,
       value: T,
-      mode: OperationalMode.Mode = OperationalMode.Unknown,
+      mode: OperationalMode= OperationalMode.UNKNOWN,
       valid: Validity.Value = Validity.Unreliable,
-      iasType: IASTypes.Value): HeteroInOut = {
+      iasType: IASTypes): HeteroInOut = {
     
     if (!checkType(value, iasType)) throw new ClassCastException("The value ["+value+"] is not a "+iasType.toString())
     
     iasType match {
-      case IASTypes.LongType => {
+      case IASTypes.LONG => {
         new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Long; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
       }
-      case IASTypes.AlarmType => {
+      case IASTypes.ALARM => {
         new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=AlarmValue; val theValue=if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
       }
        case _ => throw new UnsupportedOperationException("Unsupported IAS type")

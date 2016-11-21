@@ -6,6 +6,7 @@
 	<include file="${iasRoot}/config/CommonAnt.xml" as="ias" />
 	
 	<property name="scalaJarName" value="ias-basic-types.jar"/>
+	<property name="javaJarName" value="ias-basic-types-java.jar"/>
 	
 	<target name="clean" depends="ias.clean" />
 		

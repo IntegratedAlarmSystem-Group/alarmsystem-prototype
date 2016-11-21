@@ -1,8 +1,7 @@
-package org.eso.ias.prototype.behavior;
+package org.eso.ias.prototype.input.java;
 
 import org.eso.ias.prototype.input.Identifier;
-import org.eso.ias.prototype.input.OperationalMode;
-import org.eso.ias.prototype.input.IASTypes;
+import org.eso.ias.prototype.input.java.OperationalMode;
 
 /**
  * The heterogeneous inputs in the java code.
