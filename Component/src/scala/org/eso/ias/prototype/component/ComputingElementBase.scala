@@ -9,10 +9,14 @@ import org.eso.ias.prototype.behavior.JavaConverter
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import org.eso.ias.prototype.behavior.JavaTransfer
-import scala.collection.mutable.{Set => MutableSet }
-import scala.collection.mutable.{Map => MutableMap }
+import scala.collection.mutable.{Set => MutableSet, Map => MutableMap}
 import org.eso.ias.prototype.input.typedmp.IASTypes
 import java.util.Properties
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+import scala.util.Try
+import scala.util.Failure
+import scala.util.Success
 
 /**
  * The Integrated Alarm System Computing Element (ASCE) 
@@ -40,9 +44,30 @@ abstract class ComputingElementBase (
     actualInputs: MutableMap[String,HeteroInOut],
     script: String,
     val newInputs: MutableMap[String, HeteroInOut])
-    extends ComputingElementState(ident,out,actualInputs,script) {
+    extends ComputingElementState(ident,out,actualInputs,script)
+    with Runnable {
   require(requiredInputs!=None && !requiredInputs.isEmpty,"Invalid (empty or null) list of required inputs to the component")
   require(requiredInputs.size==actualInputs.size,"Inconsistent size of lists of inputs")
+  
+  /**
+   * The point in time when the output of this computing element has been
+   * modified for the last time.
+   * 
+   * Note that a modification can be in the setting or raising of the alarm 
+   * in output (or its value if it is a synthetic parameter) but
+   * also shelving or acknowledging an alarm is a modification
+   */
+  protected[component] var lastModificationTime = timestamp
+  
+  /**
+   * The thread executor to run the transfer function
+   */
+  protected[component] var threadExecutor: Option[ScheduledThreadPoolExecutor] = None
+  
+  /**
+   * true if the this ASCE has been shutdown, false otherwise  
+   */
+  @volatile protected[component] var terminated = false;
   
   /**
    * Update the output by running the user provided script/class against the inputs.
@@ -77,7 +102,20 @@ abstract class ComputingElementBase (
     // inputs with those in the newInputs
     val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
     
-    output = transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut],System.getProperties)
+    val runTransferFunction = Try[HeteroInOut] { 
+      transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut],System.getProperties)
+    }
+    runTransferFunction match {
+      case Failure(v) =>
+        println("Caught exception while running the user defined transfer function for input "+id.runningID+": "+v.getMessage)
+        v.printStackTrace()
+      case Success(v) => 
+        val newOutput=runTransferFunction.get
+        if (newOutput!=output) {
+          output=newOutput
+          lastModificationTime=System.currentTimeMillis()
+        }
+    }
   }
   
   /**
@@ -132,5 +170,44 @@ abstract class ComputingElementBase (
     outStr.append("\n>Not yet processed inputs<\n")
     newInputs.synchronized( { outStr.append(newInputs.values.mkString(", "))})
     outStr.toString()
+  }
+  
+  /**
+   * The thread that periodically executes the transfer function
+   */
+  def run(): Unit = {
+    if (!terminated) transfer()
+  }
+  
+  /**
+   * Initialize the object.
+   * 
+   * This method is executed once.
+   * 
+   * One of the tasks of this method is to run the timer thread
+   * to update the output i.e. to execute the transfer function.
+   */
+  def initialize(stpe: ScheduledThreadPoolExecutor): Unit = {
+    require(Option[ScheduledThreadPoolExecutor](stpe).isDefined)
+    this.synchronized {
+      threadExecutor=Some[ScheduledThreadPoolExecutor](stpe)
+    }
+    // Start the thread to refresh the output byrunning the
+    // transfer function
+    threadExecutor.get.scheduleAtFixedRate(this, 2000, output.refreshRate, TimeUnit.MILLISECONDS)
+  }
+  
+  /**
+   * <code>shutdown>/code> must be executed to free the resources of a <code>ComputingElement</code>
+   * that later on can be cleanly destroyed.
+   * 
+   * One of the tasks of this method is to stop the timer thread
+   * to update the output i.e. to execute the transfer function.
+   */
+  def shutdown(): Unit = {
+    this.synchronized {
+      terminated=true
+      if (threadExecutor.isDefined) threadExecutor.get.remove(this)
+    }
   }
 }
