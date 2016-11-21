@@ -1,7 +1,6 @@
 package org.eso.ias.prototype.input
 
 import org.eso.ias.prototype.utils.ISO8601Helper
-import org.eso.ias.prototype.input.IASTypes
 
 /**
  * The context in which the monitor point is actually running

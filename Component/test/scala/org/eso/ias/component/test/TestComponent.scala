@@ -9,7 +9,7 @@ import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmState
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.HashMap
-import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.IASTypes
 import org.eso.ias.prototype.input.HeteroInOut
 import scala.collection.mutable.{Map => MutableMap }
 

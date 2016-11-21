@@ -7,7 +7,7 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.AlarmValue
-import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.IASTypes
 import org.eso.ias.prototype.behavior.ScalaTransfer
 
 /**

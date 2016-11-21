@@ -10,7 +10,7 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import org.eso.ias.prototype.behavior.JavaTransfer
 import scala.collection.mutable.{Set => MutableSet, Map => MutableMap}
-import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.IASTypes
 import java.util.Properties
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit

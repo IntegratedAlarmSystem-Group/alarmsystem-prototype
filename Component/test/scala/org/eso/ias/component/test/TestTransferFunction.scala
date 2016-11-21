@@ -8,7 +8,7 @@ import org.eso.ias.prototype.input.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.component.ComputingElement
 import org.eso.ias.prototype.component.ComputingElementBase
-import org.eso.ias.prototype.input.typedmp.IASTypes
+import org.eso.ias.prototype.input.IASTypes
 import scala.collection.mutable.{Map => MutableMap }
 
 class TestTransferFunction extends FlatSpec {
