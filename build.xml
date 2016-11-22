@@ -14,7 +14,7 @@
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	
-	<property name="iasModules" value="Tools,Logging,BasicTypes,Component,DistributedUnit" />
+	<property name="iasModules" value="Tools,Logging,BasicTypes,CompElement,DistributedUnit" />
 	
 	<target name="SanityCheck">
 		<!--
