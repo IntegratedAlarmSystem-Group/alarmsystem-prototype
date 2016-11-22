@@ -13,10 +13,10 @@ import org.eso.ias.prototype.input.java.IASTypes
  * array of integers and many other types and must be set before
  * instantiating an object of the class (@see the factory methods in the
  * companion object).
+ * TypeTag-gin could be investigated but it uses reflections 
+ * reducing performances. 
  * 
  * <code>HeteroInOut</code> is immutable.
- * 
- * HeteroInOut have an order that is the order of their Identifier
  * 
  * @param ident The unique ID of the monitor point
  * @param actualValue The value of the monitor point
@@ -26,7 +26,7 @@ import org.eso.ias.prototype.input.java.IASTypes
  * @param valid: The validity of the monitor point
  * @param theType: is the IAS type of this HeteroInOut
  * 
- * @see IASTYpe
+ * @see IASType
  * 
  * @author acaproni
  */
@@ -68,6 +68,26 @@ abstract class HeteroInOut private[input] (
     override def toString(): String = { 
       "Value "+value.toString() +
       " updated at "+ISO8601Helper.getTimestamp(timestamp)
+    }
+    
+    /**
+     * Redefine the hashCode in terms of the value
+     * @see #equals(other: Any)
+     */
+    override def hashCode = value.##
+    
+    /**
+     * In IAS semantic 2 values are equal if and only
+     * if their values are the same.
+     * The timestamp is not used for comparison. 
+     * 
+     * @see #hashCode
+     */
+    override def equals(other: Any): Boolean = {
+      other match {
+        case that: HeteroIOValue => value==that.value
+        case _ => false
+      }
     }
   }
   
