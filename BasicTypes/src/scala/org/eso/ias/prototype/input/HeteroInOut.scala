@@ -57,7 +57,7 @@ abstract class HeteroInOut private[input] (
   }
   
   /**
-   * The value of the monitor point is associated 
+   * The value of the HIO is associated 
    * to a timestamp corresponding to the update time of 
    * the value
    */
@@ -156,7 +156,15 @@ object HeteroInOut {
     if (value==None) true
     else iasType match {
       case IASTypes.LONG => value.isInstanceOf[Long]
-      case IASTypes.ALARM =>value.isInstanceOf[AlarmValue] 
+      case IASTypes.INT => value.isInstanceOf[Int]
+      case IASTypes.SHORT => value.isInstanceOf[Short]
+      case IASTypes.BYTE => value.isInstanceOf[Byte]
+      case IASTypes.DOUBLE => value.isInstanceOf[Double]
+      case IASTypes.FLOAT => value.isInstanceOf[Float]
+      case IASTypes.ALARM =>value.isInstanceOf[AlarmValue]
+      case IASTypes.CHAR => value.isInstanceOf[Char]
+      case IASTypes.STRING => value.isInstanceOf[String]
+      case IASTypes.ALARM => value.isInstanceOf[AlarmValue]
       case _ => false
     }
   }
