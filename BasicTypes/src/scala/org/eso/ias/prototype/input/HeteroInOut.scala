@@ -43,9 +43,9 @@ abstract class HeteroInOut private[input] (
    * Abstract type. 
    * The type is defined by the factory when building a MonitorPoint
    */
-  type MonitorPointType
+  type HeteroInOutType
   
-  val theValue: Option[MonitorPointType]
+  val theValue: Option[HeteroInOutType]
   
   /**
    * This property is abstract because its type depends
@@ -53,7 +53,7 @@ abstract class HeteroInOut private[input] (
    */
   lazy val actualValue: Option[MonitorPointValue] = {
     if (theValue==None) None else 
-    Option[MonitorPointValue](new MonitorPointValue(theValue.get.asInstanceOf[MonitorPointType]))
+    Option[MonitorPointValue](new MonitorPointValue(theValue.get.asInstanceOf[HeteroInOutType]))
   }
   
   /**
@@ -62,7 +62,7 @@ abstract class HeteroInOut private[input] (
    * the value
    */
   class MonitorPointValue(
-    val value: MonitorPointType) {
+    val value: HeteroInOutType) {
     val timestamp: Long = System.currentTimeMillis()
     
     override def toString(): String = { 
@@ -85,7 +85,7 @@ abstract class HeteroInOut private[input] (
     if (!Option[T](newValue).isDefined) throw new IllegalArgumentException("Inavalid new value for "+id.id.get+": "+newValue)
     if (
         actualValue!=None && 
-        actualValue.get.value == newValue.asInstanceOf[MonitorPointType] &&
+        actualValue.get.value == newValue.asInstanceOf[HeteroInOutType] &&
         valid==validity) {
       this
     }
@@ -183,16 +183,16 @@ object HeteroInOut {
       refreshRate: Int,
       iasType: IASTypes): HeteroInOut = {
     iasType match {
-      case IASTypes.LONG=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Long; val theValue=None}
-      case IASTypes.INT => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Int; val theValue=None}
-      case IASTypes.SHORT => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Short; val theValue=None}
-      case IASTypes.BYTE => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Byte; val theValue=None}
-      case IASTypes.DOUBLE => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Double; val theValue=None}
-      case IASTypes.FLOAT => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Float; val theValue=None}
-      case IASTypes.BOOLEAN => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Boolean; val theValue=None}
-      case IASTypes.CHAR=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=Char; val theValue=None}
-      case IASTypes.STRING=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type MonitorPointType=String; val theValue=None}
-      case IASTypes.ALARM=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType){type MonitorPointType=AlarmValue; val theValue=None} 
+      case IASTypes.LONG=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Long; val theValue=None}
+      case IASTypes.INT => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Int; val theValue=None}
+      case IASTypes.SHORT => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Short; val theValue=None}
+      case IASTypes.BYTE => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Byte; val theValue=None}
+      case IASTypes.DOUBLE => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Double; val theValue=None}
+      case IASTypes.FLOAT => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Float; val theValue=None}
+      case IASTypes.BOOLEAN => new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Boolean; val theValue=None}
+      case IASTypes.CHAR=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=Char; val theValue=None}
+      case IASTypes.STRING=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType) {type HeteroInOutType=String; val theValue=None}
+      case IASTypes.ALARM=> new HeteroInOut(ident,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType){type HeteroInOutType=AlarmValue; val theValue=None} 
       case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+iasType)
     }
     
@@ -219,16 +219,16 @@ object HeteroInOut {
     if (!checkType(value, iasType)) throw new ClassCastException("The value ["+value+"] is not a "+iasType.toString())
     
     iasType match {
-      case IASTypes.LONG => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Long; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
-      case IASTypes.INT => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Int; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.SHORT => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Short; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.BYTE => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Byte; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.DOUBLE => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Double; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.FLOAT=> new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Float; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.BOOLEAN => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Boolean; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.CHAR => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=Char; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.STRING => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=String; val theValue= if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) }
-      case IASTypes.ALARM => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type MonitorPointType=AlarmValue; val theValue=if (value==None) None else Option[MonitorPointType](value.asInstanceOf[MonitorPointType]) } 
+      case IASTypes.LONG => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Long; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) } 
+      case IASTypes.INT => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Int; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.SHORT => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Short; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.BYTE => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Byte; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.DOUBLE => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Double; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.FLOAT=> new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Float; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.BOOLEAN => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Boolean; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.CHAR => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Char; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.STRING => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=String; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
+      case IASTypes.ALARM => new HeteroInOut(ident,refreshRate,mode,valid,iasType){type HeteroInOutType=AlarmValue; val theValue=if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) } 
       case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+iasType)
     }
   }
