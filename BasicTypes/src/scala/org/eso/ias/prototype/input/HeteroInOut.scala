@@ -161,10 +161,10 @@ object HeteroInOut {
       case IASTypes.BYTE => value.isInstanceOf[Byte]
       case IASTypes.DOUBLE => value.isInstanceOf[Double]
       case IASTypes.FLOAT => value.isInstanceOf[Float]
-      case IASTypes.ALARM =>value.isInstanceOf[AlarmValue]
+      case IASTypes.BOOLEAN =>value.isInstanceOf[Boolean]
       case IASTypes.CHAR => value.isInstanceOf[Char]
       case IASTypes.STRING => value.isInstanceOf[String]
-      case IASTypes.ALARM => value.isInstanceOf[AlarmValue]
+      case IASTypes.ALARM =>value.isInstanceOf[AlarmValue]
       case _ => false
     }
   }
