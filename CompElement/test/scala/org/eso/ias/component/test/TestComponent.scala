@@ -12,6 +12,9 @@ import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.input.HeteroInOut
 import scala.collection.mutable.{Map => MutableMap }
+import org.eso.ias.prototype.transfer.TransferFunctionSetting
+import org.eso.ias.prototype.transfer.TransferFunctionLanguage
+import java.util.Properties
 
 /**
  * Test the basic functionalities of the IAS Component,
@@ -70,13 +73,16 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
-      
+    
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs)
     
     assert(comp.id==compId)
@@ -93,12 +99,15 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.ALARM)
       
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs);
     assertThrows[IllegalStateException] {
       comp.shelve(true);
@@ -113,13 +122,16 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.LONG)
-      
+    
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs);
     assertThrows[IllegalStateException] {
       comp.shelve(true);
@@ -136,12 +148,15 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.ALARM)
       
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs);
     
     comp.shelve(true);
@@ -160,12 +175,15 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.ALARM)
       
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement= new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs)
     assertThrows[IllegalStateException] {
       comp.ack();
@@ -180,13 +198,16 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.LONG)
-      
+    
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs)
     assertThrows[IllegalStateException] {
       comp.ack() 
@@ -202,13 +223,15 @@ class TestComponent extends FlatSpec {
       OperationalMode.OPERATIONAL,
       Validity.Unreliable,
       IASTypes.ALARM)
-      
+    val tfSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        TransferFunctionLanguage.java)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
        requiredInputIDs,
        actualInputs,
-       "",
+       tfSetting,
        intialMPs)
     
     comp.ack()

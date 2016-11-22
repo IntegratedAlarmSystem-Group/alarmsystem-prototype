@@ -3,8 +3,6 @@ package org.eso.ias.prototype.transfer;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.eso.ias.prototype.input.Identifier;
-import org.eso.ias.prototype.input.HeteroInOut;
 import org.eso.ias.prototype.input.java.IASValue;
 
 /**
@@ -65,7 +63,7 @@ public abstract class TransferExecutor<T> {
 	/**
 	 * Initialize the BehaviorRunner.
 	 * 
-	 * The life cycle method is called once by the IAS before running eval.
+	 * The life cycle method is called once by the IAS and always before running eval.
 	 * User initialization code goes here. In particular long lasting operations
 	 * like reading from a database should go here while eval is supposed 
 	 * to return as soon as possible.
@@ -75,16 +73,23 @@ public abstract class TransferExecutor<T> {
 	/**
 	 * Shuts down the BehaviorRunner when the IAS does not need it anymore.
 	 * 
-	 * This life cycle method should be called to clean up the resources assuming
-	 * that it will never be called again by the IAS.
+	 * This life cycle method is called last, to clean up the resources.
+	 * 
+	 * It is supposed to return quickly, even if not mandatory.
 	 */
 	public abstract void tearDown();
 	
 	/**
 	 * Produces the output of the component by evaluating the inputs.
 	 * 
+	 * <EM>IMPLEMENTATION NOTE</EM>
+	 * The {@link IASValue} is immutable. The easiest way to produce
+	 * the output to return is to execute the methods of the actualOutput
+	 * that return a new IASValue.
+	 * 
 	 * @param compInputs: the inputs to the ASCE
+	 * @param actualOutput: tha actual output of the ASCE
 	 * @return the computed value to set as output of the ASCE
 	 */
-	public abstract IASValue<T> eval(Collection<HeteroInOut> compInputs);
+	public abstract IASValue<T> eval(Collection<IASValue<?>> compInputs, IASValue<T> actualOutput);
 }

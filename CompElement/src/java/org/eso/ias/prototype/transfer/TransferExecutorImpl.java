@@ -3,7 +3,6 @@ package org.eso.ias.prototype.transfer;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.eso.ias.prototype.input.HeteroInOut;
 import org.eso.ias.prototype.input.java.IASValue;
 
 public class TransferExecutorImpl<T>  extends TransferExecutor<T> {
@@ -24,10 +23,10 @@ public class TransferExecutorImpl<T>  extends TransferExecutor<T> {
 		System.out.println("TransferExecutorImpl: shutting down");
 	}
 	
-	public IASValue<T> eval(Collection<HeteroInOut> compInputs) {
+	public IASValue<T> eval(Collection<IASValue<?>> compInputs, IASValue<T> actualOutput) {
 		System.out.println("TransferExecutorImpl: evaluating "+compInputs.size()+" inputs");
 		System.out.println("TransferExecutorImpl for comp. with ID="+compElementId);
-		for (HeteroInOut input: compInputs) {
+		for (IASValue<?> input: compInputs) {
 			System.out.println(input);
 		}
 		return null;

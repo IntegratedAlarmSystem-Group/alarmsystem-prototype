@@ -9,6 +9,7 @@ import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.transfer.ScalaTransfer
+import org.eso.ias.prototype.transfer.TransferFunctionSetting
 
 /**
  * It consists of a state (<code>ASCState</code>) and methods
@@ -45,7 +46,8 @@ import org.eso.ias.prototype.transfer.ScalaTransfer
  *                        needs to generate the output. The list does not change
  *                        during the life time of the component.
  * @param actualInputs: The list of monitor points in input that generated the actual output
- * @param script: The script that manipulated the inputs and generate the output
+ * @param tfSetting: The definition of the implementation of the transfer function
+ *                   that manipulates the inputs to produce the new output
  * @param newInputs: the map with the value of the monitor points in input
  *                   received after the last update of the output  
  * @see AlarmSystemComponentBase, ComputingElementState
@@ -57,9 +59,9 @@ class ComputingElement(
     out: HeteroInOut,
     requiredInputs: List[String],
     actualInputs: MutableMap[String, HeteroInOut],
-    script: String,
+    tfSetting: TransferFunctionSetting,
     newInputs: MutableMap[String, HeteroInOut] =  new HashMap[String,HeteroInOut]()) 
-extends ComputingElementBase(ident,out,requiredInputs.sorted,actualInputs,script,newInputs) 
+extends ComputingElementBase(ident,out,requiredInputs.sorted,actualInputs,tfSetting,newInputs) 
 with JavaTransfer with ScalaTransfer {
   
   /**

@@ -4,6 +4,7 @@ import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.utils.ISO8601Helper
+import org.eso.ias.prototype.transfer.TransferFunctionSetting
 
 /**
  * The state of a Alarm System Computing Element evolving during time.
@@ -43,12 +44,12 @@ class ComputingElementState (
     final val id: Identifier,
     var output: HeteroInOut,
     final val inputs: MutableMap[String, HeteroInOut],
-    final val transferFunction: String)
+    final val tfSetting: TransferFunctionSetting)
 {
   require(Option[HeteroInOut](output).isDefined)
   require(Option[Identifier](id).isDefined)
   require(Option[MutableMap[String, HeteroInOut]](inputs).isDefined)
-  require(Option[String](transferFunction).isDefined)
+  require(Option[TransferFunctionSetting](tfSetting).isDefined)
   
   /**
    * The point in time when this objects (i.e. the snapshot) has been
@@ -66,7 +67,7 @@ class ComputingElementState (
     outStr.append("\n>Inputs<\n")
     for (mp <- inputs) outStr.append(mp.toString())
     outStr.append("\n>Script<\n")
-    outStr.append(transferFunction)
+    outStr.append(tfSetting)
     outStr.toString()
   }
 }

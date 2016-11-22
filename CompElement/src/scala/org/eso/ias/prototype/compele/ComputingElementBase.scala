@@ -17,14 +17,27 @@ import java.util.concurrent.TimeUnit
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
+import org.eso.ias.prototype.transfer.TransferFunctionSetting
 
 /**
- * The healthiness of the ASCE
+ * The healthiness of the ASCE.
+ * 
+ * The purpose is mainly to show to the external world what 
+ * this ASCE is doing
  */
-object AcseHealthiness extends Enumeration {
-  val Healthy = Value // Everything ok
-  val TFBroken = Value // The transfer function is too slow
-  val TFSlow = Value // The transfer function is broken
+object AcseHealth extends Enumeration {
+  val Initing = Value // Initializing
+  val Healthy = Value // Everything OK
+  val TFBroken = Value // The transfer function is too broken
+  val TFSlow = Value // The transfer function is slow
+  val ShuttingDown = Value // The ASCE is shutting down
+  val Closed = Value // Closed i.e. shutdown complete
+  
+  /**
+   * When the state of the ASC is one of those in
+   * this list, the transfer function is not executed
+   */
+  val inhibitorStates = Set(Initing, TFBroken, ShuttingDown, Closed)
 }
 
 /**
@@ -43,7 +56,7 @@ object AcseHealthiness extends Enumeration {
  * @param script: The script that manipulated the inputs and generate the output
  * @param newInputs: the map with the value of the monitor points in input
  *                   received after the last update of the output  
- * @see AlarmSystemComponent, ASCState
+ * @see AlarmSystemComponent, ComputingElementState
  * @author acaproni
  */
 abstract class ComputingElementBase (
@@ -51,9 +64,9 @@ abstract class ComputingElementBase (
     out: HeteroInOut,
     requiredInputs: List[String],
     actualInputs: MutableMap[String,HeteroInOut],
-    script: String,
+    tfSetting: TransferFunctionSetting,
     val newInputs: MutableMap[String, HeteroInOut])
-    extends ComputingElementState(ident,out,actualInputs,script)
+    extends ComputingElementState(ident,out,actualInputs,tfSetting)
     with Runnable {
   require(requiredInputs!=None && !requiredInputs.isEmpty,"Invalid (empty or null) list of required inputs to the component")
   require(requiredInputs.size==actualInputs.size,"Inconsistent size of lists of inputs")
@@ -76,12 +89,18 @@ abstract class ComputingElementBase (
   /**
    * The healthiness of this ASCE
    */
-  protected[compele] var health: AcseHealthiness.Value =  AcseHealthiness.Healthy
+  @volatile protected[compele] var health: AcseHealth.Value =  AcseHealth.Initing
   
   /**
    * true if the this ASCE has been shutdown, false otherwise  
    */
   @volatile protected[compele] var terminated = false;
+  
+  /**
+   * The thread factory mainly used to async. run the transfer function
+   * initialize() and tearDown()
+   */
+  val threadFactory = new CompEleThreadFactory(ident.runningID)
   
   /**
    * Update the output by running the user provided script/class against the inputs.
@@ -112,23 +131,27 @@ abstract class ComputingElementBase (
     
     mixInputs(inputs,newInputs)
     
-    // Prepare the list of the inputs by replacing the ones in the 
-    // inputs with those in the newInputs
-    val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
-    
-    val runTransferFunction = Try[HeteroInOut] { 
-      transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut],System.getProperties)
-    }
-    runTransferFunction match {
-      case Failure(v) =>
-        println("Caught exception while running the user defined transfer function for input "+id.runningID+": "+v.getMessage)
-        v.printStackTrace()
-      case Success(v) => 
-        val newOutput=runTransferFunction.get
-        if (newOutput!=output) {
-          output=newOutput
-          lastModificationTime=System.currentTimeMillis()
-        }
+    if (AcseHealth.inhibitorStates.contains(health)) {
+      println("ACSE "+id.runningID+" TF inhibited: actual state "+health)
+    } else {
+      // Prepare the list of the inputs by replacing the ones in the 
+      // inputs with those in the newInputs
+      val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
+      
+      val runTransferFunction = Try[HeteroInOut] { 
+        transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut],System.getProperties)
+      }
+      runTransferFunction match {
+        case Failure(v) =>
+          println("Caught exception while running the user defined transfer function for input "+id.runningID+": "+v.getMessage)
+          v.printStackTrace()
+        case Success(v) => 
+          val newOutput=runTransferFunction.get
+          if (newOutput!=output) {
+            output=newOutput
+            lastModificationTime=System.currentTimeMillis()
+          }
+      }
     }
   }
   
@@ -205,10 +228,13 @@ abstract class ComputingElementBase (
    */
   def initialize(stpe: ScheduledThreadPoolExecutor): Unit = {
     require(Option[ScheduledThreadPoolExecutor](stpe).isDefined)
+    
+    tfSetting.initialize(threadFactory,id.id.get, id.runningID, new Properties())
+    
     this.synchronized {
       threadExecutor=Some[ScheduledThreadPoolExecutor](stpe)
     }
-    // Start the thread to refresh the output byrunning the
+    // Start the thread to refresh the output by running the
     // transfer function
     threadExecutor.get.scheduleAtFixedRate(this, 2000, output.refreshRate, TimeUnit.MILLISECONDS)
   }
