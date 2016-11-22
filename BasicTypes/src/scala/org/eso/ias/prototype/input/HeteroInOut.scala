@@ -5,7 +5,7 @@ import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.java.IASTypes
 
 /**
- * A  <code>MonitorPoint</code> holds the value of a monitor point.
+ * A  <code>HeteroInOut</code> holds the value of a monitor point.
  * 
  * The type of the value that objects of this class hold is abstract
  * in an attempt to get rid of java type erasure
@@ -14,9 +14,9 @@ import org.eso.ias.prototype.input.java.IASTypes
  * instantiating an object of the class (@see the factory methods in the
  * companion object).
  * 
- * <code>MonitorPoint</code> is immutable.
+ * <code>HeteroInOut</code> is immutable.
  * 
- * MonitorPoint have an order that is the order of their Identifier
+ * HeteroInOut have an order that is the order of their Identifier
  * 
  * @param ident The unique ID of the monitor point
  * @param actualValue The value of the monitor point
@@ -24,7 +24,7 @@ import org.eso.ias.prototype.input.java.IASTypes
  * @param refreshRate: The expected refresh rate (msec) of this monitor point
  *                     (to be used to assess its validity)
  * @param valid: The validity of the monitor point
- * @param theType: is the IAS type of this MonitorPoint
+ * @param theType: is the IAS type of this HeteroInOut
  * 
  * @see IASTYpe
  * 
@@ -41,7 +41,7 @@ abstract class HeteroInOut private[input] (
   
   /**
    * Abstract type. 
-   * The type is defined by the factory when building a MonitorPoint
+   * The type is defined by the factory when building a HeteroInOut
    */
   type HeteroInOutType
   
@@ -49,11 +49,11 @@ abstract class HeteroInOut private[input] (
   
   /**
    * This property is abstract because its type depends
-   * on the abstract MonitorPointType
+   * on the abstract HeteroInOutType
    */
-  lazy val actualValue: Option[MonitorPointValue] = {
+  lazy val actualValue: Option[HeteroIOValue] = {
     if (theValue==None) None else 
-    Option[MonitorPointValue](new MonitorPointValue(theValue.get.asInstanceOf[HeteroInOutType]))
+    Option[HeteroIOValue](new HeteroIOValue(theValue.get.asInstanceOf[HeteroInOutType]))
   }
   
   /**
@@ -61,7 +61,7 @@ abstract class HeteroInOut private[input] (
    * to a timestamp corresponding to the update time of 
    * the value
    */
-  class MonitorPointValue(
+  class HeteroIOValue(
     val value: HeteroInOutType) {
     val timestamp: Long = System.currentTimeMillis()
     
@@ -90,7 +90,7 @@ abstract class HeteroInOut private[input] (
       this
     }
     else {
-      val value = if (newValue==None) None else newValue //Option(new MonitorPointValue(newValue.asInstanceOf[MonitorPointType]))
+      val value = if (newValue==None) None else newValue
       HeteroInOut(id,refreshRate,value,mode,valid,iasType)
     }
   }
@@ -134,7 +134,7 @@ abstract class HeteroInOut private[input] (
 }
 
 /** 
- *  Provides factory methods for building MonitorPoint objects
+ *  Provides factory methods for building HeteroInOut objects
  */
 object HeteroInOut {
   
@@ -199,7 +199,7 @@ object HeteroInOut {
   }
   
   /**
-   * Factory method to build a new MonitorPoint
+   * Factory method to build a new HeteroInOut
    * 
    * @param ident: The unique ID of the monitor point
    * @param refreshRate: The expected refresh rate of the MP
