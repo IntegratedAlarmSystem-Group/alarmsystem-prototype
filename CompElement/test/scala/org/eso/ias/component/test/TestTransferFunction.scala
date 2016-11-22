@@ -6,8 +6,8 @@ import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
-import org.eso.ias.prototype.component.ComputingElement
-import org.eso.ias.prototype.component.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElement
+import org.eso.ias.prototype.compele.ComputingElementBase
 import org.eso.ias.prototype.input.java.IASTypes
 import scala.collection.mutable.{Map => MutableMap }
 

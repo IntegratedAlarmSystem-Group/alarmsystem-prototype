@@ -1,4 +1,4 @@
-package org.eso.ias.prototype.behavior
+package org.eso.ias.prototype.transfer
 
 import scala.collection.mutable.Buffer
 import scala.collection.JavaConversions

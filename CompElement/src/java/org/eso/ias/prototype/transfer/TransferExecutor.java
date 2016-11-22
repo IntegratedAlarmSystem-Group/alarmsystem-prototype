@@ -1,4 +1,4 @@
-package org.eso.ias.prototype.behavior;
+package org.eso.ias.prototype.transfer;
 
 import java.util.Collection;
 import java.util.Properties;
