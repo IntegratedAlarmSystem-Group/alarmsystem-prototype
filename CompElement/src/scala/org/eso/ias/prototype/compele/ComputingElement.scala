@@ -1,6 +1,6 @@
-package org.eso.ias.prototype.component
+package org.eso.ias.prototype.compele
 
-import org.eso.ias.prototype.behavior.JavaTransfer
+import org.eso.ias.prototype.transfer.JavaTransfer
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
 import scala.collection.mutable.HashMap
@@ -8,7 +8,7 @@ import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.java.IASTypes
-import org.eso.ias.prototype.behavior.ScalaTransfer
+import org.eso.ias.prototype.transfer.ScalaTransfer
 
 /**
  * It consists of a state (<code>ASCState</code>) and methods

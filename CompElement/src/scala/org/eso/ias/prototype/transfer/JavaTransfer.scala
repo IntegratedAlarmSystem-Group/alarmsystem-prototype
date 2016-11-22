@@ -1,9 +1,9 @@
-package org.eso.ias.prototype.behavior
+package org.eso.ias.prototype.transfer
 
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
-import org.eso.ias.prototype.component.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElementBase
 import org.eso.ias.prototype.input.AlarmValue
 import java.util.Properties
 

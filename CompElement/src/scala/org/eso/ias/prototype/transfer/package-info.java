@@ -16,4 +16,4 @@
  * @author acaproni
  *
  */
-package org.eso.ias.prototype.behavior;
+package org.eso.ias.prototype.transfer;

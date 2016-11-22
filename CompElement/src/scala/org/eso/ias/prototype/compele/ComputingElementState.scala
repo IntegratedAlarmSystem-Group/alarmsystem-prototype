@@ -1,4 +1,4 @@
-package org.eso.ias.prototype.component
+package org.eso.ias.prototype.compele
 
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.input.Identifier
@@ -54,7 +54,7 @@ class ComputingElementState (
    * The point in time when this objects (i.e. the snapshot) has been
    * modified.
    */
-  protected[component] val timestamp = System.currentTimeMillis()
+  protected[compele] val timestamp = System.currentTimeMillis()
   
   override def toString() = {
     val outStr: StringBuilder = new StringBuilder("State of component ")

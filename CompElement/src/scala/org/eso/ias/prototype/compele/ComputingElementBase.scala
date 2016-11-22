@@ -1,14 +1,14 @@
-package org.eso.ias.prototype.component
+package org.eso.ias.prototype.compele
 
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmValue
 import scala.util.control.NonFatal
-import org.eso.ias.prototype.behavior.JavaConverter
+import org.eso.ias.prototype.transfer.JavaConverter
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
-import org.eso.ias.prototype.behavior.JavaTransfer
+import org.eso.ias.prototype.transfer.JavaTransfer
 import scala.collection.mutable.{Set => MutableSet, Map => MutableMap}
 import org.eso.ias.prototype.input.java.IASTypes
 import java.util.Properties
@@ -17,6 +17,15 @@ import java.util.concurrent.TimeUnit
 import scala.util.Try
 import scala.util.Failure
 import scala.util.Success
+
+/**
+ * The healthiness of the ASCE
+ */
+object AcseHealthiness extends Enumeration {
+  val Healthy = Value // Everything ok
+  val TFBroken = Value // The transfer function is too slow
+  val TFSlow = Value // The transfer function is broken
+}
 
 /**
  * The Integrated Alarm System Computing Element (ASCE) 
@@ -57,17 +66,22 @@ abstract class ComputingElementBase (
    * in output (or its value if it is a synthetic parameter) but
    * also shelving or acknowledging an alarm is a modification
    */
-  protected[component] var lastModificationTime = timestamp
+  protected[compele] var lastModificationTime = timestamp
   
   /**
    * The thread executor to run the transfer function
    */
-  protected[component] var threadExecutor: Option[ScheduledThreadPoolExecutor] = None
+  protected[compele] var threadExecutor: Option[ScheduledThreadPoolExecutor] = None
+  
+  /**
+   * The healthiness of this ASCE
+   */
+  protected[compele] var health: AcseHealthiness.Value =  AcseHealthiness.Healthy
   
   /**
    * true if the this ASCE has been shutdown, false otherwise  
    */
-  @volatile protected[component] var terminated = false;
+  @volatile protected[compele] var terminated = false;
   
   /**
    * Update the output by running the user provided script/class against the inputs.
@@ -165,6 +179,8 @@ abstract class ComputingElementBase (
   
   override def toString() = {
     val outStr: StringBuilder = new StringBuilder(super.toString())
+    outStr.append("\n>Health<\t")
+    outStr.append(health)
     outStr.append("\n>ID of inputs<\n")
     outStr.append(requiredInputs.mkString(", "))
     outStr.append("\n>Not yet processed inputs<\n")
