@@ -24,16 +24,23 @@ class CommonDefs(object):
         
         @return: A string with the jars in the classpath
         """
+        
+        # jars list is used to avoid duplications of jars in the classpath
+        # It contains all the jars without the path
+        # i.e. lc.jar but not ../lib/lc.jar
+        jars=[]
+        
         classpath=""
         FileSupport.FileSupport.getIASFolders()
         for folder in FileSupport.FileSupport.getIASSearchFolders('lib'):
             for root, subFolders, files in walk(folder):
-                for file in files:
-                    if (file.lower().endswith('.jar')):
-                        filePath=path.join(root,file)
+                for jarFileName in files:
+                    if (jarFileName.lower().endswith('.jar') and jars.count(jarFileName)==0):
+                        filePath=path.join(root,jarFileName)
                         if classpath:
                             classpath=classpath+cls.__classPathSeparator
                         classpath=classpath+filePath
+                        jars.append(jarFileName)
         return classpath
                             
     @classmethod
