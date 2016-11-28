@@ -83,7 +83,7 @@ class InvalidAsceStateTransitionException(
 /**
  * The ASCE state 
  */
-class AsceState(val actualState: AsceStates.State = AsceStates.Initing) {
+class ComputingElementState(val actualState: AsceStates.State = AsceStates.Initing) {
   
   /**
    * @return true if the TF can be executed in the current state
@@ -97,7 +97,7 @@ class AsceState(val actualState: AsceStates.State = AsceStates.Initing) {
 /**
  * The implementation of the ASCE state machine transitions
  */
-object AsceState {
+object ComputingElementState {
   
   /**
    * The transition of the state of a ASCE as a result of an event
@@ -106,35 +106,35 @@ object AsceState {
    * @param e: the event to apply to the current state of the ASCE
    * @result the new state of the ASCE after applying the event to the current state
    */
-  def transition(asceState: AsceState, e: Event): AsceState = {
+  def transition(asceState: ComputingElementState, e: Event): ComputingElementState = {
     asceState.actualState match {
       case AsceStates.Initing =>
         e match {
-          case Initialized() => new AsceState(AsceStates.Healthy)
-          case Shutdown()  => new AsceState(AsceStates.ShuttingDown)
+          case Initialized() => new ComputingElementState(AsceStates.Healthy)
+          case Shutdown()  => new ComputingElementState(AsceStates.ShuttingDown)
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
       case AsceStates.Healthy =>
         e match {
-          case Broken()  => new AsceState(AsceStates.TFBroken)
-          case Slow()  => new AsceState(AsceStates.TFSlow)
-          case Shutdown()  => new AsceState(AsceStates.ShuttingDown)
+          case Broken()  => new ComputingElementState(AsceStates.TFBroken)
+          case Slow()  => new ComputingElementState(AsceStates.TFSlow)
+          case Shutdown()  => new ComputingElementState(AsceStates.ShuttingDown)
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
       case AsceStates.TFBroken =>
         e match {
-          case Shutdown()  => new AsceState(AsceStates.ShuttingDown)
+          case Shutdown()  => new ComputingElementState(AsceStates.ShuttingDown)
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
         case AsceStates.TFSlow =>
         e match {
-          case Normal()  => new AsceState(AsceStates.Healthy)
-          case Shutdown()  => new AsceState(AsceStates.ShuttingDown)
+          case Normal()  => new ComputingElementState(AsceStates.Healthy)
+          case Shutdown()  => new ComputingElementState(AsceStates.ShuttingDown)
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
       case AsceStates.ShuttingDown =>
         e match {
-          case Close()  => new AsceState(AsceStates.Closed)
+          case Close()  => new ComputingElementState(AsceStates.Closed)
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
       case AsceStates.Closed =>

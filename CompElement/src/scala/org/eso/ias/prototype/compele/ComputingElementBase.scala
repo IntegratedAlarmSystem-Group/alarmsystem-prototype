@@ -94,7 +94,7 @@ abstract class ComputingElementBase (
   /**
    * The state of the ASCE
    */
-  @volatile protected[compele] var state: AsceState =  new AsceState
+  @volatile protected[compele] var state: ComputingElementState =  new ComputingElementState
   
   /**
    * true if the this ASCE has been shutdown, false otherwise  
