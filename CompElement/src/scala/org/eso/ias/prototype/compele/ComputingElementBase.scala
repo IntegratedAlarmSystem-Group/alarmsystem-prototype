@@ -205,6 +205,17 @@ abstract class ComputingElementBase (
     output.updateValidity(newValidity).asInstanceOf[HeteroInOut]
   }
   
+  /**
+   * A transition of the state of the ASCE triggered by the
+   * passed event
+   * 
+   * @param e: the event triggering the transition
+   * @see ComputingElementState
+   */
+  def transition(e: ASCEStateEvent) {
+    state=ComputingElementState.transition(state, e)
+  }
+  
   override def toString() = {
     val outStr: StringBuilder = new StringBuilder("State of component ")
     outStr.append(id.toString())

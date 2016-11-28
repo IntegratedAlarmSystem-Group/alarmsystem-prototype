@@ -36,47 +36,47 @@ object AsceStates extends Enumeration {
 /**
  *  The events to switch the state of the ASCE
  */
-trait Event
+trait ASCEStateEvent
 
 /**
  *  The ASCE has been initialized i.e. at least
  *  the TF class has been loaded and intialized
  */
-case class Initialized() extends Event
+case class Initialized() extends ASCEStateEvent
 
 /**
  * The user provided TF is broken 
  * i.e it typically threw an exception.
  */
-case class Broken() extends Event
+case class Broken() extends ASCEStateEvent
 
 /**
  * The user provided TF is too slow
  */
-case class Slow() extends Event
+case class Slow() extends ASCEStateEvent
 
 /**
  * The user provided TF is back to normal
  */
-case class Normal() extends Event
+case class Normal() extends ASCEStateEvent
 
 /**
  *  The ASCE has been shutdown
  *  This state shuts down the TF
  */
-case class Shutdown() extends Event
+case class Shutdown() extends ASCEStateEvent
 
 /**
  *  The TF has been shutdown and the ASCE is now closed 
  */
-case class Close() extends Event
+case class Close() extends ASCEStateEvent
 
 /**
  * The exception thrown when the actual state does not accept a transition
  */
 class InvalidAsceStateTransitionException(
     actualState: AsceStates.State,
-    transition: Event) extends Exception(
+    transition: ASCEStateEvent) extends Exception(
        "Invalid transition "+transition+" from "+actualState+" state"
     )
 
@@ -106,7 +106,7 @@ object ComputingElementState {
    * @param e: the event to apply to the current state of the ASCE
    * @result the new state of the ASCE after applying the event to the current state
    */
-  def transition(asceState: ComputingElementState, e: Event): ComputingElementState = {
+  def transition(asceState: ComputingElementState, e: ASCEStateEvent): ComputingElementState = {
     asceState.actualState match {
       case AsceStates.Initing =>
         e match {
@@ -145,7 +145,3 @@ object ComputingElementState {
     }
   }
 }
-
-
-
-
