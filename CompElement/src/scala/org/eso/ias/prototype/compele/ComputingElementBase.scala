@@ -157,6 +157,7 @@ abstract class ComputingElementBase (
       }
     } else {
       println("ACSE "+id.runningID+" TF inhibited: actual state "+state.toString())
+      if (state.actualState==AsceStates.Initing && tfSetting.initialized) transition(new Initialized())
     }
   }
   
