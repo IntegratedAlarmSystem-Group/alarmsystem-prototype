@@ -10,5 +10,6 @@
 	<classpathentry kind="var" path="IAS_ROOT/lib/ias-tools.jar"/>
 	<classpathentry kind="var" path="IAS_ROOT/lib/ias-basic-types.jar"/>
 	<classpathentry kind="var" path="IAS_ROOT/lib/ias-basic-types-java.jar"/>
+	<classpathentry kind="lib" path="lib/ias-component-java.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
