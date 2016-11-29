@@ -12,6 +12,8 @@ import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.input.JavaConverter
 import org.eso.ias.prototype.input.java.IASValue
 import org.eso.ias.prototype.input.Clear
+import org.eso.ias.prototype.input.java.IasDouble
+import org.eso.ias.prototype.input.java.IasAlarm
 
 /**
  * Test the conversion between HIO to IASValue and vice-versa
@@ -43,7 +45,7 @@ class TestJavaConversion  extends FlatSpec {
   
   it must "build the java value with the proper values" in {
     val f = fixture
-    val doubleVal = JavaConverter.hioToIASValue[Double](f.doubleHIO)
+    val doubleVal = JavaConverter.hioToIASValue[Double](f.doubleHIO).asInstanceOf[IasDouble]
     assert(doubleVal.valueType==f.doubleHIO.iasType)
     assert(doubleVal.mode==f.doubleHIO.mode)
     assert(doubleVal.timestamp==f.doubleHIO.actualValue.get.timestamp)
@@ -51,16 +53,16 @@ class TestJavaConversion  extends FlatSpec {
     assert(doubleVal.runningId==f.doubleHIO.id.runningID)
     assert(doubleVal.value==f.doubleHIO.actualValue.get.value)
     
-    val alarmVal = JavaConverter.hioToIASValue[AlarmValue](f.alarmHIO)
+    val alarmVal = JavaConverter.hioToIASValue[AlarmValue](f.alarmHIO).asInstanceOf[IasAlarm]
     assert(alarmVal.value==f.alarmHIO.actualValue.get.value)
   }
   
   it must "Update a HIO with the values from a IASValue" in {
     val f = fixture
     
-    val doubleVal = JavaConverter.hioToIASValue[Double](f.doubleHIO)
-    val newdoubleVal = new IASValue[Double](doubleVal.value+8.5,System.currentTimeMillis(),OperationalMode.OPERATIONAL,doubleVal.id,doubleVal.runningId,doubleVal.valueType)
-    val hio = JavaConverter.updateHIOWithIasValue[Double](f.doubleHIO,newdoubleVal)
+    val doubleVal = JavaConverter.hioToIASValue[Double](f.doubleHIO).asInstanceOf[IasDouble]
+    val newdoubleVal = new IasDouble(doubleVal.value+8.5,System.currentTimeMillis(),OperationalMode.OPERATIONAL,doubleVal.id,doubleVal.runningId)
+    val hio = JavaConverter.updateHIOWithIasValue(f.doubleHIO,newdoubleVal)
     
     assert(newdoubleVal.valueType==hio.iasType)
     assert(newdoubleVal.mode==hio.mode)
@@ -68,53 +70,39 @@ class TestJavaConversion  extends FlatSpec {
     assert(newdoubleVal.runningId==hio.id.runningID)
     assert(newdoubleVal.value==hio.actualValue.get.value)
     
-    val alarmVal = JavaConverter.hioToIASValue[AlarmValue](f.alarmHIO)
-    val alarm = alarmVal.value.asInstanceOf[AlarmValue]
+    val alarmVal = JavaConverter.hioToIASValue[AlarmValue](f.alarmHIO).asInstanceOf[IasAlarm]
+    val alarm = alarmVal.value
     val newAlarm = AlarmValue.transition(alarm, new Clear())
-    val newAlarmValue = alarmVal.updateValue(newAlarm)
-    val alarmHio = JavaConverter.updateHIOWithIasValue[AlarmValue](f.alarmHIO,newAlarmValue)
+    val newAlarmValue = alarmVal.updateValue(newAlarm).asInstanceOf[IasAlarm]
+    val alarmHio = JavaConverter.updateHIOWithIasValue(f.alarmHIO,newAlarmValue)
     
     assert(alarmHio.actualValue.get.value.asInstanceOf[AlarmValue].alarmState==AlarmState.Cleared)
   }
   
   it must "fail updating with wrong IDs, runningIDs, type" in {
     val f = fixture
-    val doubleVal = JavaConverter.hioToIASValue[Double](f.doubleHIO)
+    val doubleVal = JavaConverter.hioToIASValue(f.doubleHIO).asInstanceOf[IasDouble]
     // Build a IASValue with another ID
-    val newDoubleValueWrongId = new IASValue(
+    val newDoubleValueWrongId = new IasDouble(
         doubleVal.value,
         doubleVal.timestamp,
         doubleVal.mode,
         doubleVal.id+"WRONG!",
-        doubleVal.runningId,
-        doubleVal.valueType)
+        doubleVal.runningId)
     
     assertThrows[IllegalStateException] {
-      JavaConverter.updateHIOWithIasValue[Double](f.doubleHIO, newDoubleValueWrongId)
+      JavaConverter.updateHIOWithIasValue(f.doubleHIO, newDoubleValueWrongId)
     }
     
-    val newDoubleValueWrongRunId = new IASValue(
+    val newDoubleValueWrongRunId = new IasDouble(
         doubleVal.value,
         doubleVal.timestamp,
         doubleVal.mode,
         doubleVal.id,
-        doubleVal.runningId+"WRONG!",
-        doubleVal.valueType)
+        doubleVal.runningId+"WRONG!")
     assertThrows[IllegalStateException] {
-      JavaConverter.updateHIOWithIasValue[Double](f.doubleHIO, newDoubleValueWrongRunId)
+      JavaConverter.updateHIOWithIasValue(f.doubleHIO, newDoubleValueWrongRunId)
     }
-    
-    val newDoubleValueWrongType = new IASValue(
-        doubleVal.value,
-        doubleVal.timestamp,
-        doubleVal.mode,
-        doubleVal.id,
-        doubleVal.runningId,
-        IASTypes.BOOLEAN)
-    assertThrows[IllegalStateException] {
-      JavaConverter.updateHIOWithIasValue[Double](f.doubleHIO, newDoubleValueWrongType)
-    }
-    
   }
   
 }

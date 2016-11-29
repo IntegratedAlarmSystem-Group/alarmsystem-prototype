@@ -5,7 +5,6 @@ import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.AlarmValue
 import scala.util.control.NonFatal
-import org.eso.ias.prototype.transfer.JavaConverter
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.AckState
 import org.eso.ias.prototype.transfer.JavaTransfer
@@ -142,7 +141,7 @@ abstract class ComputingElementBase (
       val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
       
       val runTransferFunction = Try[HeteroInOut] { 
-        transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut],System.getProperties)
+        transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
       }
       runTransferFunction match {
         case Failure(v) =>
@@ -190,14 +189,12 @@ abstract class ComputingElementBase (
    * @param theInputs: The inputs, sorted by their IDs 
    * @param id: the ID of this computing element
    * @param actualOutput: the actual output
-   * @param pros: properties to pass to the implementors
    * @return The new output
    */
   def transfer(
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
-      actualOutput: HeteroInOut,
-      props: Properties) : HeteroInOut = {
+      actualOutput: HeteroInOut) : HeteroInOut = {
     
     val valitiesSet = MutableSet[Validity.Value]()
     for ( monitorPoint <- inputs.values ) valitiesSet += monitorPoint.validity

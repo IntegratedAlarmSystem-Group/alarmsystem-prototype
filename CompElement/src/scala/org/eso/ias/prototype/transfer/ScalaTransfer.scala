@@ -18,11 +18,10 @@ trait ScalaTransfer extends ComputingElementBase {
   abstract override def transfer(
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
-      actualOutput: HeteroInOut,
-      props: Properties): HeteroInOut = {
+      actualOutput: HeteroInOut): HeteroInOut = {
     println("ScalaTransfer.transfer")
     
-    super.transfer(inputs, id, actualOutput,props)
+    super.transfer(inputs, id, actualOutput)
   }
   
 }

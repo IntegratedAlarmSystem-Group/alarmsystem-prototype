@@ -52,9 +52,10 @@ class TransferFunctionSetting(
   var initialized = false
   
   /**
-   * The java transfer executor
+   * The java transfer executor i.e. the java object that 
+   * implements the transfer function
    */
-  var javaTransferExecutor: Option[TransferExecutor[_]] = None
+  var javaTransferExecutor: Option[TransferExecutor] = None
   
   override def toString(): String = {
     "Transfer function implemented in "+language+" by "+className
@@ -98,7 +99,8 @@ class TransferFunctionSetting(
     // Init the executor if it has been correctly instantiated 
     if (javaTransferExecutor.isDefined) {
       initialized=initExecutor(javaTransferExecutor)
-    } 
+    }
+    println("Initialized="+initialized)
   }
 
   /**
@@ -106,7 +108,7 @@ class TransferFunctionSetting(
    * 
    * @param executor: The executor to initialize
    */
-  private[this] def initExecutor(executor: Option[TransferExecutor[_]]): Boolean = {
+  private[this] def initExecutor(executor: Option[TransferExecutor]): Boolean = {
     require(executor.isDefined)
     try {
       executor.get.initialize()
@@ -149,7 +151,7 @@ class TransferFunctionSetting(
       executorClass: Option[Class[_]],
       asceId: String,
       asceRunningId: String,
-      props: Properties): Option[TransferExecutor[_]] = {
+      props: Properties): Option[TransferExecutor] = {
     assert(executorClass.isDefined)
     require(Option[String](asceId).isDefined)
     require(Option[String](asceRunningId).isDefined)
@@ -161,14 +163,14 @@ class TransferFunctionSetting(
     try {
       val ctors = executorClass.get.getConstructors()
       var ctorFound=false
-      var ret: Option[TransferExecutor[_]] = None
+      var ret: Option[TransferExecutor] = None
       for {ctor <-ctors 
           paramTypes = ctor.getParameterTypes()
           if paramTypes.size==3} {        
             ctorFound=(paramTypes(0)==asceId.getClass && paramTypes(1)==asceRunningId.getClass && paramTypes(2)==props.getClass)
             if (ctorFound) {
               val args = Array[AnyRef](asceId,asceRunningId,props)
-              ret = Some(ctor.newInstance(args:_*).asInstanceOf[TransferExecutor[_]])
+              ret = Some(ctor.newInstance(args:_*).asInstanceOf[TransferExecutor])
             }
           }
       ret

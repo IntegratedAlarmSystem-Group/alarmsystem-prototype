@@ -1,9 +1,9 @@
 package org.eso.ias.prototype.transfer;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
 
-import org.eso.ias.prototype.input.java.IASValue;
+import org.eso.ias.prototype.input.java.IASValueBase;
 
 /**
  * 
@@ -15,7 +15,7 @@ import org.eso.ias.prototype.input.java.IASValue;
  * @param <T> The type of the value produced evaluating the inputs
  *            i.e. the type of the ASCE
  */
-public abstract class TransferExecutor<T> {
+public abstract class TransferExecutor {
 	
 	/**
 	 * The ID of the computational element that runs this
@@ -88,8 +88,8 @@ public abstract class TransferExecutor<T> {
 	 * that return a new IASValue.
 	 * 
 	 * @param compInputs: the inputs to the ASCE
-	 * @param actualOutput: tha actual output of the ASCE
+	 * @param actualOutput: the actual output of the ASCE
 	 * @return the computed value to set as output of the ASCE
 	 */
-	public abstract IASValue<T> eval(Collection<IASValue<?>> compInputs, IASValue<T> actualOutput);
+	public abstract IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput);
 }
