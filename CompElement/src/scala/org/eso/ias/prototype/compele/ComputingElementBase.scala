@@ -133,20 +133,33 @@ abstract class ComputingElementBase (
    */
   def transfer(): Unit = {
     
-    mixInputs(inputs,newInputs)
-    
-    if (state.canRunTF()) {
+    if (state.canRunTF() && newInputs.synchronized{!newInputs.isEmpty}) {
+      
       // Prepare the list of the inputs by replacing the ones in the 
       // inputs with those in the newInputs
+      mixInputs(inputs,newInputs)
+      
+      // We pass around a immutable map to avoid that the user implementation
+      // of the transfer function messes up the data
       val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
       
-      val runTransferFunction = Try[HeteroInOut] { 
-        transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
+      val runTransferFunction = Try[HeteroInOut] {
+        val startedAt=System.currentTimeMillis()
+        val ret = transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
+        val endedAt=System.currentTimeMillis()
+        if (endedAt-startedAt>TransferFunctionSetting.MaxTolerableTFTime) {
+          state=ComputingElementState.transition(state, new Slow())
+        } else {
+          state=ComputingElementState.transition(state, new Normal())
+        }
+        ret
       }
       runTransferFunction match {
         case Failure(v) =>
-          println("Caught exception while running the user defined transfer function for input "+id.runningID+": "+v.getMessage)
+          println("TF inhibite for the time being: caught exception while running the user defined TF for input "+id.runningID+": "+v.getMessage)
           v.printStackTrace()
+          // Change the state so that the TF is never executed again
+          state=ComputingElementState.transition(state, new Broken())
         case Success(v) => 
           val newOutput=runTransferFunction.get
           if (newOutput!=output) {
@@ -155,7 +168,7 @@ abstract class ComputingElementBase (
           }
       }
     } else {
-      println("ACSE "+id.runningID+" TF inhibited: actual state "+state.toString())
+      println("ACSE "+id.runningID+" TF inhibited or no new HIOs: actual state "+state.toString())
       if (state.actualState==AsceStates.Initing && tfSetting.initialized) transition(new Initialized())
     }
   }
@@ -260,6 +273,7 @@ abstract class ComputingElementBase (
     // Start the thread to refresh the output by running the
     // transfer function
     threadExecutor.get.scheduleAtFixedRate(this, 2000, output.refreshRate, TimeUnit.MILLISECONDS)
+    state = ComputingElementState.transition(state, new Initialized())
   }
   
   /**
@@ -270,9 +284,15 @@ abstract class ComputingElementBase (
    * to update the output i.e. to execute the transfer function.
    */
   def shutdown(): Unit = {
+    state = ComputingElementState.transition(state, new Shutdown())
     this.synchronized {
       terminated=true
       if (threadExecutor.isDefined) threadExecutor.get.remove(this)
     }
+    // TODO: shutdown the TF
+    state = ComputingElementState.transition(state, new Close())
+    
   }
 }
+
+
