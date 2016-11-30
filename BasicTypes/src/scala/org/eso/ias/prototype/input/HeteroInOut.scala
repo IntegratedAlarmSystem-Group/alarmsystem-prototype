@@ -85,7 +85,7 @@ abstract class HeteroInOut private[input] (
      */
     override def equals(other: Any): Boolean = {
       other match {
-        case that: HeteroIOValue => value==that.value
+        case that: HeteroInOut#HeteroIOValue => value==that.value
         case _ => false
       }
     }
