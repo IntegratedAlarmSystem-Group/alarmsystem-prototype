@@ -81,14 +81,19 @@ with JavaTransfer with ScalaTransfer {
    * ready to be evaluated when refreshing the value
    * of the output 
    * 
-   * @param mp: The new value of a monitor point in input
+   * @param hio: The new value of a monitor point in input
    */
-  def inputChanged(mp: Some[HeteroInOut]) {
-    if (!requiredInputs.contains(mp.get.id.id.get)) {
-      throw new IllegalStateException("Trying to pass a MP to a component that does not want it: "+mp.get.id.id.get+" not in "+requiredInputs.mkString(", "))
+  def inputChanged(hio: Some[HeteroInOut]) {
+    if (!requiredInputs.contains(hio.get.id.id.get)) {
+      throw new IllegalStateException("Trying to pass a MP to a component that does not want it: "+hio.get.id.id.get+" not in "+requiredInputs.mkString(", "))
     }
     newInputs.synchronized {
-      newInputs(mp.get.id.id.get)=mp.get
+      // Check if actualInputs already contains this HIO and it they matches
+      // We do not want to add twice the same HIO unless it changed, of course
+      val actualHIO = actualInputs.get(hio.get.id.id.get)
+      if (actualHIO.isDefined && actualHIO.get!=hio.get) {
+        newInputs(hio.get.id.id.get)=hio.get
+      }
     }
   }
   
