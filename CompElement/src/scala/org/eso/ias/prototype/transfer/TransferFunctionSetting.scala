@@ -4,6 +4,7 @@ import java.util.Properties
 import java.util.concurrent.ThreadFactory
 import scala.util.Try
 import org.eso.ias.prototype.input.AlarmValue
+import scala.sys.SystemProperties
 
 /**
  * Implemented types of transfer functions
@@ -181,4 +182,22 @@ class TransferFunctionSetting(
           None
       }
   }
+}
+
+object TransferFunctionSetting {
+  
+  /**
+   * The name of the property to set maxTolerableTFTime
+   */
+  val MaxTFTimePropName="ias.prototype.asce.transfer.maxexectime"
+  
+  /**
+   * If the execution time of the TF is higher the this value
+   * the the state of the ASCE changes. At the present we do 
+   * not block the execution but in future we could prefer to block
+   * slow TFs unless it is a transient problem.
+   * 
+   * For the prototype it is enough to monitor.
+   */
+  lazy val MaxTolerableTFTime : Int=new SystemProperties().getOrElse(MaxTFTimePropName,"1000").toInt // msec
 }
