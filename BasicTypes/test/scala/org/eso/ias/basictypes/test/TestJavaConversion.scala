@@ -32,14 +32,36 @@ class TestJavaConversion  extends FlatSpec {
       // Modes
       val doubleMode = OperationalMode.MAINTENANCE
       val alarmMode = OperationalMode.STARTUP
+      val mode = OperationalMode.OPERATIONAL
       // The values
       val alarmValue = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-      val doubleValue = 48.6.toDouble
+      val doubleValue = 48.6D
+      val floatValue = -11.5F
+      val longValue = 11L
+      val intValue = -76
+      val shortValue = 15.toShort
+      val byteValue = 43.toByte
+      val charValue = 'X'
+      val stringValue = "Test"
+      val boolValue = false
+      
       // Validity
       val validity = Validity.Reliable
       // The HIOs
+      val longHIO = HeteroInOut[Long](doubleHioId,refRate,longValue,mode,validity,IASTypes.LONG)
+      val intHIO = HeteroInOut[Int](doubleHioId,refRate,intValue,mode,validity,IASTypes.INT)
+      val shortHIO = HeteroInOut[Short](doubleHioId,refRate,shortValue,mode,validity,IASTypes.SHORT)
+      val byteHIO = HeteroInOut[Byte](doubleHioId,refRate,byteValue,mode,validity,IASTypes.BYTE)
+      val charHIO = HeteroInOut[Char](doubleHioId,refRate,charValue,mode,validity,IASTypes.CHAR)
+      val stringHIO = HeteroInOut[String](doubleHioId,refRate,stringValue,mode,validity,IASTypes.STRING)
+      val boolHIO = HeteroInOut[Boolean](doubleHioId,refRate,boolValue,mode,validity,IASTypes.BOOLEAN)
       val alarmHIO = HeteroInOut[AlarmValue](alarmHioId,refRate,alarmValue,alarmMode,validity,IASTypes.ALARM)
       val doubleHIO = HeteroInOut[Double](doubleHioId,refRate,doubleValue,doubleMode,validity,IASTypes.DOUBLE)
+      val floatHIO = HeteroInOut[Float](doubleHioId,refRate,floatValue,mode,validity,IASTypes.FLOAT)
+      
+      // Ensure we are testing all possible types
+      val hios = List (longHIO,intHIO,shortHIO,byteHIO,charHIO,stringHIO,boolHIO,alarmHIO,doubleHIO,floatHIO)
+      assert(hios.size==IASTypes.values().size)
     }
   }
   

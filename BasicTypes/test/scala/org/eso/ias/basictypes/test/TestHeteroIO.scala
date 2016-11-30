@@ -6,6 +6,9 @@ import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.HeteroInOut
 import org.eso.ias.prototype.input.java.IASTypes
+import org.eso.ias.prototype.input.AlarmValue
+import org.eso.ias.prototype.input.AlarmState
+import org.eso.ias.prototype.input.AckState
 
 /**
  * Test the LongMP
@@ -111,5 +114,56 @@ class TestHeteroIO extends FlatSpec {
     assert(mpUpdated eq mpUpdated2,"Unexpected new object after updating value and validity")
     
   }
+  
+  it must "throws an exception updating with a type mismatch" in {
+    
+    val mpLong:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LONG)
+    val mpAlarm: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.ALARM)
+    
+    assertThrows[ClassCastException] {
+      mpLong.updateValue(new AlarmValue)
+    }
+    assertThrows[ClassCastException] {
+     mpLong.updateValue(7.5) 
+    }
+    
+    assertThrows[ClassCastException] {
+      mpAlarm.updateValue(-1)
+    }
+    assertThrows[ClassCastException] {
+     mpAlarm.updateValue(true) 
+    }
+  }
+  
+  it must "support all types" in {
+    // Build a HIO of all supported types and update the value checking
+    // for possible mismatch
+    val hioLong:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.LONG)
+    val hioShort:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.SHORT)
+    val hioInt:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.INT)
+    val hioByte:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.BYTE)
+    val hioDouble:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.DOUBLE)
+    val hioFloat:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.FLOAT)
+    val hioBool:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.BOOLEAN)
+    val hioChar:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.CHAR)
+    val hioString:  HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.STRING)
+    val hioAlarm: HeteroInOut = HeteroInOut(id,refreshRate,IASTypes.ALARM)
+    
+    // Check if all the types has bene instantiated
+    val listOfHIOs = List(hioLong,hioShort, hioInt,hioByte,hioDouble,hioFloat, hioBool,hioChar,hioString,hioAlarm)
+    assert(listOfHIOs.size==IASTypes.values().length)
+    
+    hioLong.updateValue(-1L)
+    hioShort.updateValue(2.toShort)
+    hioInt.updateValue(13)
+    hioByte.updateValue(64.toByte)
+    hioDouble.updateValue(-1.9D)
+    hioFloat.updateValue(-1.3F)
+    hioBool.updateValue(false)
+    hioChar.updateValue('C')
+    hioString.updateValue("Test")
+    hioAlarm.updateValue(new AlarmValue(AlarmState.Active,true,AckState.New))
+  }
+
   
 }
