@@ -164,6 +164,4 @@ class TestHeteroIO extends FlatSpec {
     hioString.updateValue("Test")
     hioAlarm.updateValue(new AlarmValue(AlarmState.Active,true,AckState.New))
   }
-
-  
 }

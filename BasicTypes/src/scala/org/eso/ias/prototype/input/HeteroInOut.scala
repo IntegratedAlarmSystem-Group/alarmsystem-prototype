@@ -57,6 +57,20 @@ abstract class HeteroInOut private[input] (
   }
   
   /**
+   * The hashCode is calculated only once when needed
+   */
+  lazy val hashCodeValue: Int = {
+    var temp = 19
+    temp += 31*temp + refreshRate
+    temp += 31*temp + mode.ordinal()
+    temp += 31*temp + validity.id
+    temp += 31*temp + actualValue.hashCode()
+    temp += 31*temp + id.hashCode()
+    temp += 31*temp + iasType.ordinal()
+    temp
+  }
+  
+  /**
    * The value of the HIO is associated 
    * to a timestamp corresponding to the update time of 
    * the value
@@ -74,7 +88,7 @@ abstract class HeteroInOut private[input] (
      * Redefine the hashCode in terms of the value
      * @see #equals(other: Any)
      */
-    override def hashCode = value.##
+    override def hashCode = 13*31+value.##
     
     /**
      * In IAS semantic 2 values are equal if and only
@@ -151,6 +165,34 @@ abstract class HeteroInOut private[input] (
     else if (theValue==None) HeteroInOut(id,refreshRate,None,mode,valid,iasType)
     else HeteroInOut(id,refreshRate,theValue.get,mode,valid,iasType)
   }
+  
+  /**
+   * Redefine the hashCode in terms of the values
+   * of the properties.
+   * 
+   * @see #equals(other: Any)
+   */
+  override def hashCode = hashCodeValue
+  
+  /**
+   * In IAS semantic 2 values are equal if and only
+   * if the values of the properties the same.
+   * 
+   * @see #hashCode
+   */
+  override def equals(other: Any): Boolean = {
+    other match {
+      case that: HeteroInOut => 
+        this.iasType==that.iasType &&
+        this.mode==that.mode && 
+        this.validity == that.validity &&
+        this.actualValue == that.actualValue &&
+        this.id == that.id &&
+        this.refreshRate == that.refreshRate
+      case _ => false
+    }
+  }
+  
 }
 
 /** 
