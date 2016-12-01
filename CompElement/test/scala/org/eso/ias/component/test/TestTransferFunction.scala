@@ -89,32 +89,32 @@ class TestTransferFunction extends FlatSpec {
   
   behavior of "The Component transfer function"
   
-  it must "initialize the TF executor" in new CompBuilder {
-    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
-    comp.initialize(stpe)
-    println("Sleeping")
-    Thread.sleep(10000)
-    comp.shutdown()
-  }
+//  it must "initialize the TF executor" in new CompBuilder {
+//    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
+//    comp.initialize(stpe)
+//    println("Sleeping")
+//    Thread.sleep(10000)
+//    comp.shutdown()
+//  }
   
+  /**
+   * This test checks if the validity is set to Reliable if all the
+   * validities have this level.
+   */
   it must "set the validity to the lower value" in new CompBuilder {
-    // This test checks if the validity is set to Reliable if all the
-    // validities have this level
-    // At the present, this is the only test we can do with only 2 values for the
-    // validity
     val component: ComputingElementBase = comp
+    comp.initialize(new ScheduledThreadPoolExecutor(2))
     
     val keys=inputsMPs.keys.toList.sorted
     keys.foreach { key  => {
       val changedMP = inputsMPs(key).updateValidity(Validity.Reliable)
-          
-      component.asInstanceOf[ComputingElement].inputChanged(Some(changedMP))
-      
-      component.transfer()
-      if (key!=keys.last) assert(component.output.validity==Validity.Unreliable)
-      else assert(component.output.validity==Validity.Reliable)
+      comp.inputChanged(Some(changedMP))
       } 
     }
+    // Leave time to run the TF
+    Thread.sleep(3000)
+    comp.shutdown()
+    assert(component.output.validity==Validity.Reliable)
   }
   
 }
