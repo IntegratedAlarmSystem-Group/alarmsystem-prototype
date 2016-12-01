@@ -119,6 +119,7 @@ object ComputingElementState {
           case Broken()  => new ComputingElementState(AsceStates.TFBroken)
           case Slow()  => new ComputingElementState(AsceStates.TFSlow)
           case Shutdown()  => new ComputingElementState(AsceStates.ShuttingDown)
+          case Normal() => asceState
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
       case AsceStates.TFBroken =>
@@ -130,6 +131,7 @@ object ComputingElementState {
         e match {
           case Normal()  => new ComputingElementState(AsceStates.Healthy)
           case Shutdown()  => new ComputingElementState(AsceStates.ShuttingDown)
+          case Slow() => asceState
           case _ => throw new InvalidAsceStateTransitionException(asceState.actualState,e)
         }
       case AsceStates.ShuttingDown =>
