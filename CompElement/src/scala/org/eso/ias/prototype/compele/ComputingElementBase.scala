@@ -157,7 +157,7 @@ abstract class ComputingElementBase (
       }
       runTransferFunction match {
         case Failure(v) =>
-          println("TF inhibite for the time being: caught exception while running the user defined TF for input "+id.runningID+": "+v.getMessage)
+          println("TF inhibited for the time being: caught exception while running the user defined TF for input "+id.runningID+": "+v.getMessage)
           v.printStackTrace()
           // Change the state so that the TF is never executed again
           state=ComputingElementState.transition(state, new Broken())
@@ -210,8 +210,23 @@ abstract class ComputingElementBase (
       id: Identifier,
       actualOutput: HeteroInOut) : HeteroInOut = {
     
+    updateOutputWithValidity(inputs,actualOutput)
+  }
+  
+  /**
+   * Update the validity of the passed actualOutput  from the validity
+   * of its inputs.
+   * 
+   * @param theInputs: The inputs, sorted by their IDs 
+   * @param actualOutput: the actual output
+   * @return The new output with the validity updated
+   */
+  private[this] def updateOutputWithValidity(
+      theInputs: Map[String, HeteroInOut], 
+      actualOutput: HeteroInOut) : HeteroInOut = {
+    println("Updating validity")
     val valitiesSet = MutableSet[Validity.Value]()
-    for ( monitorPoint <- inputs.values ) valitiesSet += monitorPoint.validity
+    for ( hio <- theInputs.values ) valitiesSet += hio.validity
     val newValidity = Validity.min(valitiesSet.toList) 
     
     output.updateValidity(newValidity).asInstanceOf[HeteroInOut]
