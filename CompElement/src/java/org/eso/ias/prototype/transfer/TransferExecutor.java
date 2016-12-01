@@ -77,7 +77,7 @@ public abstract class TransferExecutor {
 	 * 
 	 * It is supposed to return quickly, even if not mandatory.
 	 */
-	public abstract void tearDown();
+	public abstract void shutdown();
 	
 	/**
 	 * Produces the output of the component by evaluating the inputs.

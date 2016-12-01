@@ -101,8 +101,8 @@ abstract class ComputingElementBase (
   @volatile protected[compele] var terminated = false;
   
   /**
-   * The thread factory mainly used to async. run the transfer function
-   * initialize() and tearDown()
+   * The thread factory to async. run the 
+   * initialize() and shutdown() methods of the TF implementations.
    */
   val threadFactory = new CompEleThreadFactory(id.runningID)
   
@@ -134,6 +134,7 @@ abstract class ComputingElementBase (
   def transfer(): Unit = {
     
     if (state.canRunTF() && newInputs.synchronized{!newInputs.isEmpty}) {
+      println("Running the TF")
       
       // Prepare the list of the inputs by replacing the ones in the 
       // inputs with those in the newInputs
@@ -169,7 +170,7 @@ abstract class ComputingElementBase (
       }
     } else {
       println("ACSE "+id.runningID+" TF inhibited or no new HIOs: actual state "+state.toString())
-      if (state.actualState==AsceStates.Initing && tfSetting.initialized) transition(new Initialized())
+      if (state.actualState==AsceStates.Initing && tfSetting.initialized) state=ComputingElementState.transition(state, new Initialized())
     }
   }
   
@@ -214,17 +215,6 @@ abstract class ComputingElementBase (
     val newValidity = Validity.min(valitiesSet.toList) 
     
     output.updateValidity(newValidity).asInstanceOf[HeteroInOut]
-  }
-  
-  /**
-   * A transition of the state of the ASCE triggered by the
-   * passed event
-   * 
-   * @param e: the event triggering the transition
-   * @see ComputingElementState
-   */
-  def transition(e: ASCEStateEvent) {
-    state=ComputingElementState.transition(state, e)
   }
   
   override def toString() = {
@@ -289,9 +279,8 @@ abstract class ComputingElementBase (
       terminated=true
       if (threadExecutor.isDefined) threadExecutor.get.remove(this)
     }
-    // TODO: shutdown the TF
+    tfSetting.shutdown()
     state = ComputingElementState.transition(state, new Close())
-    
   }
 }
 

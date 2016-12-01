@@ -15,6 +15,7 @@ import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.transfer.TransferFunctionSetting
 import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.Properties
+import org.eso.ias.prototype.compele.CompEleThreadFactory
 
 /**
  * Test the basic functionalities of the IAS Component,
@@ -74,9 +75,11 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.ALARM)
     
+    val threadaFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadaFactory)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
@@ -99,9 +102,11 @@ class TestComponent extends FlatSpec {
       Validity.Unreliable,
       IASTypes.ALARM)
       
+    val threadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadFactory)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
@@ -122,10 +127,12 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.LONG)
-    
+      
+    val threadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadFactory)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
@@ -147,10 +154,11 @@ class TestComponent extends FlatSpec {
       OperationalMode.OPERATIONAL,
       Validity.Unreliable,
       IASTypes.ALARM)
-      
+    val threadFactory = new CompEleThreadFactory("Test-runninId")  
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadFactory)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
@@ -174,10 +182,12 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
-      
+    
+    val threadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadFactory)
     val comp: ComputingElement= new ComputingElement(
        compId,
        output,
@@ -198,10 +208,12 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.LONG)
-    
+      
+    val threadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadFactory)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,
@@ -223,9 +235,12 @@ class TestComponent extends FlatSpec {
       OperationalMode.OPERATIONAL,
       Validity.Unreliable,
       IASTypes.ALARM)
+    
+    val threadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadFactory)
     val comp: ComputingElement = new ComputingElement(
        compId,
        output,

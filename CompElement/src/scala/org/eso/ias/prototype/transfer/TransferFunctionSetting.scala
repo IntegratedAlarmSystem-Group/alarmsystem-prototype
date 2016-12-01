@@ -38,11 +38,14 @@ object TransferFunctionLanguage extends Enumeration {
  * 
  * @param className: The name of the java/scala class to run
  * @param language: the programming language used to implement the TF
+ * @param threadFactory: The thread factory to async. run init and
+ *                       shutdown on the user provided TF object
  * @see {@link ComputingElement}
  */
 class TransferFunctionSetting(
     val className: String, 
-    val language: TransferFunctionLanguage.Value) {
+    val language: TransferFunctionLanguage.Value,
+    private[this] val threadFactory: ThreadFactory) {
   require(Option[String](className).isDefined && !className.isEmpty())
   require(Option[TransferFunctionLanguage.Value](language).isDefined)
       
@@ -50,7 +53,7 @@ class TransferFunctionSetting(
    * Initialized is true when the object to run the TF has been
    * loaded and initialized
    */
-  var initialized = false
+  @volatile var initialized = false
   
   /**
    * The java transfer executor i.e. the java object that 
@@ -60,6 +63,27 @@ class TransferFunctionSetting(
   
   override def toString(): String = {
     "Transfer function implemented in "+language+" by "+className
+  }
+  
+  /**
+   * Shutsdown the TF
+   */
+  def shutdown() {
+    // Init the executor if it has been correctly instantiated 
+    if (javaTransferExecutor.isDefined) {
+      val shutdownThread = threadFactory.newThread(new Runnable() {
+        def run() {
+          shutdownExecutor(javaTransferExecutor)
+          println("Shutted down")
+        }
+      })
+      shutdownThread.start()
+      // Wait for the termination
+      shutdownThread.join(1500)
+      if (shutdownThread.isAlive()) {
+        println("User provided shutdown did not terminate in 1.5 sec.") 
+      }
+    }
   }
   
   /**
@@ -99,9 +123,13 @@ class TransferFunctionSetting(
     
     // Init the executor if it has been correctly instantiated 
     if (javaTransferExecutor.isDefined) {
-      initialized=initExecutor(javaTransferExecutor)
+      threadFactory.newThread(new Runnable() {
+        def run() {
+          initialized=initExecutor(javaTransferExecutor)
+          println("Initialized="+initialized)
+        }
+      }).start()
     }
-    println("Initialized="+initialized)
   }
 
   /**
@@ -119,6 +147,22 @@ class TransferFunctionSetting(
           println("Exception caught initializing "+className+": "+e.getMessage)
           e.printStackTrace()
           false
+      }
+  }
+  
+  /**
+   * Shutdown the passed executor
+   * 
+   * @param executor: The executor to shutdown
+   */
+  private[this] def shutdownExecutor(executor: Option[TransferExecutor]) {
+    require(executor.isDefined)
+    try {
+      executor.get.shutdown()
+    } catch {
+        case e: Throwable => 
+          println("Exception caught shutting down "+className+": "+e.getMessage)
+          e.printStackTrace()
       }
   }
   

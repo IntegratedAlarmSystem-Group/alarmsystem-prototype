@@ -23,7 +23,7 @@ public class TransferExecutorImpl  extends TransferExecutor {
 	}
 
 	@Override
-	public void tearDown() {
+	public void shutdown() {
 		System.out.println("TransferExecutorImpl: shutting down");
 	}
 	

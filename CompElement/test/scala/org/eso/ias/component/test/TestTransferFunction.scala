@@ -14,6 +14,7 @@ import org.eso.ias.prototype.transfer.TransferFunctionSetting
 import java.util.Properties
 import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.concurrent.ScheduledThreadPoolExecutor
+import org.eso.ias.prototype.compele.CompEleThreadFactory
 
 class TestTransferFunction extends FlatSpec {
   
@@ -73,9 +74,11 @@ class TestTransferFunction extends FlatSpec {
       }
       inputsMPs+=(mp.id.id.get -> mp)
     }
+    val threadaFactory: CompEleThreadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
-        TransferFunctionLanguage.java)
+        TransferFunctionLanguage.java,
+        threadaFactory)
     val comp: ComputingElement = new ComputingElement(
        compID,
        output,
