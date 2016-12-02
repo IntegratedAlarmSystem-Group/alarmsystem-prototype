@@ -220,7 +220,12 @@ abstract class ComputingElementBase (
       id: Identifier,
       actualOutput: HeteroInOut) : HeteroInOut = {
     
-    updateOutputWithValidity(inputs,actualOutput)
+    val validitiesSet = MutableSet[Validity.Value]()
+    for ( hio <- inputs.values ) validitiesSet += hio.validity
+    val newValidity = Validity.min(validitiesSet.toList) 
+    
+    output=actualOutput.updateValidity(newValidity)
+    output
   }
   
   /**
@@ -234,12 +239,11 @@ abstract class ComputingElementBase (
   private[this] def updateOutputWithValidity(
       theInputs: Map[String, HeteroInOut], 
       actualOutput: HeteroInOut) : HeteroInOut = {
-    println("Updating validity")
     val valitiesSet = MutableSet[Validity.Value]()
     for ( hio <- theInputs.values ) valitiesSet += hio.validity
     val newValidity = Validity.min(valitiesSet.toList) 
     
-    output.updateValidity(newValidity).asInstanceOf[HeteroInOut]
+    actualOutput.updateValidity(newValidity).asInstanceOf[HeteroInOut]
   }
   
   override def toString() = {
