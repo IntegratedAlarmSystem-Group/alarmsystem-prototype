@@ -1,4 +1,4 @@
-package org.eso.ias.prototype.transfer;
+package org.eso.ias.component.test.transfer;
 
 import java.util.Map;
 import java.util.Properties;
@@ -8,7 +8,14 @@ import org.eso.ias.prototype.input.Set;
 import org.eso.ias.prototype.input.java.IASValueBase;
 import org.eso.ias.prototype.input.java.IasAlarm;
 import org.eso.ias.prototype.input.java.OperationalMode;
+import org.eso.ias.prototype.transfer.TransferExecutor;
 
+/**
+ * A java transfer function for testing
+ * 
+ * @author acaproni
+ *
+ */
 public class TransferExecutorImpl  extends TransferExecutor {
 	
 	public TransferExecutorImpl(String cEleId, 
