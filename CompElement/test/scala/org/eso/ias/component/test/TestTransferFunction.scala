@@ -15,6 +15,7 @@ import java.util.Properties
 import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import org.eso.ias.prototype.compele.CompEleThreadFactory
+import org.eso.ias.prototype.input.AlarmState
 
 class TestTransferFunction extends FlatSpec {
   
@@ -74,47 +75,84 @@ class TestTransferFunction extends FlatSpec {
       }
       inputsMPs+=(mp.id.id.get -> mp)
     }
-    val threadaFactory: CompEleThreadFactory = new CompEleThreadFactory("Test-runninId")
-    val tfSetting =new TransferFunctionSetting(
+    val threadFactory: CompEleThreadFactory = new CompEleThreadFactory("Test-runningId")
+    
+    // Instantiate on ASCE with a java TF implementation
+    val javaTFSetting =new TransferFunctionSetting(
         "org.eso.ias.component.test.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
-        threadaFactory)
-    val comp: ComputingElement = new ComputingElement(
+        threadFactory)
+    val javaComp: ComputingElement = new ComputingElement(
        compID,
        output,
        requiredInputIDs,
        inputsMPs,
-       tfSetting)
+       javaTFSetting)
+    
+    
+    // Instantiate one ASCE with a scala TF implementation
+    val scalaTFSetting =new TransferFunctionSetting(
+        "org.eso.ias.component.test.transfer.TransferExample",
+        TransferFunctionLanguage.scala,
+        threadFactory)
+    val scalaComp: ComputingElement = new ComputingElement(
+       compID,
+       output,
+       requiredInputIDs,
+       inputsMPs,
+       scalaTFSetting)
   }
   
   behavior of "The Component transfer function"
-  
-//  it must "initialize the TF executor" in new CompBuilder {
-//    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
-//    comp.initialize(stpe)
-//    println("Sleeping")
-//    Thread.sleep(10000)
-//    comp.shutdown()
-//  }
   
   /**
    * This test checks if the validity is set to Reliable if all the
    * validities have this level.
    */
   it must "set the validity to the lower value" in new CompBuilder {
-    val component: ComputingElementBase = comp
-    comp.initialize(new ScheduledThreadPoolExecutor(2))
+    val component: ComputingElementBase = javaComp
+    javaComp.initialize(new ScheduledThreadPoolExecutor(2))
     
     val keys=inputsMPs.keys.toList.sorted
     keys.foreach { key  => {
       val changedMP = inputsMPs(key).updateValidity(Validity.Reliable)
-      comp.inputChanged(Some(changedMP))
+      javaComp.inputChanged(Some(changedMP))
       } 
     }
     // Leave time to run the TF
     Thread.sleep(3000)
-    comp.shutdown()
+    javaComp.shutdown()
     assert(component.output.validity==Validity.Reliable)
+  }
+  
+  it must "run the java TF executor" in new CompBuilder {
+    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
+    javaComp.initialize(stpe)
+    Thread.sleep(5000)
+    // Change one input to trigger the TF
+    val changedMP = inputsMPs(inputsMPs.keys.head).updateValidity(Validity.Reliable)
+    javaComp.inputChanged(Some(changedMP))
+    Thread.sleep(5000)
+    javaComp.shutdown()
+    println(javaComp.output.actualValue.toString())
+    val alarm = javaComp.output.actualValue.get.value.asInstanceOf[AlarmValue]
+    assert(alarm.alarmState==AlarmState.Active)
+  }
+  
+  it must "run the scala TF executor" in new CompBuilder {
+    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
+    scalaComp.initialize(stpe)
+    println("Sleeping")
+    Thread.sleep(5000)
+    // Change one input to trigger the TF
+    val changedMP = inputsMPs(inputsMPs.keys.head).updateValidity(Validity.Reliable)
+    scalaComp.inputChanged(Some(changedMP))
+    Thread.sleep(5000)
+    scalaComp.shutdown()
+    
+    println(scalaComp.output.actualValue.toString())
+    val alarm = scalaComp.output.actualValue.get.value.asInstanceOf[AlarmValue]
+    assert(alarm.alarmState==AlarmState.Active)
   }
   
 }
