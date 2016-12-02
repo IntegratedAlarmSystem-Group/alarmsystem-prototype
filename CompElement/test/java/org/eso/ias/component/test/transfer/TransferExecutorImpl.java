@@ -8,6 +8,7 @@ import org.eso.ias.prototype.input.Set;
 import org.eso.ias.prototype.input.java.IASValueBase;
 import org.eso.ias.prototype.input.java.IasAlarm;
 import org.eso.ias.prototype.input.java.OperationalMode;
+import org.eso.ias.prototype.transfer.JavaTransferExecutor;
 import org.eso.ias.prototype.transfer.TransferExecutor;
 
 /**
@@ -16,7 +17,7 @@ import org.eso.ias.prototype.transfer.TransferExecutor;
  * @author acaproni
  *
  */
-public class TransferExecutorImpl  extends TransferExecutor {
+public class TransferExecutorImpl  extends JavaTransferExecutor {
 	
 	public TransferExecutorImpl(String cEleId, 
 			String cEleRunningId,

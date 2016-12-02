@@ -1,9 +1,8 @@
 package org.eso.ias.prototype.transfer;
 
-import java.util.Map;
 import java.util.Properties;
 
-import org.eso.ias.prototype.input.java.IASValueBase;
+import org.eso.ias.prototype.input.Identifier;
 
 /**
  * 
@@ -12,8 +11,6 @@ import org.eso.ias.prototype.input.java.IASValueBase;
  * 
  * @author acaproni
  *
- * @param <T> The type of the value produced evaluating the inputs
- *            i.e. the type of the ASCE
  */
 public abstract class TransferExecutor {
 	
@@ -78,18 +75,4 @@ public abstract class TransferExecutor {
 	 * It is supposed to return quickly, even if not mandatory.
 	 */
 	public abstract void shutdown();
-	
-	/**
-	 * Produces the output of the component by evaluating the inputs.
-	 * 
-	 * <EM>IMPLEMENTATION NOTE</EM>
-	 * The {@link IASValue} is immutable. The easiest way to produce
-	 * the output to return is to execute the methods of the actualOutput
-	 * that return a new IASValue.
-	 * 
-	 * @param compInputs: the inputs to the ASCE
-	 * @param actualOutput: the actual output of the ASCE
-	 * @return the computed value to set as output of the ASCE
-	 */
-	public abstract IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput);
 }

@@ -61,6 +61,12 @@ class TransferFunctionSetting(
    */
   var javaTransferExecutor: Option[TransferExecutor] = None
   
+  /**
+   * The scala transfer executor i.e. the scala object that 
+   * implements the transfer function
+   */
+  var scalaTransferExecutor: Option[TransferExecutor] = None
+  
   override def toString(): String = {
     "Transfer function implemented in "+language+" by "+className
   }
