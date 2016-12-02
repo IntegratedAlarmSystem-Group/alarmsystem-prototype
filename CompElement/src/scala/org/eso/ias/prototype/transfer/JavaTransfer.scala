@@ -47,7 +47,7 @@ trait JavaTransfer extends ComputingElementBase {
     
     if (tfSetting.javaTransferExecutor.isDefined) {
       val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
-      val newOutput=tfSetting.javaTransferExecutor.get.asInstanceOf[TransferExecutor].eval(map,JavaConverter.hioToIASValue(actualOutput))
+      val newOutput=tfSetting.javaTransferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.hioToIASValue(actualOutput))
       super.transfer(inputs, id, JavaConverter.updateHIOWithIasValue(actualOutput, newOutput))
     } else {
       super.transfer(inputs, id, actualOutput)
