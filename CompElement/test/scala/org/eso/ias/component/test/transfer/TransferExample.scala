@@ -4,7 +4,9 @@ import java.util.Properties
 
 import org.eso.ias.prototype.transfer.ScalaTransferExecutor
 import org.eso.ias.prototype.input.HeteroInOut
-
+import org.eso.ias.prototype.input.java.OperationalMode
+import org.eso.ias.prototype.input.AlarmValue
+import org.eso.ias.prototype.input.Set
 /**
  * A scala TransferExecutor for testing purposes
  * 
@@ -34,7 +36,13 @@ class TransferExample(
   }
   
   def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
-    actualOutput
+    System.out.println("scala TransferExample: evaluating "+compInputs.size+" inputs");
+		System.out.println("scala TransferExample for comp. with ID="+compElementId+" and output "+actualOutput.toString());
+    for (hio <- compInputs.values) println(hio.toString())
+    
+    val av: AlarmValue = actualOutput.actualValue.get.value.asInstanceOf[AlarmValue]
+    val newAlarm = AlarmValue.transition(av, new Set())
+    actualOutput.updateMode(OperationalMode.SHUTDOWN).updateValue(newAlarm)
   }
   
 }
