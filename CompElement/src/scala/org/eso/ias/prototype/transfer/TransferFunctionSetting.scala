@@ -20,21 +20,17 @@ object TransferFunctionLanguage extends Enumeration {
  * 
  * Objects of this class contain all the information 
  * to run the transfer function independently from the 
- * programming language.
+ * supported programming language (@see TransferFunctionLanguage).
  * 
  * At the present in the prototype we foresee 2 possible implementations
  * of the transfer function in scala or java.
  * Other possibilities is to write the TF in python with jithon
- * that is ultimately compiles the script into a java class, or use a DSL
+ * that ultimately compiles the script into a java class, or use a DSL
  * for which scala offers some advantages compared to java.
  * 
  * Java implementation requires to provide a java-style interface to 
  * developers for which we need to convert scala data structure to/from
- * java. Scala implementations of the TF are therefore more performant.
- *  
- * The developer is free to apply more then one transfer function
- * thanks to the stackable modifications implemented in the computing
- * element even if I cannot see a real use case.
+ * java. Scala implementations of the TF are therefore more performant (in principle).
  * 
  * @param className: The name of the java/scala class to run
  * @param language: the programming language used to implement the TF
@@ -56,16 +52,10 @@ class TransferFunctionSetting(
   @volatile var initialized = false
   
   /**
-   * The java transfer executor i.e. the java object that 
-   * implements the transfer function
+   * The java or scala transfer executor i.e. the java or scala 
+   * object that implements the transfer function
    */
-  var javaTransferExecutor: Option[TransferExecutor] = None
-  
-  /**
-   * The scala transfer executor i.e. the scala object that 
-   * implements the transfer function
-   */
-  var scalaTransferExecutor: Option[TransferExecutor] = None
+  var transferExecutor: Option[TransferExecutor] = None
   
   override def toString(): String = {
     "Transfer function implemented in "+language+" by "+className
@@ -76,10 +66,10 @@ class TransferFunctionSetting(
    */
   def shutdown() {
     // Init the executor if it has been correctly instantiated 
-    if (javaTransferExecutor.isDefined) {
+    if (transferExecutor.isDefined) {
       val shutdownThread = threadFactory.newThread(new Runnable() {
         def run() {
-          shutdownExecutor(javaTransferExecutor)
+          shutdownExecutor(transferExecutor)
           println("Shutted down")
         }
       })
@@ -105,7 +95,7 @@ class TransferFunctionSetting(
    * @return true if the initialization went fine
    *         false otherwise
    */
-  def initialize(threadFactory: ThreadFactory,
+  def initialize(
       asceId: String,
       asceRunningId: String,
       props: Properties) = {
@@ -123,15 +113,15 @@ class TransferFunctionSetting(
     // as it is a common practice for testing
     if (tfExecutorClass.isDefined) {
       this.synchronized{
-        javaTransferExecutor = instantiateExecutor(tfExecutorClass,asceId,asceRunningId,props: Properties)
+        transferExecutor = instantiateExecutor(tfExecutorClass,asceId,asceRunningId,props: Properties)
       }
     }
     
     // Init the executor if it has been correctly instantiated 
-    if (javaTransferExecutor.isDefined) {
+    if (transferExecutor.isDefined) {
       threadFactory.newThread(new Runnable() {
         def run() {
-          initialized=initExecutor(javaTransferExecutor)
+          initialized=initExecutor(transferExecutor)
           println("Initialized="+initialized)
         }
       }).start()
