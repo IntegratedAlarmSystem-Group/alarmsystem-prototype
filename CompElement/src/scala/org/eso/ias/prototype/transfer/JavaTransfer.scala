@@ -52,8 +52,6 @@ trait JavaTransfer extends ComputingElementBase {
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
       actualOutput: HeteroInOut): HeteroInOut = {
-    println("JavaTransfer.transfer with class "+tfSetting.className+" and language "+tfSetting.language)
-    
     if (canRunTheJavaTF) {
       val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.hioToIASValue(actualOutput))
