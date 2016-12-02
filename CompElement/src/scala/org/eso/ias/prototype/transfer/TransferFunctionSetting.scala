@@ -52,6 +52,11 @@ class TransferFunctionSetting(
   @volatile var initialized = false
   
   /**
+   * isShutDown is true when the object has been shutdown
+   */
+  @volatile var isShutDown = false
+  
+  /**
    * The java or scala transfer executor i.e. the java or scala 
    * object that implements the transfer function
    */
@@ -65,6 +70,7 @@ class TransferFunctionSetting(
    * Shutsdown the TF
    */
   def shutdown() {
+    assert(!isShutDown)
     // Init the executor if it has been correctly instantiated 
     if (transferExecutor.isDefined) {
       val shutdownThread = threadFactory.newThread(new Runnable() {
@@ -80,6 +86,7 @@ class TransferFunctionSetting(
         println("User provided shutdown did not terminate in 1.5 sec.") 
       }
     }
+    isShutDown=true
   }
   
   /**
@@ -102,7 +109,7 @@ class TransferFunctionSetting(
     require(Option[String](asceId).isDefined)
     require(Option[String](asceRunningId).isDefined)
     require(Option[Properties](props).isDefined)
-    initialized = false
+    assert(!initialized)
     
     // Load the class
     val tfExecutorClass: Option[Class[_]] = loadClass(className)
