@@ -76,7 +76,7 @@ class TestTransferFunction extends FlatSpec {
     }
     val threadaFactory: CompEleThreadFactory = new CompEleThreadFactory("Test-runninId")
     val tfSetting =new TransferFunctionSetting(
-        "org.eso.ias.prototype.transfer.TransferExecutorImpl",
+        "org.eso.ias.component.test.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadaFactory)
     val comp: ComputingElement = new ComputingElement(
