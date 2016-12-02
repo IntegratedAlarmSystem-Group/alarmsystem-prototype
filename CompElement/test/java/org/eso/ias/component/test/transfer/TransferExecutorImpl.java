@@ -9,7 +9,7 @@ import org.eso.ias.prototype.input.java.IASValueBase;
 import org.eso.ias.prototype.input.java.IasAlarm;
 import org.eso.ias.prototype.input.java.OperationalMode;
 import org.eso.ias.prototype.transfer.JavaTransferExecutor;
-import org.eso.ias.prototype.transfer.TransferExecutor;
+
 
 /**
  * A java transfer function for testing
@@ -27,17 +27,17 @@ public class TransferExecutorImpl  extends JavaTransferExecutor {
 
 	@Override
 	public void initialize() {
-		System.out.println("TransferExecutorImpl: Initializing");
+		System.out.println("java TransferExecutorImpl: Initializing");
 	}
 
 	@Override
 	public void shutdown() {
-		System.out.println("TransferExecutorImpl: shutting down");
+		System.out.println("java TransferExecutorImpl: shutting down");
 	}
 	
 	public IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput) {
-		System.out.println("TransferExecutorImpl: evaluating "+compInputs.size()+" inputs");
-		System.out.println("TransferExecutorImpl for comp. with ID="+compElementId+" and output "+actualOutput.toString());
+		System.out.println("java TransferExecutorImpl: evaluating "+compInputs.size()+" inputs");
+		System.out.println("java TransferExecutorImpl for comp. with ID="+compElementId+" and output "+actualOutput.toString());
 		for (IASValueBase input: compInputs.values()) {
 			System.out.println(input);
 		}
