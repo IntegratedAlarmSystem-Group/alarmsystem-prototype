@@ -15,13 +15,27 @@ import java.util.Properties
  */
 trait ScalaTransfer extends ComputingElementBase {
   
+  /**
+   * Check if the TF is scala, intialized, not shutdown
+   */
+  def canRunTheScalaTF = 
+    tfSetting.initialized &&
+    tfSetting.transferExecutor.isDefined && 
+    tfSetting.language==TransferFunctionLanguage.scala &&
+    !tfSetting.isShutDown
+  
   abstract override def transfer(
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
       actualOutput: HeteroInOut): HeteroInOut = {
-    println("ScalaTransfer.transfer")
+    println("ScalaTransfer.transfer with class "+tfSetting.className+" and language "+tfSetting.language)
     
-    super.transfer(inputs, id, actualOutput)
+     if (canRunTheScalaTF) {
+      val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
+      super.transfer(inputs, id, newOutput)
+    } else {
+      super.transfer(inputs, id, actualOutput)
+    }
   }
   
 }

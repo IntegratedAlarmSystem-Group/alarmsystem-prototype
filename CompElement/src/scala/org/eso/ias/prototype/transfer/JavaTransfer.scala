@@ -22,7 +22,7 @@ trait JavaTransfer extends ComputingElementBase {
   /**
    * Flush the scala Map into a Java Map
    */
-  private def flushOnJavaMap(
+  private[this] def flushOnJavaMap(
       inputs: Map[String, HeteroInOut]): JavaMap[String, IASValueBase] = {
     val map: JavaMap[String, IASValueBase] = new JavaHashMap[String, IASValueBase]()
     for (key <-inputs.keySet) {
@@ -34,6 +34,15 @@ trait JavaTransfer extends ComputingElementBase {
   }
   
   /**
+   * Check if the TF is java, intialized, not shutdown
+   */
+  private[this] def canRunTheJavaTF = 
+    tfSetting.initialized &&
+    tfSetting.transferExecutor.isDefined && 
+    tfSetting.language==TransferFunctionLanguage.java &&
+    !tfSetting.isShutDown
+  
+  /**
    * scala data structs need to be converted before invoking
    * the java code.
    * 
@@ -43,9 +52,9 @@ trait JavaTransfer extends ComputingElementBase {
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
       actualOutput: HeteroInOut): HeteroInOut = {
-    println("JavaTransfer.transfer")
+    println("JavaTransfer.transfer with class "+tfSetting.className+" and language "+tfSetting.language)
     
-    if (tfSetting.transferExecutor.isDefined) {
+    if (canRunTheJavaTF) {
       val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.hioToIASValue(actualOutput))
       super.transfer(inputs, id, JavaConverter.updateHIOWithIasValue(actualOutput, newOutput))
