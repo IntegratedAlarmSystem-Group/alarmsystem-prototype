@@ -28,10 +28,9 @@ trait ScalaTransfer extends ComputingElementBase {
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
       actualOutput: HeteroInOut): HeteroInOut = {
-    println("ScalaTransfer.transfer with class "+tfSetting.className+" and language "+tfSetting.language)
-    
      if (canRunTheScalaTF) {
       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
+      
       super.transfer(inputs, id, newOutput)
     } else {
       super.transfer(inputs, id, actualOutput)
