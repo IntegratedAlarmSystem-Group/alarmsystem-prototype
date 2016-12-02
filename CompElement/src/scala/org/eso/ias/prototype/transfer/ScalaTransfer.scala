@@ -6,12 +6,12 @@ import org.eso.ias.prototype.input.Identifier
 import java.util.Properties
 
 /**
- * <code>ScalaTransfer</code> implements the
- * transfer function by delegating to the scala class provided by the 
+ * <code>ScalaTransfer</code> calls the scala
+ * transfer function provided by the user. 
  * user.
  * 
  * Note that the Validity of the output is not set by the transfer function
- * but automatically implemented by the ASC
+ * but automatically implemented by the ASCE
  */
 trait ScalaTransfer extends ComputingElementBase {
   

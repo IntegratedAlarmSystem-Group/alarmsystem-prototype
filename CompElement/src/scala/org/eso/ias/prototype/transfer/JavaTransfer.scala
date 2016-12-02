@@ -11,12 +11,11 @@ import org.eso.ias.prototype.input.JavaConverter
 import org.eso.ias.prototype.input.java.IASValueBase
 
 /**
- * <code>JavaTransfer</code> implements the
- * transfer function by delegating to the java class provided by the 
- * user.
+ * <code>JavaTransfer</code> calls the java
+ * transfer function provided by the user.
  * 
  * Note that the Validity of the output is not set by the transfer function
- * but automatically implemented by the ASC
+ * but automatically implemented by the ASCE
  */
 trait JavaTransfer extends ComputingElementBase {
   
@@ -35,6 +34,9 @@ trait JavaTransfer extends ComputingElementBase {
   }
   
   /**
+   * scala data structs need to be converted before invoking
+   * the java code.
+   * 
    * @see ComputingElementBase#transfer
    */
   abstract override def transfer(
