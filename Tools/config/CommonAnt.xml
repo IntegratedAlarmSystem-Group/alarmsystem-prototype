@@ -304,4 +304,14 @@
 		name="build" 
 		depends="localinstallbinaries,localInstallThirdPartyJars,scalabuild,javabuild,localInstallPyModules" />
 	
+	<target name="check-test-runner">
+	    <available file="runTests.sh" property="testRunnerShFile.exists"/>
+	</target>
+	
+	<target name = "test" depends="check-test-runner, build" if="testRunnerShFile.exists">
+		<exec executable="bash"> 
+			<arg value="runTests.sh"/>
+		</exec>
+	</target>
+	
 </project>
