@@ -87,7 +87,8 @@ class TestTransferFunction extends FlatSpec {
        output,
        requiredInputIDs,
        inputsMPs,
-       javaTFSetting)
+       javaTFSetting,
+       Some[Properties](new Properties()))
     
     
     // Instantiate one ASCE with a scala TF implementation
@@ -100,7 +101,8 @@ class TestTransferFunction extends FlatSpec {
        output,
        requiredInputIDs,
        inputsMPs,
-       scalaTFSetting)
+       scalaTFSetting,
+       Some[Properties](new Properties()))
   }
   
   behavior of "The Component transfer function"

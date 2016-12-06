@@ -37,9 +37,6 @@ class TestComponent extends FlatSpec {
   // The IDs of the monitor points in input 
   // to pass when building a Component
   val requiredInputIDs = List("ID1", "ID2")
-  // The HashMap with the monitor points in input
-  // to pass when building a Component
-  val intialMPs = new HashMap[String,HeteroInOut]()
   
   // The ID of the first MP
   val mpI1Identifier = new Identifier(Some[String](requiredInputIDs(0)), Option[Identifier](compId))
@@ -50,7 +47,6 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
-  intialMPs(mp1.id.id.get)=mp1
   
   // The ID of the second MP
   val mpI2Identifier = new Identifier(Some[String](requiredInputIDs(1)), Option[Identifier](compId))
@@ -61,7 +57,6 @@ class TestComponent extends FlatSpec {
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
-  intialMPs(mp2.id.id.get)=mp1
   val actualInputs: MutableMap[String, HeteroInOut] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
   
   behavior of "A Component"
@@ -86,7 +81,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs)
+       Some[Properties](new Properties()))
     
     assert(comp.id==compId)
     assert(comp.inputs.size==requiredInputIDs.size)
@@ -113,7 +108,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs);
+       Some[Properties](new Properties()))
     assertThrows[IllegalStateException] {
       comp.shelve(true);
     }
@@ -139,7 +134,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs);
+       Some[Properties](new Properties()))
     assertThrows[IllegalStateException] {
       comp.shelve(true);
     }
@@ -165,7 +160,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs);
+       Some[Properties](new Properties()))
     
     comp.shelve(true);
     
@@ -194,7 +189,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs)
+       Some[Properties](new Properties()))
     assertThrows[IllegalStateException] {
       comp.ack();
     }
@@ -220,7 +215,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs)
+       Some[Properties](new Properties()))
     assertThrows[IllegalStateException] {
       comp.ack() 
     }
@@ -247,7 +242,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       intialMPs)
+       Some[Properties](new Properties()))
     
     comp.ack()
     
