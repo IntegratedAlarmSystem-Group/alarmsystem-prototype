@@ -17,8 +17,24 @@ import java.util.Properties
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF
 
 class TestMinMaxThreshold extends FlatSpec{
- 
-  trait TFBuilder {
+  
+  def withTransferSetting(testCode: TransferFunctionSetting => Any) {
+    val threadFactory = new TestThreadFactory()
+    
+    // The TF executor to test
+    val scalaMinMaxTF = new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF",
+        TransferFunctionLanguage.scala,
+        threadFactory)
+    try {
+      testCode(scalaMinMaxTF)
+    } finally {
+      assert(threadFactory.numberOfAliveThreads()==0)
+      assert(threadFactory.instantiatedThreads==2)
+    }
+  }
+  
+  def withComp(testCode: (ComputingElement, MutableMap[String, HeteroInOut]) => Any) {
     // The thread factory used by the setting to async
     // intialize and shutdown the TF objects
     val threadFactory = new TestThreadFactory()
@@ -69,8 +85,12 @@ class TestMinMaxThreshold extends FlatSpec{
         TransferFunctionLanguage.scala,
         threadFactory)
     
-    val props: Properties
     
+    val props: Properties= new Properties()
+    props.put(MinMaxThresholdTF.highOnPropName, "50")
+    props.put(MinMaxThresholdTF.highOffPropName, "25")
+    props.put(MinMaxThresholdTF.lowOffPropName, "-10")
+    props.put(MinMaxThresholdTF.lowOnPropName, "-20")
     
     val scalaComp: ComputingElement = new ComputingElement(
        compID,
@@ -79,12 +99,17 @@ class TestMinMaxThreshold extends FlatSpec{
        inputsMPs,
        scalaTFSetting,
        Some[Properties](props))
+    
+    try {
+      testCode(scalaComp,inputsMPs)
+    } finally {
+      scalaComp.shutdown()
+    }
   }
   
   behavior of "The MinMaxThreshold executor"
   
-  it must "Correctly load, init and shutdown the TF executor" in new TFBuilder {
-    val props = new Properties()
+  it must "Correctly load, init and shutdown the TF executor" in withTransferSetting { scalaMinMaxTF =>
     assert(!scalaMinMaxTF.initialized)
     assert(!scalaMinMaxTF.isShutDown)
     scalaMinMaxTF.initialize("ASCE-MinMaxTF-ID", "ASCE-running-ID", System.getProperties)
@@ -96,29 +121,77 @@ class TestMinMaxThreshold extends FlatSpec{
     assert(scalaMinMaxTF.initialized)
     assert(scalaMinMaxTF.isShutDown)
     
-    assert(threadFactory.numberOfAliveThreads()==0)
-    assert(threadFactory.instantiatedThreads==2)
+    
   }
   
-  it must "run the scala Min/Max TF executor" in new TFBuilder {
-    val props = new Properties()
-    props.put(MinMaxThresholdTF.highOnPropName, "50")
-    props.put(MinMaxThresholdTF.highOffPropName, "25")
-    props.put(MinMaxThresholdTF.lowOffPropName, "-10")
-    props.put(MinMaxThresholdTF.lowOnPropName, "-20")
+  /**
+   * Check the state of the alarm of the passed HIO
+   * 
+   * @param hio: the HIO to check the alarm state
+   * @param alarmState: The state of the alarm
+   */
+  def checkState(asce: ComputingElement, alarmState: AlarmState.State): Boolean = {
+    assert(asce.isAlarmComponent)
+    val hio = asce.output
+    assert(hio.iasType==IASTypes.ALARM)
+    val value: AlarmValue = hio.actualValue.get.value.asInstanceOf[AlarmValue]
+    value.alarmState==alarmState
+  }
+  
+  it must "run the scala Min/Max TF executor" in withComp { (scalaComp, inputsMPs) =>
     val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
     scalaComp.initialize(stpe)
-    println("Sleeping")
-    Thread.sleep(5000)
+    Thread.sleep(1000)
     // Change the input to trigger the TF
     val changedMP = inputsMPs(inputsMPs.keys.head).updateValue(5L)
     scalaComp.inputChanged(Some(changedMP))
-    Thread.sleep(5000)
-    scalaComp.shutdown()
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Cleared))
     
-    println(scalaComp.output.actualValue.toString())
-    val alarm = scalaComp.output.actualValue.get.value.asInstanceOf[AlarmValue]
-    assert(alarm.alarmState==AlarmState.Active)
+    // Activate high
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(100L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Active))
+    
+    // Increase does not deactivate the alarm
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(150L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Active))
+    
+    // Decreasing without passing HighOn does not deactivate
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(40L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Active))
+    
+    // Below HighOff deactivate the alarm
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(10L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Cleared))
+    
+    // Below LowOff but not passing LowOn does not activate
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Cleared))
+    
+    // Passing LowOn activate
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-30L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Active))
+    
+    // Decreasing more remain activate
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-40L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Active))
+    
+    // Increasing but not passing LowOff remains active
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Active))
+    
+    // Passing LowOff deactivate
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(0L)))
+    Thread.sleep(2500)
+    assert(checkState(scalaComp,AlarmState.Cleared))
   }
   
 }
