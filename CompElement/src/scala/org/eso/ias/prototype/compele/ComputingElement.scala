@@ -60,16 +60,15 @@ extends ComputingElementBase
 with JavaTransfer with ScalaTransfer {
   
   /**
-   * @return true if this component produces a synthetic parameter instead of an alarm
-   * @see isAlarmComponent
+   * <code>true</code> if this component produces 
+   * a synthetic parameter instead of an alarm
    */
-  def isSyntheticParameterComponent = output.iasType!=IASTypes.ALARM
+  lazy val isSyntheticParameterComponent = output.iasType!=IASTypes.ALARM
   
   /**
-   * @return true if this component generates an alarm
-   * @see #isSyntheticParameterComponent
+   * <code>true</code> if this component generates an alarm
    */
-  def isAlarmComponent = output.iasType!=IASTypes.ALARM
+  lazy val isAlarmComponent = output.iasType==IASTypes.ALARM
   
   /**
    * A HIO changed: it is stored in the map
