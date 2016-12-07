@@ -96,7 +96,7 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
     if (highOn<highOff) {
       throw new PropsMisconfiguredException(Map[String,String](MinMaxThresholdTF.highOnPropName->highOn.toString(),MinMaxThresholdTF.highOffPropName->highOff.toString()))
     }
-    if (lowOff>lowOn) {
+    if (lowOff<lowOn) {
       throw new PropsMisconfiguredException(Map[String,String](MinMaxThresholdTF.lowOnPropName->lowOn.toString(),MinMaxThresholdTF.lowOffPropName->lowOff.toString()))
     }
     if (lowOff>highOff) {
@@ -115,11 +115,6 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
   def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
     if (compInputs.size!=1) throw new UnexpectedNumberOfInputsException(compInputs.size,1)
     if (actualOutput.iasType!=IASTypes.ALARM) throw new TypeMismatchException(actualOutput.id.runningID)
-    
-    println(props.getProperty(MinMaxThresholdTF.highOnPropName))
-    println(props.getProperty(MinMaxThresholdTF.highOffPropName))
-    println(props.getProperty(MinMaxThresholdTF.lowOffPropName))
-    println(props.getProperty(MinMaxThresholdTF.lowOnPropName))
     
     // Get the input
     val hio = compInputs.values.head
