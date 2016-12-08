@@ -10,6 +10,7 @@ import org.eso.ias.prototype.compele.exceptions.TypeMismatchException
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.Set
 import org.eso.ias.prototype.input.Clear
+import MinMaxThresholdTF._
 
 /**
  * The TF implementing a Min/Max threshold TF  (there is also
@@ -49,25 +50,25 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
    * The (high) alarm is activated when the value of the HIO 
    * is greater then HighON
    */
-  lazy val highOn: Double = getValue(props, MinMaxThresholdTF.highOnPropName, Double.MaxValue)
+  lazy val highOn: Double = getValue(props, highOnPropName, Double.MaxValue)
   
   /**
    * if the (high) alarm is active and the value of the HIO
    * goes below HighOFF, then the alarm is deactivated
    */
-  lazy val highOff: Double = getValue(props, MinMaxThresholdTF.highOffPropName, Double.MaxValue)
+  lazy val highOff: Double = getValue(props, highOffPropName, Double.MaxValue)
   
   /**
    * the (low) alarm is activated when the value of the HIO is
    * lower then LowON
    */
-  lazy val lowOn: Double =  getValue(props, MinMaxThresholdTF.lowOnPropName, Double.MinValue)
+  lazy val lowOn: Double =  getValue(props, lowOnPropName, Double.MinValue)
   
   /**
    * if the (low) alarm is active and the value of the HIO
    * becomes greater then LowOFF, then the alarm is deactivated
    */
-  lazy val lowOff: Double = getValue(props, MinMaxThresholdTF.lowOffPropName, Double.MinValue)
+  lazy val lowOff: Double = getValue(props, lowOffPropName, Double.MinValue)
   
   /**
    * Get the value of a property from the passed properties.
@@ -98,13 +99,13 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
    */
   def initialize() {
     if (highOn<highOff) {
-      throw new PropsMisconfiguredException(Map[String,String](MinMaxThresholdTF.highOnPropName->highOn.toString(),MinMaxThresholdTF.highOffPropName->highOff.toString()))
+      throw new PropsMisconfiguredException(Map(highOnPropName->highOn.toString(),highOffPropName->highOff.toString()))
     }
     if (lowOff<lowOn) {
-      throw new PropsMisconfiguredException(Map[String,String](MinMaxThresholdTF.lowOnPropName->lowOn.toString(),MinMaxThresholdTF.lowOffPropName->lowOff.toString()))
+      throw new PropsMisconfiguredException(Map(lowOnPropName->lowOn.toString(),lowOffPropName->lowOff.toString()))
     }
     if (lowOff>highOff) {
-      throw new PropsMisconfiguredException(Map[String,String](MinMaxThresholdTF.lowOffPropName->lowOff.toString(),MinMaxThresholdTF.highOffPropName->highOff.toString()))
+      throw new PropsMisconfiguredException(Map(lowOffPropName->lowOff.toString(),highOffPropName->highOff.toString()))
     }
   }
   
