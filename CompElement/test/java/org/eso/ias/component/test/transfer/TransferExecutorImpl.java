@@ -26,16 +26,16 @@ public class TransferExecutorImpl  extends JavaTransferExecutor {
 	}
 
 	@Override
-	public void initialize() {
+	public void initialize() throws Exception {
 		System.out.println("java TransferExecutorImpl: Initializing");
 	}
 
 	@Override
-	public void shutdown() {
+	public void shutdown() throws Exception{
 		System.out.println("java TransferExecutorImpl: shutting down");
 	}
 	
-	public IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput) {
+	public IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput) throws Exception{
 		System.out.println("java TransferExecutorImpl: evaluating "+compInputs.size()+" inputs");
 		System.out.println("java TransferExecutorImpl for comp. with ID="+compElementId+" and output "+actualOutput.toString());
 		for (IASValueBase input: compInputs.values()) {
