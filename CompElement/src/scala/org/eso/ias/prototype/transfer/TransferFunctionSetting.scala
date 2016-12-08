@@ -76,8 +76,7 @@ class TransferFunctionSetting(
       val shutdownThread = threadFactory.newThread(new Runnable() {
         def run() {
           shutdownExecutor(transferExecutor)
-          println("Shutted down")
-        }
+       }
       })
       shutdownThread.start()
       // Wait for the termination
