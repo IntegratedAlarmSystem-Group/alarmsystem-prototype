@@ -65,7 +65,7 @@ public abstract class TransferExecutor {
 	 * like reading from a database should go here while eval is supposed 
 	 * to return as soon as possible.
 	 */
-	public abstract void initialize();
+	public abstract void initialize() throws Exception;
 	
 	/**
 	 * Shuts down the BehaviorRunner when the IAS does not need it anymore.
@@ -74,5 +74,5 @@ public abstract class TransferExecutor {
 	 * 
 	 * It is supposed to return quickly, even if not mandatory.
 	 */
-	public abstract void shutdown();
+	public abstract void shutdown() throws Exception;
 }

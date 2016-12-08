@@ -36,6 +36,6 @@ public abstract class JavaTransferExecutor extends TransferExecutor {
 	 * @param actualOutput: the actual output of the ASCE
 	 * @return the computed value to set as output of the ASCE
 	 */
-	public abstract IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput);
+	public abstract IASValueBase eval(Map<String, IASValueBase> compInputs, IASValueBase actualOutput) throws Exception;
 
 }
