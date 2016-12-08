@@ -15,10 +15,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import org.eso.ias.prototype.input.AlarmState
 import java.util.Properties
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF
+import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTFJava
 
 class TestMinMaxThreshold extends FlatSpec{
   
-  def withTransferSetting(testCode: TransferFunctionSetting => Any) {
+  def withScalaTransferSetting(testCode: TransferFunctionSetting => Any) {
     val threadFactory = new TestThreadFactory()
     
     // The TF executor to test
@@ -34,7 +35,26 @@ class TestMinMaxThreshold extends FlatSpec{
     }
   }
   
-  def withComp(testCode: (ComputingElement, MutableMap[String, HeteroInOut]) => Any) {
+  def withJavaTransferSetting(testCode: TransferFunctionSetting => Any) {
+    val threadFactory = new TestThreadFactory()
+    
+    // The TF executor to test
+    val javaMinMaxTF = new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.impls.MinMaxThresholdTFJava",
+        TransferFunctionLanguage.java,
+        threadFactory)
+    try {
+      testCode(javaMinMaxTF)
+    } finally {
+      assert(threadFactory.numberOfAliveThreads()==0)
+      assert(threadFactory.instantiatedThreads==2)
+    }
+  }
+  
+  /**
+   * Common object definition for scala and java ASCE
+   */
+  class Commons {
     // The thread factory used by the setting to async
     // intialize and shutdown the TF objects
     val threadFactory = new TestThreadFactory()
@@ -78,12 +98,16 @@ class TestMinMaxThreshold extends FlatSpec{
     val requiredInputIDs = List(hioId.id.get)
     
     val inputsMPs = MutableMap(hioId.id.get->hio)
+  }
+  
+  def withScalaComp(testCode: (ComputingElement, MutableMap[String, HeteroInOut]) => Any) {
+    val commons = new Commons
     
     // Instantiate one ASCE with a scala TF implementation
     val scalaTFSetting =new TransferFunctionSetting(
         "org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF",
         TransferFunctionLanguage.scala,
-        threadFactory)
+        commons.threadFactory)
     
     
     val props: Properties= new Properties()
@@ -93,23 +117,54 @@ class TestMinMaxThreshold extends FlatSpec{
     props.put(MinMaxThresholdTF.lowOnPropName, "-20")
     
     val scalaComp: ComputingElement = new ComputingElement(
-       compID,
-       output,
-       requiredInputIDs,
-       inputsMPs,
+       commons.compID,
+       commons.output,
+       commons.requiredInputIDs,
+       commons.inputsMPs,
        scalaTFSetting,
        Some[Properties](props))
     
     try {
-      testCode(scalaComp,inputsMPs)
+      testCode(scalaComp,commons.inputsMPs)
     } finally {
       scalaComp.shutdown()
     }
   }
   
-  behavior of "The MinMaxThreshold executor"
+  def withJavaComp(testCode: (ComputingElement, MutableMap[String, HeteroInOut]) => Any) {
+    val commons = new Commons
+    
+    // Instantiate one ASCE with a scala TF implementation
+    val javaTFSetting =new TransferFunctionSetting(
+        "org.eso.ias.prototype.transfer.impls.MinMaxThresholdTFJava",
+        TransferFunctionLanguage.java,
+        commons.threadFactory)
+    
+    
+    val props: Properties= new Properties()
+    props.put(MinMaxThresholdTFJava.highOnPropName, "50")
+    props.put(MinMaxThresholdTFJava.highOffPropName, "25")
+    props.put(MinMaxThresholdTFJava.lowOffPropName, "-10")
+    props.put(MinMaxThresholdTFJava.lowOnPropName, "-20")
+    
+    val javaComp: ComputingElement = new ComputingElement(
+       commons.compID,
+       commons.output,
+       commons.requiredInputIDs,
+       commons.inputsMPs,
+       javaTFSetting,
+       Some[Properties](props))
+    
+    try {
+      testCode(javaComp,commons.inputsMPs)
+    } finally {
+      javaComp.shutdown()
+    }
+  }
   
-  it must "Correctly load, init and shutdown the TF executor" in withTransferSetting { scalaMinMaxTF =>
+  behavior of "The scala MinMaxThreshold executor"
+  
+  it must "Correctly load, init and shutdown the TF executor" in withScalaTransferSetting { scalaMinMaxTF =>
     assert(!scalaMinMaxTF.initialized)
     assert(!scalaMinMaxTF.isShutDown)
     scalaMinMaxTF.initialize("ASCE-MinMaxTF-ID", "ASCE-running-ID", System.getProperties)
@@ -120,8 +175,6 @@ class TestMinMaxThreshold extends FlatSpec{
     Thread.sleep(500)
     assert(scalaMinMaxTF.initialized)
     assert(scalaMinMaxTF.isShutDown)
-    
-    
   }
   
   /**
@@ -138,7 +191,7 @@ class TestMinMaxThreshold extends FlatSpec{
     value.alarmState==alarmState
   }
   
-  it must "run the scala Min/Max TF executor" in withComp { (scalaComp, inputsMPs) =>
+  it must "run the scala Min/Max TF executor" in withScalaComp { (scalaComp, inputsMPs) =>
     val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
     scalaComp.initialize(stpe)
     Thread.sleep(1000)
@@ -192,6 +245,77 @@ class TestMinMaxThreshold extends FlatSpec{
     scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(0L)))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Cleared))
+  }
+  
+  behavior of "The java MinMaxThreshold executor"
+  
+  it must "Correctly load, init and shutdown the TF executor" in withJavaTransferSetting { javaMinMaxTF =>
+    assert(!javaMinMaxTF.initialized)
+    assert(!javaMinMaxTF.isShutDown)
+    javaMinMaxTF.initialize("ASCE-MinMaxTF-ID", "ASCE-running-ID", System.getProperties)
+    Thread.sleep(500)
+    assert(javaMinMaxTF.initialized)
+    assert(!javaMinMaxTF.isShutDown)
+    javaMinMaxTF.shutdown()
+    Thread.sleep(500)
+    assert(javaMinMaxTF.initialized)
+    assert(javaMinMaxTF.isShutDown)
+  }
+  
+  it must "run the java Min/Max TF executor" in withJavaComp { (javaComp, inputsMPs) =>
+    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
+    javaComp.initialize(stpe)
+    Thread.sleep(1000)
+    // Change the input to trigger the TF
+    val changedMP = inputsMPs(inputsMPs.keys.head).updateValue(5L)
+    javaComp.inputChanged(Some(changedMP))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Cleared))
+    
+    // Activate high
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(100L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Active))
+    
+    // Increase does not deactivate the alarm
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(150L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Active))
+    
+    // Decreasing without passing HighOn does not deactivate
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(40L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Active))
+    
+    // Below HighOff deactivate the alarm
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(10L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Cleared))
+    
+    // Below LowOff but not passing LowOn does not activate
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Cleared))
+    
+    // Passing LowOn activate
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-30L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Active))
+    
+    // Decreasing more remain activate
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-40L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Active))
+    
+    // Increasing but not passing LowOff remains active
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Active))
+    
+    // Passing LowOff deactivate
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(0L)))
+    Thread.sleep(2500)
+    assert(checkState(javaComp,AlarmState.Cleared))
   }
   
 }
