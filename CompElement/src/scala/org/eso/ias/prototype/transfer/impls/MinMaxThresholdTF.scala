@@ -119,7 +119,7 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
    */
   def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
     if (compInputs.size!=1) throw new UnexpectedNumberOfInputsException(compInputs.size,1)
-    if (actualOutput.iasType!=ALARM) throw new TypeMismatchException(actualOutput.id.runningID)
+    if (actualOutput.iasType!=ALARM) throw new TypeMismatchException(actualOutput.id.runningID,actualOutput.iasType,ALARM)
     
     // Get the input
     val hio = compInputs.values.head
@@ -131,7 +131,7 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
       case BYTE => hio.actualValue.get.value.asInstanceOf[Byte].toDouble
       case DOUBLE => hio.actualValue.get.value.asInstanceOf[Double]
       case FLOAT => hio.actualValue.get.value.asInstanceOf[Float].toDouble
-      case _ => throw new TypeMismatchException(hio.id.runningID)
+      case _ => throw new TypeMismatchException(hio.id.runningID,hio.iasType,List(LONG,INT,SHORT,BYTE,DOUBLE,FLOAT))
     }
     
     if (hioValue>=highOn || hioValue<=lowOn) {
