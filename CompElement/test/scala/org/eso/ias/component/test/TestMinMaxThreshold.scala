@@ -55,7 +55,10 @@ class TestMinMaxThreshold extends FlatSpec{
     val commons = new CommonCompBuilder(
         "TestMinMAxThreshold-DASU-ID",
         "TestMinMAxThreshold-ASCE-ID",
-        "TestMinMAxThreshold-outputHioS-ID")
+        "TestMinMAxThreshold-outputHioS-ID",
+        IASTypes.ALARM,
+        1,
+        IASTypes.LONG)
     
     // Instantiate one ASCE with a scala TF implementation
     val scalaTFSetting =new TransferFunctionSetting(
@@ -89,7 +92,10 @@ class TestMinMaxThreshold extends FlatSpec{
     val commons = new CommonCompBuilder(
         "TestMinMAxThreshold-DASU-ID",
         "TestMinMAxThreshold-ASCE-ID",
-        "TestMinMAxThreshold-outputHioJ-ID")
+        "TestMinMAxThreshold-outputHioJ-ID",
+        IASTypes.ALARM,
+        1,
+        IASTypes.LONG)
     
     // Instantiate one ASCE with a scala TF implementation
     val javaTFSetting =new TransferFunctionSetting(
