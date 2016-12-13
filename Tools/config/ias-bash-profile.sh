@@ -45,10 +45,9 @@ fi
 #
 export IAS_LOGS_FOLDER=$IAS_ROOT/logs
 
-export PYTHONPATH="../lib/python:$IAS_ROOT/lib/python$PYTHONPATH"
+export PYTHONPATH="../lib/python:$IAS_ROOT/lib/python:$PYTHONPATH"
 
-PATH="$PATH:../bin:$IAS_ROOT/bin"
-PATH="$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$SCALA_HOME/bin"
+PATH="../bin:$IAS_ROOT/bin:$JAVA_HOME/bin:$JRE_HOME/bin:$SCALA_HOME/bin:$PATH"
 export PATH
 
 if [ "$ERRORS_FOUND" -eq "0" ]; then 
