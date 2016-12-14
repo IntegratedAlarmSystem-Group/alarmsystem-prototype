@@ -8,6 +8,7 @@ import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.AlarmState
+import org.eso.ias.prototype.input.AckState
 
 class TestHIOEquality extends FlatSpec {
   
@@ -138,7 +139,7 @@ class TestHIOEquality extends FlatSpec {
     assert(alarm1HIO==alarm2HIO)
     assert(alarm1HIO.hashCode()==alarm2HIO.hashCode())
     
-    val alarm3HIO = HeteroInOut(f.id,f.refreshRate,new AlarmValue(AlarmState.Active),OperationalMode.UNKNOWN,Validity.Unreliable,IASTypes.ALARM)
+    val alarm3HIO = HeteroInOut(f.id,f.refreshRate,AlarmValue(AlarmState.Active,false,AckState.Acknowledged),OperationalMode.UNKNOWN,Validity.Unreliable,IASTypes.ALARM)
     assert(alarm1HIO!=alarm3HIO)
   }
 }

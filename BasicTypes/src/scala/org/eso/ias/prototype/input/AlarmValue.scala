@@ -61,11 +61,16 @@ object AckState extends Enumeration {
  * @author acaproni
  */
 case class AlarmValue(
-    alarmState: AlarmState.State = AlarmState.Unknown,  
-    shelved: Boolean = false,
-    // acknowledgement defaults to Acknowledged o correctly handle the transition
-    // to the Cleared state
-    acknowledgement: AckState.Value = AckState.Acknowledged) {
+    alarmState: AlarmState.State,  
+    shelved: Boolean,
+    acknowledgement: AckState.Value) {
+  require(Option[AlarmState.State](alarmState).isDefined)
+  require(Option[Boolean](shelved).isDefined)
+  require(Option[AckState.Value](acknowledgement).isDefined)
+  
+  def this() {
+    this(AlarmState.Unknown,false,AckState.Acknowledged)
+  }
   
   /**
    * Shelve/Unshelve an alarm
