@@ -159,6 +159,21 @@ public class MinMaxThresholdTFJava extends JavaTransferExecutor {
 	@Override
 	public void shutdown() {
 	}
+	
+	/**
+   * Gets the AlarmValue from the passed hio.
+   * if the value of the hio is noll, it creates a new AlarmValue.
+   * 
+   * @param hio: The HIO containing the AlarmValue
+   * @return the AlarmValue of the HIO or a newly created one if it is null
+   */
+  private AlarmValue getAlarmValue(IASValueBase iasValue) {
+	  if (((IasAlarm)iasValue).value==null) {
+		  return new AlarmValue();
+	  } else {
+		  return ((IasAlarm)iasValue).value;
+	  }
+  }
 
 	/**
 	 * @see JavaTransferExecutor#eval(Map, IASValueBase)
@@ -197,11 +212,11 @@ public class MinMaxThresholdTFJava extends JavaTransferExecutor {
 		}
 
 		if (hioValue >= highOn || hioValue <= lowOn) {
-			AlarmValue actualOutputValue = ((IasAlarm) actualOutput).value;
+			AlarmValue actualOutputValue = getAlarmValue(actualOutput);
 			AlarmValue newValue = AlarmValue.transition(actualOutputValue, new Set());
 			return ((IasAlarm) actualOutput).updateValue(newValue);
 		} else if (hioValue < highOff && hioValue > lowOff) {
-			AlarmValue actualOutputValue = ((IasAlarm) actualOutput).value;
+			AlarmValue actualOutputValue = getAlarmValue(actualOutput);
 			AlarmValue newValue = AlarmValue.transition(actualOutputValue, new Clear());
 			return ((IasAlarm) actualOutput).updateValue(newValue);
 		} else {

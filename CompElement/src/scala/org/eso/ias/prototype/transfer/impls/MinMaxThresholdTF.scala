@@ -115,6 +115,23 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
   def shutdown() {}
   
   /**
+   * Gets the AlarmValue from the passed hio.
+   * if the value of the hio is noll, it creates a new AlarmValue.
+   * 
+   * @param hio: The HIO containing the AlarmValue
+   * @return the AlarmValue of the HIO or a newly created one if it is null
+   */
+  def getAlarmValue(hio: HeteroInOut): AlarmValue = {
+    require(Option[HeteroInOut](hio).isDefined)
+    require(hio.iasType==ALARM)
+    if (!hio.actualValue.isDefined) {
+      new AlarmValue()
+    } else {
+      hio.actualValue.get.value.asInstanceOf[AlarmValue]
+    }
+  }
+  
+  /**
    * @see ScalaTransferExecutor#eval
    */
   def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
@@ -135,11 +152,11 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
     }
     
     if (hioValue>=highOn || hioValue<=lowOn) {
-      val actualOutputValue=actualOutput.actualValue.get.value.asInstanceOf[AlarmValue]
+      val actualOutputValue=getAlarmValue(actualOutput)
       val newValue: AlarmValue  = AlarmValue.transition(actualOutputValue,new Set())
       actualOutput.updateValue(newValue)
     } else if (hioValue<highOff && hioValue>lowOff) {
-      val actualOutputValue=actualOutput.actualValue.get.value.asInstanceOf[AlarmValue]
+      val actualOutputValue=getAlarmValue(actualOutput)
       val newValue: AlarmValue  = AlarmValue.transition(actualOutputValue,new Clear())
       actualOutput.updateValue(newValue)
     } else {

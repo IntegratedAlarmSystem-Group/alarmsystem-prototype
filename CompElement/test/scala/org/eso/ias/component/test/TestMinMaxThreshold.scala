@@ -17,7 +17,7 @@ import java.util.Properties
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTFJava
 
-class TestMinMaxThreshold extends FlatSpec{
+class TestMinMaxThreshold extends FlatSpec {
   
   def withScalaTransferSetting(testCode: TransferFunctionSetting => Any) {
     val threadFactory = new TestThreadFactory()
@@ -150,8 +150,10 @@ class TestMinMaxThreshold extends FlatSpec{
     assert(asce.isAlarmComponent)
     val hio = asce.output
     assert(hio.iasType==IASTypes.ALARM)
-    val value: AlarmValue = hio.actualValue.get.value.asInstanceOf[AlarmValue]
-    value.alarmState==alarmState
+    
+    hio.actualValue.isDefined && 
+    hio.actualValue.get.value.asInstanceOf[AlarmValue].alarmState==alarmState
+    
   }
   
   it must "run the scala Min/Max TF executor" in withScalaComp { (scalaComp, inputsMPs) =>
