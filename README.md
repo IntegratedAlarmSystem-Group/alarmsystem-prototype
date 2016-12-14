@@ -1,4 +1,5 @@
 # alarmsystem-prototype
-This repository contains th eprototype of what we call the Integrated Alarm System (IAS)
+This is the repository for the prototype of the Integrated Alarm System (IAS)
 
-The purpose of the IAS is to double check the architecture we have in mind, spot and fix issues.
+The purpose of the prototype is to double check the architecture we have in mind, spot and fix issues.
+At the present stage we are not sure if the prototype will never go in operations.
