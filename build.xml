@@ -35,8 +35,19 @@
             <sequential>
             	<for list="${anttasks}" param="aTask">
             		<sequential>
-	                	<echo>Running @{aTask} in module @{moduleName}...</echo>
-						<ant dir="@{moduleName}/src" target="@{aTask}" />
+            			<if>
+            				<and>
+            					<available file="@{moduleName}/${ant-folder}" type="dir" />
+            					<available file="@{moduleName}/${ant-folder}/build.xml" type="file" />
+        					</and>
+	        				<then>
+	            				<echo>Running @{aTask} in @{moduleName}/${ant-folder}...</echo>
+								<ant dir="@{moduleName}/${ant-folder}" target="@{aTask}" />
+	            			</then>
+	            			<else>
+	            				<echo>@{aTask} in @{moduleName}/${ant-folder} does not exist</echo>
+	            			</else>
+            			</if>
 						<echo>@{aTask} in @{moduleName} done.</echo>
         			</sequential>
         		</for>
@@ -47,6 +58,7 @@
 	<target name="clean">
         <echo>Cleaning IAS modules: ${iasModules}</echo>
 		<antcall target="commontask">
+			<param name="ant-folder" value="src" />
 			<param name="anttasks" value="clean" />
 		</antcall>
     </target>
@@ -54,6 +66,7 @@
 	<target name="build" depends="SanityCheck">
 		<echo>Building IAS modules: ${iasModules}</echo>
 		<antcall target="commontask">
+			<param name="ant-folder" value="src" />
 			<param name="anttasks" value="build,install" />
 		</antcall>
 	</target>
@@ -61,7 +74,16 @@
 	<target name="install" depends="SanityCheck">
 		<echo>Installing IAS modules: ${iasModules}</echo>
 		<antcall target="commontask">
+			<param name="ant-folder" value="src" />
 			<param name="anttasks" value="install" />
+		</antcall>
+	</target>
+	
+	<target name="test" depends="SanityCheck">
+		<echo>Building IAS modules: ${iasModules}</echo>
+		<antcall target="commontask">
+			<param name="ant-folder" value="test" />
+			<param name="anttasks" value="build,test" />
 		</antcall>
 	</target>
 	
