@@ -28,7 +28,7 @@ class TestAlarmValue extends FlatSpec {
     * Test all transition from a Unknown alarm state
     */
    "Unknown state" must "correctly handle events" in {
-     val as = AlarmValue()
+     val as = new AlarmValue()
      
      val setAlState = AlarmValue.transition(as,Set())
      assert(setAlState.alarmState == AlarmState.Active)
@@ -43,7 +43,7 @@ class TestAlarmValue extends FlatSpec {
    "Active state" must "correctly handle events" in {
      
      // Setup: generate an alarm and transition to the ActiveAndNew state 
-     val newas = AlarmValue()
+     val newas = new AlarmValue()
      val activeAndNewAS = AlarmValue.transition(newas, Set())
      assert(activeAndNewAS.alarmState == AlarmState.Active)
      
@@ -61,7 +61,7 @@ class TestAlarmValue extends FlatSpec {
    "Cleared state" must "correctly handle events" in {
      
      // Setup: generate an alarm and transition to the ActiveAndAcknowledged state 
-     val newas = AlarmValue()
+     val newas = new AlarmValue()
      val activeAndNewAS = AlarmValue.transition(newas, Set())
      val clearedAS = AlarmValue.transition(activeAndNewAS, Clear())
      assert(clearedAS.alarmState == AlarmState.Cleared)
@@ -75,7 +75,7 @@ class TestAlarmValue extends FlatSpec {
    }
    
    "New Alarm" must "remain New after transitions" in {
-     val newas = AlarmValue()
+     val newas = new AlarmValue()
      val activeAS = AlarmValue.transition(newas, Set())
      assert(activeAS.alarmState == AlarmState.Active)
      assert(activeAS.acknowledgement == AckState.New)
@@ -85,7 +85,7 @@ class TestAlarmValue extends FlatSpec {
    }
    
    "Acknowledged Alarm" must "remain Acknowledged after transitions" in {
-     val newas = AlarmValue()
+     val newas = new AlarmValue()
      val activeAS = AlarmValue.transition(newas, Set())
      assert(activeAS.alarmState == AlarmState.Active)
      assert(activeAS.acknowledgement == AckState.New)
