@@ -30,18 +30,34 @@ object JavaConverter {
   def hioToIASValue[T](hio: HeteroInOut): IASValueBase = {
     require(Option[HeteroInOut](hio).isDefined)
     
-    val ret = hio.iasType match {
-      case LONG => new IasLong(hio.actualValue.get.value.asInstanceOf[Long], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case INT => new IasInt(hio.actualValue.get.value.asInstanceOf[Int], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case SHORT => new IasShort(hio.actualValue.get.value.asInstanceOf[Short], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case BYTE => new IasByte(hio.actualValue.get.value.asInstanceOf[Byte], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case DOUBLE => new IasDouble(hio.actualValue.get.value.asInstanceOf[Double], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case FLOAT => new IasFloat(hio.actualValue.get.value.asInstanceOf[Float], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case BOOLEAN => new IasBool(hio.actualValue.get.value.asInstanceOf[Boolean], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case CHAR => new IasChar(hio.actualValue.get.value.asInstanceOf[Char], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case STRING => new IasString(hio.actualValue.get.value.asInstanceOf[String], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case ALARM=> new IasAlarm(hio.actualValue.get.value.asInstanceOf[AlarmValue], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-      case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
+    val ret = if (!hio.actualValue.isDefined) {
+      hio.iasType match {
+        case LONG => new IasLong(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case INT => new IasInt(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case SHORT => new IasShort(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case BYTE => new IasByte(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case DOUBLE => new IasDouble(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case FLOAT => new IasFloat(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case BOOLEAN => new IasBool(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case CHAR => new IasChar(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case STRING => new IasString(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case ALARM=> new IasAlarm(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
+        case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
+      }
+    } else {
+      hio.iasType match {
+        case LONG => new IasLong(hio.actualValue.get.value.asInstanceOf[Long], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case INT => new IasInt(hio.actualValue.get.value.asInstanceOf[Int], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case SHORT => new IasShort(hio.actualValue.get.value.asInstanceOf[Short], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case BYTE => new IasByte(hio.actualValue.get.value.asInstanceOf[Byte], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case DOUBLE => new IasDouble(hio.actualValue.get.value.asInstanceOf[Double], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case FLOAT => new IasFloat(hio.actualValue.get.value.asInstanceOf[Float], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case BOOLEAN => new IasBool(hio.actualValue.get.value.asInstanceOf[Boolean], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case CHAR => new IasChar(hio.actualValue.get.value.asInstanceOf[Char], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case STRING => new IasString(hio.actualValue.get.value.asInstanceOf[String], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case ALARM=> new IasAlarm(hio.actualValue.get.value.asInstanceOf[AlarmValue], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
+        case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
+      }
     }
     ret.asInstanceOf[IASValueBase]
   }
