@@ -51,7 +51,7 @@ trait JavaTransfer extends ComputingElementBase {
   abstract override def transfer(
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
-      actualOutput: HeteroInOut): HeteroInOut = {
+      actualOutput: HeteroInOut): Either[Exception,HeteroInOut] = {
     if (canRunTheJavaTF) {
       val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.hioToIASValue(actualOutput))

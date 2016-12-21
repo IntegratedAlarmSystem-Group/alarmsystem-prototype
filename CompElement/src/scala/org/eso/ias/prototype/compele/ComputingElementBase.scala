@@ -194,27 +194,24 @@ abstract class ComputingElementBase
       // of the transfer function messes up the data
       val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
       
-      val runTransferFunction = Try[HeteroInOut] {
-        val startedAt=System.currentTimeMillis()
-        val ret = transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
-        val endedAt=System.currentTimeMillis()
-        if (endedAt-startedAt>TransferFunctionSetting.MaxTolerableTFTime) {
-          state=ComputingElementState.transition(state, new Slow())
-        } else {
-          state=ComputingElementState.transition(state, new Normal())
-        }
-        ret
+      val startedAt=System.currentTimeMillis()
+      val ret = transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
+      val endedAt=System.currentTimeMillis()
+      if (endedAt-startedAt>TransferFunctionSetting.MaxTolerableTFTime) {
+        state=ComputingElementState.transition(state, new Slow())
+      } else {
+        state=ComputingElementState.transition(state, new Normal())
       }
-      runTransferFunction match {
-        case Failure(v) =>
-          println("TF inhibited for the time being: caught exception while running the user defined TF for input "+id.runningID+": "+v.getMessage)
-          v.printStackTrace()
+      ret match {
+       
+        case Left(ex) =>
+          println("TF inhibited for the time being: caught exception while running the user defined TF for input "+id.runningID+": "+ex.getMessage)
+          ex.printStackTrace()
           // Change the state so that the TF is never executed again
           state=ComputingElementState.transition(state, new Broken())
-        case Success(v) => 
-          val newOutput=runTransferFunction.get
-          if (newOutput!=output) {
-            output=newOutput
+        case Right(v) => 
+          if (v!=output) {
+            output=v
             lastModificationTime=System.currentTimeMillis()
           }
       }
@@ -258,14 +255,14 @@ abstract class ComputingElementBase
   def transfer(
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
-      actualOutput: HeteroInOut) : HeteroInOut = {
+      actualOutput: HeteroInOut) : Either[Exception,HeteroInOut] = {
     
     val validitiesSet = MutableSet[Validity.Value]()
     for ( hio <- inputs.values ) validitiesSet += hio.validity
     val newValidity = Validity.min(validitiesSet.toList) 
     
     output=actualOutput.updateValidity(newValidity)
-    output
+    Right(output)
   }
   
   /**

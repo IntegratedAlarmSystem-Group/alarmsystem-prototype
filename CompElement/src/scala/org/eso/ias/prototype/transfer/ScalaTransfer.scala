@@ -27,7 +27,7 @@ trait ScalaTransfer extends ComputingElementBase {
   abstract override def transfer(
       inputs: Map[String, HeteroInOut], 
       id: Identifier,
-      actualOutput: HeteroInOut): HeteroInOut = {
+      actualOutput: HeteroInOut): Either[Exception,HeteroInOut] = {
      if (canRunTheScalaTF) {
       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
       
