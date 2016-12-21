@@ -31,10 +31,10 @@ class TestAlarmValue extends FlatSpec {
      val as = new AlarmValue()
      
      val setAlState = AlarmValue.transition(as,Set())
-     assert(setAlState.alarmState == AlarmState.Active)
+     setAlState.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Active))
      
      val clearedAS = AlarmValue.transition(as,Clear())
-     assert(clearedAS.alarmState == AlarmState.Cleared)
+     clearedAS.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Cleared))
    }
    
    /**
@@ -45,14 +45,14 @@ class TestAlarmValue extends FlatSpec {
      // Setup: generate an alarm and transition to the ActiveAndNew state 
      val newas = new AlarmValue()
      val activeAndNewAS = AlarmValue.transition(newas, Set())
-     assert(activeAndNewAS.alarmState == AlarmState.Active)
+     activeAndNewAS.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Active))
      
      // Check event handling from ActiveAndNew state
-     val afterSet = AlarmValue.transition(activeAndNewAS,Set())
-     assert(afterSet.alarmState == AlarmState.Active)
+     val afterSet = AlarmValue.transition(activeAndNewAS.right.get,Set())
+     afterSet.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Active))
      
-     val afterClear = AlarmValue.transition(activeAndNewAS,Clear())
-     assert(afterClear.alarmState == AlarmState.Cleared)
+     val afterClear = AlarmValue.transition(activeAndNewAS.right.get,Clear())
+     afterClear.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Cleared))
    }
    
    /**
@@ -63,37 +63,37 @@ class TestAlarmValue extends FlatSpec {
      // Setup: generate an alarm and transition to the ActiveAndAcknowledged state 
      val newas = new AlarmValue()
      val activeAndNewAS = AlarmValue.transition(newas, Set())
-     val clearedAS = AlarmValue.transition(activeAndNewAS, Clear())
-     assert(clearedAS.alarmState == AlarmState.Cleared)
+     val clearedAS = AlarmValue.transition(activeAndNewAS.right.get, Clear())
+     clearedAS.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Cleared))
      
      // Check event handling from ActiveAndAcknowledged state
-     val afterSet = AlarmValue.transition(clearedAS,Set())
-     assert(afterSet.alarmState == AlarmState.Active)
+     val afterSet = AlarmValue.transition(clearedAS.right.get,Set())
+     afterSet.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Active))
      
-     val afterClear = AlarmValue.transition(clearedAS,Clear())
-     assert(afterClear.alarmState == AlarmState.Cleared)
+     val afterClear = AlarmValue.transition(clearedAS.right.get,Clear())
+     afterClear.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Cleared))
    }
    
    "New Alarm" must "remain New after transitions" in {
      val newas = new AlarmValue()
      val activeAS = AlarmValue.transition(newas, Set())
-     assert(activeAS.alarmState == AlarmState.Active)
-     assert(activeAS.acknowledgement == AckState.New)
+     activeAS.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Active))
+     assert(activeAS.right.get.acknowledgement == AckState.New)
      
-     assert(AlarmValue.transition(activeAS,Set()).acknowledgement == AckState.New)
-     assert(AlarmValue.transition(activeAS,Clear()).acknowledgement == AckState.New)
+     assert(AlarmValue.transition(activeAS.right.get,Set()).right.get.acknowledgement == AckState.New)
+     assert(AlarmValue.transition(activeAS.right.get,Clear()).right.get.acknowledgement == AckState.New)
    }
    
    "Acknowledged Alarm" must "remain Acknowledged after transitions" in {
      val newas = new AlarmValue()
      val activeAS = AlarmValue.transition(newas, Set())
-     assert(activeAS.alarmState == AlarmState.Active)
-     assert(activeAS.acknowledgement == AckState.New)
+     activeAS.fold( (ex) => throw ex, (v) =>assert(v.alarmState == AlarmState.Active))
+     assert(activeAS.right.get.acknowledgement == AckState.New)
      
-     val ackedAS = activeAS.acknowledge()
+     val ackedAS = activeAS.right.get.acknowledge()
      assert(ackedAS.acknowledgement == AckState.Acknowledged)
      
-     assert(AlarmValue.transition(activeAS,Set()).acknowledgement == AckState.New)
-     assert(AlarmValue.transition(activeAS,Clear()).acknowledgement == AckState.New)
+     assert(AlarmValue.transition(activeAS.right.get,Set()).right.get.acknowledgement == AckState.New)
+     assert(AlarmValue.transition(activeAS.right.get,Clear()).right.get.acknowledgement == AckState.New)
    }
 }
