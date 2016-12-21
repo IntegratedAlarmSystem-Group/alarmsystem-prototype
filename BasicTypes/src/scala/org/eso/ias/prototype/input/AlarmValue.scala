@@ -135,6 +135,7 @@ object AlarmValue {
    * 				 exception thrown in case of a unallowed transition
    */
   def transition(a: AlarmValue, e: Event): Either[Exception,AlarmValue] = {
+    require(Option[AlarmValue](a).isDefined)
     a.alarmState match {
       case AlarmState.Active =>
         e match {
