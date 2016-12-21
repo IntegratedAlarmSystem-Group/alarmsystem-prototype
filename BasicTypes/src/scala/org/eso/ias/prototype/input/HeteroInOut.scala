@@ -115,9 +115,12 @@ abstract class HeteroInOut private[input] (
   
   /**
    * Update the value and validity of the monitor point
+   * 
+   * @param newValue: The new value of the monitor point
+   * @param valid: the new validity
    */
   def update[T](newValue: T,valid: Validity.Value): HeteroInOut = {
-    if (!Option[T](newValue).isDefined) throw new IllegalArgumentException("Inavalid new value for "+id.id.get+": "+newValue)
+    if (!Option[T](newValue).isDefined) throw new IllegalArgumentException("Invalid new value for "+id.id.get+": "+newValue)
     if (
         actualValue!=None && 
         actualValue.get.value == newValue.asInstanceOf[HeteroInOutType] &&
@@ -133,9 +136,7 @@ abstract class HeteroInOut private[input] (
   /**
    * Update the value of the monitor point
    * 
-   * @param oldMP: The monitor point to update
    * @param newValue: The new value of the monitor point
-   * @return updates the passed monitor point with the given new value
    */
   def updateValue[T](newValue: T): HeteroInOut = {
     update[T](newValue,validity)
@@ -144,9 +145,7 @@ abstract class HeteroInOut private[input] (
   /**
    * Update the mode of the monitor point
    * 
-   * @param oldMP: The monitor point to update
    * @param newMode: The new mode of the monitor point
-   * @return updates the passed monitor point with the given new mode
    */
   def updateMode(newMode: OperationalMode):HeteroInOut = {
     if (newMode==mode) this
@@ -157,9 +156,7 @@ abstract class HeteroInOut private[input] (
   /**
    * Update the validity of the monitor point
    * 
-   * @param oldMP: The monitor point to update
-   * @param validMode: The new validity of the monitor point
-   * @return updates the passed monitor point with the given new validity
+   * @param valid: The new validity of the monitor point
    */
   def updateValidity(valid: Validity.Value):HeteroInOut = {
     if (valid==validity) this
