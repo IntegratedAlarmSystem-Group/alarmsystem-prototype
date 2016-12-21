@@ -43,7 +43,7 @@ public class TransferExecutorImpl  extends JavaTransferExecutor {
 		}
 		IASValueBase newValue = actualOutput.updateMode(OperationalMode.SHUTDOWN);
 		AlarmValue alarm = ((IasAlarm)newValue).value;
-		alarm = AlarmValue.transition(alarm, new Set());
+		alarm = AlarmValue.transition(alarm, new Set()).right().get();
 		newValue=((IasAlarm)newValue).updateValue(alarm); 
 		System.out.println("Returning: "+newValue);
 		return newValue;

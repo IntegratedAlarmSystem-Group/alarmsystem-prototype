@@ -213,11 +213,11 @@ public class MinMaxThresholdTFJava extends JavaTransferExecutor {
 
 		if (hioValue >= highOn || hioValue <= lowOn) {
 			AlarmValue actualOutputValue = getAlarmValue(actualOutput);
-			AlarmValue newValue = AlarmValue.transition(actualOutputValue, new Set());
+			AlarmValue newValue = AlarmValue.transition(actualOutputValue, new Set()).right().get();
 			return ((IasAlarm) actualOutput).updateValue(newValue);
 		} else if (hioValue < highOff && hioValue > lowOff) {
 			AlarmValue actualOutputValue = getAlarmValue(actualOutput);
-			AlarmValue newValue = AlarmValue.transition(actualOutputValue, new Clear());
+			AlarmValue newValue = AlarmValue.transition(actualOutputValue, new Clear()).right().get();
 			return ((IasAlarm) actualOutput).updateValue(newValue);
 		} else {
 			return actualOutput;
