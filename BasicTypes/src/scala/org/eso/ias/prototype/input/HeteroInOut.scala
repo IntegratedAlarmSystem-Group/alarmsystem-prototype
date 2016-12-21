@@ -36,7 +36,7 @@ abstract class HeteroInOut private[input] (
     val mode: OperationalMode,
     val validity: Validity.Value,
     val iasType: IASTypes) {
-  require(id!=None,"The identifier can't be None")
+  require(Option[Identifier](id).isDefined,"The identifier can't be None")
   require(refreshRate>=HeteroInOut.MinRefreshRate,"Invalid refresh rate (too low): "+refreshRate)
   
   /**
@@ -51,10 +51,8 @@ abstract class HeteroInOut private[input] (
    * This property is abstract because its type depends
    * on the abstract HeteroInOutType
    */
-  lazy val actualValue: Option[HeteroIOValue] = {
-    if (theValue==None) None else 
-    Option[HeteroIOValue](new HeteroIOValue(theValue.get.asInstanceOf[HeteroInOutType]))
-  }
+  lazy val actualValue: Option[HeteroIOValue] = 
+    theValue.map(a => new HeteroIOValue(a.asInstanceOf[HeteroInOutType]))
   
   /**
    * The hashCode is calculated only once when needed
@@ -73,7 +71,10 @@ abstract class HeteroInOut private[input] (
   /**
    * The value of the HIO is associated 
    * to a timestamp corresponding to the update time of 
-   * the value
+   * the value.
+   * 
+   * @param value: the value
+   * @param timestamp: the time when this value has been set
    */
   class HeteroIOValue(
     val value: HeteroInOutType) {
