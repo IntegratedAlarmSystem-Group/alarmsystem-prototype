@@ -95,7 +95,7 @@ class TestJavaConversion  extends FlatSpec {
     val alarmVal = JavaConverter.hioToIASValue[AlarmValue](f.alarmHIO).asInstanceOf[IasAlarm]
     val alarm = alarmVal.value
     val newAlarm = AlarmValue.transition(alarm, new Clear())
-    val newAlarmValue = alarmVal.updateValue(newAlarm).asInstanceOf[IasAlarm]
+    val newAlarmValue = alarmVal.updateValue(newAlarm.right.get).asInstanceOf[IasAlarm]
     val alarmHio = JavaConverter.updateHIOWithIasValue(f.alarmHIO,newAlarmValue)
     
     assert(alarmHio.actualValue.get.value.asInstanceOf[AlarmValue].alarmState==AlarmState.Cleared)

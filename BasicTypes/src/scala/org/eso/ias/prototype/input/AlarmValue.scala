@@ -131,26 +131,27 @@ object AlarmValue {
    * 
    * @param a: the alarm that receives the event
    * @param e: the event to apply to the alarm
-   * @result the alarm after the event has been processed
+   * @result the alarm after the event has been processed, or the
+   * 				 exception thrown in case of a unallowed transition
    */
-  def transition(a: AlarmValue, e: Event): AlarmValue = {
+  def transition(a: AlarmValue, e: Event): Either[Exception,AlarmValue] = {
     a.alarmState match {
       case AlarmState.Active =>
         e match {
-          case Clear() => a.copy(alarmState = AlarmState.Cleared)
-          case Set() => a
+          case Clear() => Right(a.copy(alarmState = AlarmState.Cleared))
+          case Set() => Right(a)
         }
       case AlarmState.Cleared =>
         e match {
-          case Set() =>  a.copy(alarmState = AlarmState.Active,acknowledgement=AckState.New)
-          case _ => a
+          case Set() =>  Right(a.copy(alarmState = AlarmState.Active,acknowledgement=AckState.New))
+          case _ => Right(a)
         }
       case AlarmState.Unknown =>
         e match {
-          case Clear() => a.copy(alarmState = AlarmState.Cleared)
-          case Set() => a.copy(alarmState = AlarmState.Active,acknowledgement=AckState.New)
+          case Clear() => Right(a.copy(alarmState = AlarmState.Cleared))
+          case Set() => Right(a.copy(alarmState = AlarmState.Active,acknowledgement=AckState.New))
         }
-      case _ => throw new InvalidStateTransitionException(a.alarmState,e)
+      case _ => Left(new InvalidStateTransitionException(a.alarmState,e))
     }
   }
 }
