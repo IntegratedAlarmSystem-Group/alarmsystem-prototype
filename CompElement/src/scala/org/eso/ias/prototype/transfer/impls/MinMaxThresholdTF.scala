@@ -153,12 +153,18 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
     
     if (hioValue>=highOn || hioValue<=lowOn) {
       val actualOutputValue=getAlarmValue(actualOutput)
-      val newValue: AlarmValue  = AlarmValue.transition(actualOutputValue,new Set())
-      actualOutput.updateValue(newValue)
+      val newValue = AlarmValue.transition(actualOutputValue,new Set())
+      newValue match {
+        case Left(ex) => throw ex
+        case Right(alarm) => actualOutput.updateValue(alarm) 
+      }
     } else if (hioValue<highOff && hioValue>lowOff) {
       val actualOutputValue=getAlarmValue(actualOutput)
-      val newValue: AlarmValue  = AlarmValue.transition(actualOutputValue,new Clear())
-      actualOutput.updateValue(newValue)
+      val newValue = AlarmValue.transition(actualOutputValue,new Clear())
+      newValue match {
+        case Left(ex) => throw ex
+        case Right(alarm) => actualOutput.updateValue(alarm) 
+      }
     } else {
       actualOutput
     }
