@@ -29,8 +29,7 @@ trait ScalaTransfer extends ComputingElementBase {
       id: Identifier,
       actualOutput: HeteroInOut): Either[Exception,HeteroInOut] = {
      if (canRunTheScalaTF) {
-      val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
-      
+       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
       super.transfer(inputs, id, newOutput)
     } else {
       super.transfer(inputs, id, actualOutput)
