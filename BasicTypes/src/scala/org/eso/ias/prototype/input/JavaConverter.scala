@@ -27,8 +27,8 @@ object JavaConverter {
    * @param hio: the HIO to convert to java IASValue
    * @return The java value version of the passed HIO 
    */
-  def hioToIASValue[T](hio: HeteroInOut): IASValueBase = {
-    require(Option[HeteroInOut](hio).isDefined)
+  def hioToIASValue[T](hio: HeteroInOut[_]): IASValueBase = {
+    require(Option[HeteroInOut[_]](hio).isDefined)
     
     val ret = if (!hio.actualValue.isDefined) {
       hio.iasType match {
@@ -67,18 +67,18 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IASValueBase): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[_], iasValue: IASValueBase): HeteroInOut[_] = {
     hio.iasType match {
-      case LONG => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasLong])
-      case INT => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasInt])
-      case SHORT => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasShort])
-      case BYTE => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasByte])
-      case DOUBLE => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasDouble])
-      case FLOAT => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasFloat])
-      case BOOLEAN => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasBool])
-      case CHAR => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasChar])
-      case STRING => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasString])
-      case ALARM=> updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasAlarm])
+      case LONG => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Long]], iasValue.asInstanceOf[IasLong])
+      case INT => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Int]],iasValue.asInstanceOf[IasInt])
+      case SHORT => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Short]],iasValue.asInstanceOf[IasShort])
+      case BYTE => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Byte]],iasValue.asInstanceOf[IasByte])
+      case DOUBLE => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Double]],iasValue.asInstanceOf[IasDouble])
+      case FLOAT => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Float]],iasValue.asInstanceOf[IasFloat])
+      case BOOLEAN => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Boolean]],iasValue.asInstanceOf[IasBool])
+      case CHAR => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[Char]],iasValue.asInstanceOf[IasChar])
+      case STRING => updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[String]],iasValue.asInstanceOf[IasString])
+      case ALARM=> updateHIOWithIasValue(hio.asInstanceOf[HeteroInOut[AlarmValue]],iasValue.asInstanceOf[IasAlarm])
       case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
     }
   }
@@ -89,7 +89,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasLong): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Long], iasValue: IasLong): HeteroInOut[Long] = {
     JavaConverter.updateHIOWithIasValue[Long](hio, iasValue.asInstanceOf[IASValue[Long]])
   }
   
@@ -98,7 +98,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasInt): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Int], iasValue: IasInt): HeteroInOut[Int] = {
     JavaConverter.updateHIOWithIasValue[Int](hio, iasValue.asInstanceOf[IASValue[Int]])
   }
   
@@ -107,7 +107,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasShort): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Short], iasValue: IasShort): HeteroInOut[Short] = {
     JavaConverter.updateHIOWithIasValue[Short](hio, iasValue.asInstanceOf[IASValue[Short]])
   }
   
@@ -116,7 +116,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasByte): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Byte], iasValue: IasByte): HeteroInOut[Byte] = {
     JavaConverter.updateHIOWithIasValue[Byte](hio, iasValue.asInstanceOf[IASValue[Byte]])
   }
   
@@ -125,7 +125,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasDouble): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Double], iasValue: IasDouble): HeteroInOut[Double] = {
     JavaConverter.updateHIOWithIasValue[Double](hio, iasValue.asInstanceOf[IASValue[Double]])
   }
   
@@ -134,7 +134,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasFloat): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Float], iasValue: IasFloat): HeteroInOut[Float] = {
     JavaConverter.updateHIOWithIasValue[Float](hio, iasValue.asInstanceOf[IASValue[Float]])
   }
   
@@ -143,7 +143,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasBool): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Boolean], iasValue: IasBool): HeteroInOut[Boolean] = {
     JavaConverter.updateHIOWithIasValue[Boolean](hio, iasValue.asInstanceOf[IASValue[Boolean]])
   }
   
@@ -152,7 +152,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasChar): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[Char], iasValue: IasChar): HeteroInOut[Char] = {
     JavaConverter.updateHIOWithIasValue[Char](hio, iasValue.asInstanceOf[IASValue[Char]])
   }
   
@@ -161,7 +161,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasString): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[String], iasValue: IasString): HeteroInOut[String] = {
     JavaConverter.updateHIOWithIasValue[String](hio, iasValue.asInstanceOf[IASValue[String]])
   }
   
@@ -170,7 +170,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasAlarm): HeteroInOut = {
+  def updateHIOWithIasValue(hio: HeteroInOut[AlarmValue], iasValue: IasAlarm): HeteroInOut[AlarmValue] = {
     JavaConverter.updateHIOWithIasValue[AlarmValue](hio, iasValue.asInstanceOf[IASValue[AlarmValue]])
   }
   
@@ -181,8 +181,8 @@ object JavaConverter {
    * @param iasValue: the java value to update the passed scala HIO
    * @return The hio updated with the passed java value
    */
-  private def updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T]): HeteroInOut = {
-    assert(Option[HeteroInOut](hio).isDefined)
+  private def updateHIOWithIasValue[T](hio: HeteroInOut[T], iasValue: IASValue[T]): HeteroInOut[T] = {
+    assert(Option[HeteroInOut[T]](hio).isDefined)
     assert(Option[IASValueBase](iasValue).isDefined)
     // Some consistency check
     if (hio.iasType!=iasValue.valueType) {
@@ -195,7 +195,8 @@ object JavaConverter {
       throw new IllegalStateException("Running ID mismatch for HIO "+hio.id.runningID+": "+hio.id.runningID+"!="+iasValue.runningId)
     }
     // Finally, update the HIO
-    hio.updateMode(iasValue.mode).updateValue(iasValue.asInstanceOf[IASValue[T]].value)
+    val updatedMode=hio.updateMode(iasValue.mode)
+    updatedMode.get.updateValue(iasValue.value).get
     
   }
 }
