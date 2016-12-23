@@ -184,7 +184,6 @@ abstract class ComputingElementBase
   def transfer(): Unit = {
     
     if (state.canRunTF() && newInputs.synchronized{!newInputs.isEmpty}) {
-      println("Running the TF")
       
       // Prepare the list of the inputs by replacing the ones in the 
       // inputs with those in the newInputs
@@ -195,7 +194,9 @@ abstract class ComputingElementBase
       val immutableMapOfInputs: Map[String, HeteroInOut] = Map.empty++inputs
       
       val startedAt=System.currentTimeMillis()
-      val ret = transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
+      val ret = try {
+        transfer(immutableMapOfInputs,id,output.asInstanceOf[HeteroInOut])
+      } catch { case t: Throwable => Left(t) }
       val endedAt=System.currentTimeMillis()
       if (endedAt-startedAt>TransferFunctionSetting.MaxTolerableTFTime) {
         state=ComputingElementState.transition(state, new Slow())
@@ -307,7 +308,9 @@ abstract class ComputingElementBase
    * The thread that periodically executes the transfer function
    */
   def run(): Unit = {
-    if (!terminated) transfer()
+    if (!terminated) try {
+      transfer()
+    } catch  { case t: Exception => state=ComputingElementState.transition(state, new Broken()) }
   }
   
   /**
@@ -348,6 +351,13 @@ abstract class ComputingElementBase
     tfSetting.shutdown()
     state = ComputingElementState.transition(state, new Close())
   }
+  
+  /**
+   * Expose the actual state of this ASCE
+   * 
+   * @return The state of the ASCE
+   */
+  def getState(): AsceStates.State = state.actualState
 }
 
 

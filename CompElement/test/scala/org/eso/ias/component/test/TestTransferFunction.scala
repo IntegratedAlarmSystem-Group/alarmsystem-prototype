@@ -16,6 +16,7 @@ import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import org.eso.ias.prototype.compele.CompEleThreadFactory
 import org.eso.ias.prototype.input.AlarmState
+import org.eso.ias.prototype.compele.AsceStates
 
 class TestTransferFunction extends FlatSpec {
   
@@ -103,6 +104,19 @@ class TestTransferFunction extends FlatSpec {
        inputsMPs,
        scalaTFSetting,
        Some[Properties](new Properties()))
+    
+     // Instantiate one ASCE with a scala TF implementation
+    val brokenScalaTFSetting =new TransferFunctionSetting(
+        "org.eso.ias.component.test.transfer.ThrowExceptionTF",
+        TransferFunctionLanguage.scala,
+        threadFactory)
+    val brokenTFScalaComp: ComputingElement = new ComputingElement(
+       compID,
+       output,
+       requiredInputIDs,
+       inputsMPs,
+       brokenScalaTFSetting,
+       Some[Properties](new Properties()))
   }
   
   behavior of "The Component transfer function"
@@ -155,6 +169,20 @@ class TestTransferFunction extends FlatSpec {
     println(scalaComp.output.actualValue.toString())
     val alarm = scalaComp.output.actualValue.get.value.asInstanceOf[AlarmValue]
     assert(alarm.alarmState==AlarmState.Active)
+  }
+  
+  it must "detect a broken scala TF executor" in new CompBuilder {
+    val stpe: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5)
+    brokenTFScalaComp.initialize(stpe)
+    println("Sleeping")
+    Thread.sleep(5000)
+    assert(brokenTFScalaComp.getState()==AsceStates.Healthy)
+    // Change one input to trigger the TF
+    val changedMP = inputsMPs(inputsMPs.keys.head).updateValidity(Validity.Reliable)
+    brokenTFScalaComp.inputChanged(Some(changedMP))
+    Thread.sleep(5000)
+    assert(brokenTFScalaComp.getState()==AsceStates.TFBroken)
+    brokenTFScalaComp.shutdown()
   }
   
 }
