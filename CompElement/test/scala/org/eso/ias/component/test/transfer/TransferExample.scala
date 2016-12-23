@@ -42,7 +42,10 @@ class TransferExample(
     
     val av: AlarmValue = actualOutput.actualValue.get.value.asInstanceOf[AlarmValue]
     val newAlarm = AlarmValue.transition(av, new Set())
-    actualOutput.updateMode(OperationalMode.SHUTDOWN).updateValue(newAlarm)
+    newAlarm match {
+        case Left(ex) => throw ex
+        case Right(alarm) => actualOutput.updateMode(OperationalMode.SHUTDOWN).updateValue(alarm) 
+      }
   }
   
 }
