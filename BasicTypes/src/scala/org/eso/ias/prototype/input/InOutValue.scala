@@ -7,10 +7,10 @@ import org.eso.ias.prototype.utils.ISO8601Helper
  * to a timestamp corresponding to the update time of 
  * the value.
  * 
- * @param value: the value
+ * @param theValue: the value (can be None)
  * @param timestamp: the time when this value has been set
  */
-case class InOutValue[T](val value: T) {
+case class InOutValue[T](val value: Option[T]) {
   
   /**
    * The instant in time when this object has been created
