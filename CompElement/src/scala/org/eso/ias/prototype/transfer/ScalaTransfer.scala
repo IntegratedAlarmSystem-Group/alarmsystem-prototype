@@ -1,7 +1,7 @@
 package org.eso.ias.prototype.transfer
 
 import org.eso.ias.prototype.compele.ComputingElementBase
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.input.Identifier
 import java.util.Properties
 
@@ -13,7 +13,7 @@ import java.util.Properties
  * Note that the Validity of the output is not set by the transfer function
  * but automatically implemented by the ASCE
  */
-trait ScalaTransfer extends ComputingElementBase {
+trait ScalaTransfer[T] extends ComputingElementBase[T] {
   
   /**
    * Check if the TF is scala, intialized, not shutdown
@@ -25,11 +25,11 @@ trait ScalaTransfer extends ComputingElementBase {
     !tfSetting.isShutDown
   
   abstract override def transfer(
-      inputs: Map[String, HeteroInOut], 
+      inputs: Map[String, InOut[_]], 
       id: Identifier,
-      actualOutput: HeteroInOut): Either[Exception,HeteroInOut] = {
+      actualOutput: InOut[T]): Either[Exception,InOut[T]] = {
      if (canRunTheScalaTF) {
-       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
+       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor[T]].eval(inputs,actualOutput)
       super.transfer(inputs, id, newOutput)
     } else {
       super.transfer(inputs, id, actualOutput)

@@ -2,7 +2,7 @@ package org.eso.ias.prototype.transfer.impls
 
 import org.eso.ias.prototype.transfer.ScalaTransferExecutor
 import java.util.Properties
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.compele.exceptions.PropsMisconfiguredException
 import org.eso.ias.prototype.compele.exceptions.UnexpectedNumberOfInputsException
 import org.eso.ias.prototype.input.java.IASTypes._
@@ -44,7 +44,7 @@ import MinMaxThresholdTF._
  * @author acaproni
  */
 class MinMaxThresholdTF(cEleId: String, cEleRunningId: String, props: Properties) 
-extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
+extends ScalaTransferExecutor[AlarmValue](cEleId,cEleRunningId,props) {
   
   /**
    * The (high) alarm is activated when the value of the HIO 
@@ -119,22 +119,22 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
    * if the value of the hio is noll, it creates a new AlarmValue.
    * 
    * @param hio: The HIO containing the AlarmValue
-   * @return the AlarmValue of the HIO or a newly created one if it is null
+   * @return the AlarmValue of the HIO (None if not defined)
    */
-  def getAlarmValue(hio: HeteroInOut): AlarmValue = {
-    require(Option[HeteroInOut](hio).isDefined)
+  def getAlarmValue(hio: InOut[AlarmValue]): AlarmValue = {
+    require(Option[InOut[AlarmValue]](hio).isDefined)
     require(hio.iasType==ALARM)
-    if (!hio.actualValue.isDefined) {
+    if (hio.actualValue.value.isEmpty) {
       new AlarmValue()
     } else {
-      hio.actualValue.get.value.asInstanceOf[AlarmValue]
+      hio.actualValue.value.get
     }
   }
   
   /**
    * @see ScalaTransferExecutor#eval
    */
-  def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
+  def eval(compInputs: Map[String, InOut[_]], actualOutput: InOut[AlarmValue]): InOut[AlarmValue] = {
     if (compInputs.size!=1) throw new UnexpectedNumberOfInputsException(compInputs.size,1)
     if (actualOutput.iasType!=ALARM) throw new TypeMismatchException(actualOutput.id.runningID,actualOutput.iasType,ALARM)
     
@@ -142,12 +142,12 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
     val hio = compInputs.values.head
     
     val hioValue: Double = hio.iasType match {
-      case LONG => hio.actualValue.get.value.asInstanceOf[Long].toDouble
-      case INT => hio.actualValue.get.value.asInstanceOf[Int].toDouble
-      case SHORT => hio.actualValue.get.value.asInstanceOf[Short].toDouble
-      case BYTE => hio.actualValue.get.value.asInstanceOf[Byte].toDouble
-      case DOUBLE => hio.actualValue.get.value.asInstanceOf[Double]
-      case FLOAT => hio.actualValue.get.value.asInstanceOf[Float].toDouble
+      case LONG => hio.actualValue.value.asInstanceOf[Long].toDouble
+      case INT => hio.actualValue.value.get.asInstanceOf[Int].toDouble
+      case SHORT => hio.actualValue.value.get.asInstanceOf[Short].toDouble
+      case BYTE => hio.actualValue.value.get.asInstanceOf[Byte].toDouble
+      case DOUBLE => hio.actualValue.value.get.asInstanceOf[Double]
+      case FLOAT => hio.actualValue.value.get.asInstanceOf[Float].toDouble
       case _ => throw new TypeMismatchException(hio.id.runningID,hio.iasType,List(LONG,INT,SHORT,BYTE,DOUBLE,FLOAT))
     }
     
@@ -156,14 +156,14 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
       val newValue = AlarmValue.transition(actualOutputValue,new Set())
       newValue match {
         case Left(ex) => throw ex
-        case Right(alarm) => actualOutput.updateValue(alarm) 
+        case Right(alarm) => actualOutput.updateValue(Option(alarm)) 
       }
     } else if (hioValue<highOff && hioValue>lowOff) {
       val actualOutputValue=getAlarmValue(actualOutput)
       val newValue = AlarmValue.transition(actualOutputValue,new Clear())
       newValue match {
         case Left(ex) => throw ex
-        case Right(alarm) => actualOutput.updateValue(alarm) 
+        case Right(alarm) => actualOutput.updateValue(Option(alarm)) 
       }
     } else {
       actualOutput

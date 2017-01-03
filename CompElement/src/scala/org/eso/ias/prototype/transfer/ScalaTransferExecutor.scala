@@ -1,13 +1,13 @@
 package org.eso.ias.prototype.transfer
 
 import java.util.Properties
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 
 /**
  * The <code>ScalaTransferExecutor<code> provides the interface
  * for scala implementators of the transfer function.
  */
-abstract class ScalaTransferExecutor(cEleId: String, cEleRunningId: String, props: Properties) 
+abstract class ScalaTransferExecutor[T](cEleId: String, cEleRunningId: String, props: Properties) 
 extends TransferExecutor(cEleId,cEleRunningId,props) {
   
   /**
@@ -22,6 +22,6 @@ extends TransferExecutor(cEleId,cEleRunningId,props) {
 	 * @param actualOutput: the actual output of the ASCE
 	 * @return the computed value to set as output of the ASCE
 	 */
-	def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut
+	def eval(compInputs: Map[String, InOut[_]], actualOutput: InOut[T]): InOut[T]
   
 }
