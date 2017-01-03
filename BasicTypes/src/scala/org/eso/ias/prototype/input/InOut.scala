@@ -6,23 +6,27 @@ import org.eso.ias.prototype.input.java.IASTypes._
 import org.eso.ias.prototype.input.java.IASTypes
 
 /**
- * A  <code>IasInOut</code> holds the value of an input or output 
+ * A  <code>InOut</code> holds the value of an input or output 
  * of the IAS.
  * Objects of this type constitutes both the input of ASCEs and the output 
  * they produce.
  * 
- * The type of a IasInOut a double, an integer, an
+ * The type of a InOut can be a double, an integer, an
  * array of integers and many other customized types.
  * 
- * <code>IasInOut</code> is immutable.
+ * The actual value is an Option because there is no
+ * value associated before it comes for example from the HW. 
+ * Nevertheless the <code>InOut</code> exists
  * 
- * @param actualValue: the actual value of this IasInOut (can be undefined) 
+ * <code>InOut</code> is immutable.
+ * 
+ * @param actualValue: the actual value of this InOut (can be undefined) 
  * @param id: The unique ID of the monitor point
  * @param refreshRate: The expected refresh rate (msec) of this monitor point
  *                     (to be used to assess its validity)
  * @param mode: The operational mode
  * @param validity: The validity of the monitor point
- * @param theType: is the IAS type of this IasInOut
+ * @param iasType: is the IAS type of this InOut
  * 
  * @see IASType
  * 
@@ -43,52 +47,20 @@ case class InOut[A](
   val  actualValue: InOutValue[A] = new InOutValue(value)
   if (actualValue.value.isDefined) require(InOut.checkType(actualValue.value.get,iasType),"Type mismatch: ["+actualValue.value.get+"] is not "+iasType)
   
+  /**
+   * Auxiliary constructor for the case when the InOut has no value
+   * associated
+   * 
+   * @param id: The unique ID of the monitor point
+   * @param refreshRate: The expected refresh rate (msec) of this monitor point
+   *                     (to be used to assess its validity)
+ * @param iasType: is the IAS type of this InOut
+   */
   def this(id: Identifier,
     refreshRate: Int,
     iasType: IASTypes) {
     this(None,id,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType)
   }
-  
-//  /**
-//   * The hashCode is calculated only once when needed
-//   */
-//  lazy val hashCodeValue: Int = {
-//    var temp = 19
-//    temp += 31*temp + refreshRate
-//    temp += 31*temp + mode.ordinal()
-//    temp += 31*temp + validity.id
-//    temp += 31*temp + actualValue.hashCode()
-//    temp += 31*temp + id.hashCode()
-//    temp += 31*temp + iasType.ordinal()
-//    temp
-//  }
-  
-  //  /**
-  //   * Redefine the hashCode in terms of the values
-  //   * of the properties.
-  //   * 
-  //   * @see #equals(other: Any)
-  //   */
-  //  override def hashCode = hashCodeValue
-  //  
-  //  /**
-  //   * In IAS semantic 2 values are equal if and only
-  //   * if the values of the properties the same.
-  //   * 
-  //   * @see #hashCode
-  //   */
-  //  override def equals(other: Any): Boolean = {
-  //    other match {
-  //      case that: HeteroInOut => 
-  //        this.iasType==that.iasType &&
-  //        this.mode==that.mode && 
-  //        this.validity == that.validity &&
-  //        this.actualValue == that.actualValue &&
-  //        this.id == that.id &&
-  //        this.refreshRate == that.refreshRate
-  //      case _ => false
-  //    }
-  //  }
   
   override def toString(): String = {
     "Monitor point " + id.toString() +" of IAS type " +iasType+"\n\t" +  
@@ -119,7 +91,7 @@ case class InOut[A](
    * 
    * @param newValue: The new value of the monitor point
    * @param valid: the new validity
-   * @return A new IasInOut with updated value and validity
+   * @return A new InOut with updated value and validity
    */
   def update(newValue: Option[A], valid: Validity.Value): InOut[A] = {
     if (newValue==actualValue.value && valid==validity) this 
@@ -138,7 +110,7 @@ case class InOut[A](
 }
 
 /** 
- *  IasInOut companion object
+ *  InOut companion object
  */
 object InOut {
   
@@ -179,50 +151,4 @@ object InOut {
     InOut[T](None,id,refreshRate,OperationalMode.UNKNOWN,Validity.Unreliable,iasType)
   }
 
-  
-//  /**
-//   * Factory method to build a new IasInOut
-//   * 
-//   * @param actualValue: The value
-//   * @param ident: The unique ID of the monitor point
-//   * @param refreshRate: The expected refresh rate of the MP
-//	 * @param value: The value of the monitor point
-// 	 * @param mode: The operational mode
-// 	 * @param valid: The validity of the monitor point
-// 	 * @param iasType: The type of the monitor point
-//   */
-//  def apply[T](
-//      actualValue: InOutValue[T],
-//      ident: Identifier,
-//      refreshRate: Int,
-//      mode: OperationalMode= OperationalMode.UNKNOWN,
-//      validity: Validity.Value = Validity.Unreliable,
-//      iasType: IASTypes): Option[IasInOut[T]] = {
-//    (actualValue, iasType) match {
-//      case (None, _) => Some[IasInOut[T]](new InOutNone(ident,refreshRate,mode,validity,iasType))
-//      case (v: Some[InOutValue[T]], t) if checkType(v.get.value,t) => Option[IasInOut[T]](new InOut[T](v,ident,refreshRate,mode,validity,t))
-//      case (_, _) => None
-//    }
-    
-//    if (actualValue.isEmpty) {
-//      Some[IasInOut[T]](new InOutNone(ident,refreshRate,mode,validity,iasType))
-//    } else {
-//      val value = actualValue.get.value
-//       if (!checkType(value, iasType)) None
-//       else {
-//         iasType match {
-//          case LONG => Option[IasInOut[T]](new InOut[T](actualValue,ident,refreshRate,mode,validity,iasType)) 
-//          case INT => new InOut[Int](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Int; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case SHORT => new InOut[Short](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Short; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case BYTE => new InOut[Byte](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Byte; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case DOUBLE => new InOut[Double](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Double; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case FLOAT=> new InOut[Float](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Float; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case BOOLEAN => new InOut[Boolean](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Boolean; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case CHAR => new InOut[Char](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=Char; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case STRING => new InOut[String](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=String; val theValue= if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) }
-//          case ALARM => new InOut[AlarmValue](ident,refreshRate,mode,valid,iasType){type HeteroInOutType=AlarmValue; val theValue=if (value==None) None else Option[HeteroInOutType](value.asInstanceOf[HeteroInOutType]) } 
-//          case _ => None
-//    }
-//       }
-//    }
 }
