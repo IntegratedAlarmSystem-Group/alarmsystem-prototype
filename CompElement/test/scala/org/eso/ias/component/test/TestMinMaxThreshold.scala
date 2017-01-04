@@ -4,7 +4,7 @@ import org.scalatest.FlatSpec
 import org.eso.ias.prototype.transfer.TransferFunctionSetting
 import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.java.IASTypes
@@ -16,6 +16,8 @@ import org.eso.ias.prototype.input.AlarmState
 import java.util.Properties
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTFJava
+import org.eso.ias.prototype.transfer.ScalaTransfer
+import org.eso.ias.prototype.transfer.JavaTransfer
 
 class TestMinMaxThreshold extends FlatSpec {
   
@@ -51,7 +53,7 @@ class TestMinMaxThreshold extends FlatSpec {
     }
   }
   
-  def withScalaComp(testCode: (ComputingElement, MutableMap[String, HeteroInOut]) => Any) {
+  def withScalaComp(testCode: (ComputingElement[AlarmValue], MutableMap[String, InOut[_]]) => Any) {
     val commons = new CommonCompBuilder(
         "TestMinMAxThreshold-DASU-ID",
         "TestMinMAxThreshold-ASCE-ID",
@@ -73,13 +75,13 @@ class TestMinMaxThreshold extends FlatSpec {
     props.put(MinMaxThresholdTF.lowOffPropName, "-10")
     props.put(MinMaxThresholdTF.lowOnPropName, "-20")
     
-    val scalaComp: ComputingElement = new ComputingElement(
+    val scalaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        commons.compID,
-       commons.output,
+       commons.output.asInstanceOf[InOut[AlarmValue]],
        commons.requiredInputIDs,
        commons.inputsMPs,
        scalaTFSetting,
-       Some[Properties](props))
+       Some[Properties](props)) with ScalaTransfer[AlarmValue]
     
     try {
       testCode(scalaComp,commons.inputsMPs)
@@ -88,7 +90,7 @@ class TestMinMaxThreshold extends FlatSpec {
     }
   }
   
-  def withJavaComp(testCode: (ComputingElement, MutableMap[String, HeteroInOut]) => Any) {
+  def withJavaComp(testCode: (ComputingElement[AlarmValue], MutableMap[String, InOut[_]]) => Any) {
     val commons = new CommonCompBuilder(
         "TestMinMAxThreshold-DASU-ID",
         "TestMinMAxThreshold-ASCE-ID",
@@ -110,13 +112,13 @@ class TestMinMaxThreshold extends FlatSpec {
     props.put(MinMaxThresholdTFJava.lowOffPropName, "-10")
     props.put(MinMaxThresholdTFJava.lowOnPropName, "-20")
     
-    val javaComp: ComputingElement = new ComputingElement(
+    val javaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        commons.compID,
-       commons.output,
+       commons.output.asInstanceOf[InOut[AlarmValue]],
        commons.requiredInputIDs,
        commons.inputsMPs,
        javaTFSetting,
-       Some[Properties](props))
+       Some[Properties](props)) with JavaTransfer[AlarmValue]
     
     try {
       testCode(javaComp,commons.inputsMPs)
@@ -146,13 +148,13 @@ class TestMinMaxThreshold extends FlatSpec {
    * @param hio: the HIO to check the alarm state
    * @param alarmState: The state of the alarm
    */
-  def checkState(asce: ComputingElement, alarmState: AlarmState.State): Boolean = {
+  def checkState(asce: ComputingElement[AlarmValue], alarmState: AlarmState.State): Boolean = {
     assert(asce.isAlarmComponent)
     val hio = asce.output
     assert(hio.iasType==IASTypes.ALARM)
     
-    hio.actualValue.isDefined && 
-    hio.actualValue.get.value.asInstanceOf[AlarmValue].alarmState==alarmState
+    hio.actualValue.value.isDefined && 
+    hio.actualValue.value.get.asInstanceOf[AlarmValue].alarmState==alarmState
     
   }
   
@@ -161,53 +163,53 @@ class TestMinMaxThreshold extends FlatSpec {
     scalaComp.initialize(stpe)
     Thread.sleep(1000)
     // Change the input to trigger the TF
-    val changedMP = inputsMPs(inputsMPs.keys.head).updateValue(5L)
+    val changedMP = inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(5L))
     scalaComp.inputChanged(Some(changedMP))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Cleared))
     
     // Activate high
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(100L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(100L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Active))
     
     // Increase does not deactivate the alarm
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(150L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(150L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Active))
     
     // Decreasing without passing HighOn does not deactivate
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(40L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(40L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Active))
     
     // Below HighOff deactivate the alarm
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(10L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(10L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Cleared))
     
     // Below LowOff but not passing LowOn does not activate
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-15L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Cleared))
     
     // Passing LowOn activate
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-30L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-30L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Active))
     
     // Decreasing more remain activate
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-40L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-40L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Active))
     
     // Increasing but not passing LowOff remains active
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-15L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Active))
     
     // Passing LowOff deactivate
-    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(0L)))
+    scalaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(0L))))
     Thread.sleep(2500)
     assert(checkState(scalaComp,AlarmState.Cleared))
   }
@@ -232,53 +234,53 @@ class TestMinMaxThreshold extends FlatSpec {
     javaComp.initialize(stpe)
     Thread.sleep(1000)
     // Change the input to trigger the TF
-    val changedMP = inputsMPs(inputsMPs.keys.head).updateValue(5L)
+    val changedMP = inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(5L))
     javaComp.inputChanged(Some(changedMP))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Cleared))
     
     // Activate high
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(100L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(100L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Active))
     
     // Increase does not deactivate the alarm
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(150L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(150L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Active))
     
     // Decreasing without passing HighOn does not deactivate
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(40L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(40L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Active))
     
     // Below HighOff deactivate the alarm
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(10L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(10L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Cleared))
     
     // Below LowOff but not passing LowOn does not activate
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-15L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Cleared))
     
     // Passing LowOn activate
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-30L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-30L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Active))
     
     // Decreasing more remain activate
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-40L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-40L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Active))
     
     // Increasing but not passing LowOff remains active
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(-15L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(-15L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Active))
     
     // Passing LowOff deactivate
-    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).updateValue(0L)))
+    javaComp.inputChanged(Some(inputsMPs(inputsMPs.keys.head).asInstanceOf[InOut[Long]].updateValue(Some(0L))))
     Thread.sleep(2500)
     assert(checkState(javaComp,AlarmState.Cleared))
   }

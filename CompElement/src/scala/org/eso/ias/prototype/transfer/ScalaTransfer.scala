@@ -1,7 +1,7 @@
 package org.eso.ias.prototype.transfer
 
-import org.eso.ias.prototype.compele.ComputingElementBase
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.compele.ComputingElement
+import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.input.Identifier
 import java.util.Properties
 
@@ -13,27 +13,20 @@ import java.util.Properties
  * Note that the Validity of the output is not set by the transfer function
  * but automatically implemented by the ASCE
  */
-trait ScalaTransfer extends ComputingElementBase {
+trait ScalaTransfer[T] extends ComputingElement[T] {
   
   /**
-   * Check if the TF is scala, intialized, not shutdown
+   * The programming language of this TF 
    */
-  def canRunTheScalaTF = 
-    tfSetting.initialized &&
-    tfSetting.transferExecutor.isDefined && 
-    tfSetting.language==TransferFunctionLanguage.scala &&
-    !tfSetting.isShutDown
+  val tfLanguage = TransferFunctionLanguage.java
   
-  abstract override def transfer(
-      inputs: Map[String, HeteroInOut], 
+  def transfer(
+      inputs: Map[String, InOut[_]], 
       id: Identifier,
-      actualOutput: HeteroInOut): Either[Exception,HeteroInOut] = {
-     if (canRunTheScalaTF) {
-       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor].eval(inputs,actualOutput)
-      super.transfer(inputs, id, newOutput)
-    } else {
-      super.transfer(inputs, id, actualOutput)
-    }
+      actualOutput: InOut[T]): Either[Exception,InOut[T]] = {
+    
+    try Right(tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor[T]].eval(inputs,actualOutput))
+    catch { case e:Exception => Left(e) } 
   }
   
 }

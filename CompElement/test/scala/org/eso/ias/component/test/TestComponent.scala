@@ -2,7 +2,6 @@ package org.eso.ias.component.test
 
 import org.scalatest.FlatSpec
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.compele.ComputingElement
 import org.eso.ias.prototype.input.AlarmValue
 import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
@@ -10,12 +9,15 @@ import org.eso.ias.prototype.input.AlarmState
 import org.eso.ias.prototype.input.AckState
 import scala.collection.mutable.HashMap
 import org.eso.ias.prototype.input.java.IASTypes
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.transfer.TransferFunctionSetting
 import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.Properties
 import org.eso.ias.prototype.compele.CompEleThreadFactory
+import org.eso.ias.prototype.compele.ComputingElement
+import org.eso.ias.prototype.transfer.ScalaTransfer
+import org.eso.ias.prototype.transfer.JavaTransfer
 
 /**
  * Test the basic functionalities of the IAS Component,
@@ -32,7 +34,7 @@ class TestComponent extends FlatSpec {
   // The ID of the component to test
   val compId = new Identifier(Some[String]("ComponentId"), Option[Identifier](dasId))
   
-  val mpRefreshRate = HeteroInOut.MinRefreshRate+50
+  val mpRefreshRate = InOut.MinRefreshRate+50
   
   // The IDs of the monitor points in input 
   // to pass when building a Component
@@ -40,32 +42,32 @@ class TestComponent extends FlatSpec {
   
   // The ID of the first MP
   val mpI1Identifier = new Identifier(Some[String](requiredInputIDs(0)), Option[Identifier](compId))
-  val mp1 = HeteroInOut(
+  val mp1 = InOut[AlarmValue](
+      None,
       mpI1Identifier,
       mpRefreshRate,
-      None, 
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
   
   // The ID of the second MP
   val mpI2Identifier = new Identifier(Some[String](requiredInputIDs(1)), Option[Identifier](compId))
-  val mp2 = HeteroInOut(
+  val mp2 = InOut[AlarmValue](
+      None,
       mpI2Identifier,
       mpRefreshRate,
-      None, 
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
-  val actualInputs: MutableMap[String, HeteroInOut] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
+  val actualInputs: MutableMap[String, InOut[_]] = MutableMap(mp1.id.id.get -> mp1,mp2.id.id.get -> mp2)
   
   behavior of "A Component"
   
   it must "be correctly initialized" in {
-    val output = HeteroInOut(
+    val output = InOut[AlarmValue](
+      None,
       outId,
       mpRefreshRate,
-      None,
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
@@ -75,24 +77,24 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadaFactory)
-    val comp: ComputingElement = new ComputingElement(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     assert(comp.id==compId)
     assert(comp.inputs.size==requiredInputIDs.size)
     assert(comp.output.id==outId)
   }
   
-  it must "not allow to shelve a None AlarmValue" in {
-    val output = HeteroInOut(
+  it must "skip to shelve a None AlarmValue" in {
+    val output = InOut[AlarmValue](
+      None,
       outId,
       mpRefreshRate,
-      None, 
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
@@ -102,23 +104,22 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElement = new ComputingElement(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.shelve(true);
-    }
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
+    comp.shelve(true);
+    assert(comp.output.actualValue.value.isEmpty)
   }
   
-  it must "not allow to shelve a Non-AlarmValue output" in {
-    val output = HeteroInOut(
+  it must "skip to shelve a Non-AlarmValue output" in {
+    val output = InOut[Long](
+      None,
       outId,
       mpRefreshRate,
-      None, 
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.LONG)
@@ -128,24 +129,23 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElement = new ComputingElement(
+    val comp: ComputingElement[Long] = new ComputingElement[Long](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.shelve(true);
-    }
+       Some[Properties](new Properties())) with JavaTransfer[Long]
+    comp.shelve(true);
+    assert(comp.output.actualValue.value.isEmpty)
   }
   
   it must "shelve AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val output = HeteroInOut(
+    val output = InOut(
+      Some(alarmVal),
       outId,
       mpRefreshRate,
-      alarmVal, 
       OperationalMode.OPERATIONAL,
       Validity.Unreliable,
       IASTypes.ALARM)
@@ -154,26 +154,26 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElement = new ComputingElement(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     comp.shelve(true);
     
-    val shelvedVal = comp.output.actualValue.get.value.asInstanceOf[AlarmValue]
+    val shelvedVal = comp.output.actualValue.value.get.asInstanceOf[AlarmValue]
     assert(shelvedVal.shelved)
     
   }
   
-  it must "not allow to ack a None AlarmValue" in {
-    val output = HeteroInOut(
+  it must "skip to ack a None AlarmValue" in {
+    val output = InOut[AlarmValue](
+      None,
       outId,
       mpRefreshRate,
-      None, 
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.ALARM)
@@ -183,23 +183,22 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElement= new ComputingElement(
+    val comp: ComputingElement[AlarmValue]= new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.ack();
-    }
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
+    comp.ack();
+    assert(comp.output.actualValue.value.isEmpty) 
   }
   
-  it must "not allow to ack a Non-AlarmValue output" in {
-    val output = HeteroInOut(
+  it must "skip to ack a Non-AlarmValue output" in {
+    val output = InOut[Long](
+      None,
       outId,
       mpRefreshRate,
-      None, 
       OperationalMode.UNKNOWN,
       Validity.Unreliable,
       IASTypes.LONG)
@@ -209,24 +208,23 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElement = new ComputingElement(
+    val comp: ComputingElement[Long] = new ComputingElement[Long](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.ack() 
-    }
+       Some[Properties](new Properties())) with JavaTransfer[Long]
+    comp.ack() 
+    assert(comp.output.actualValue.value.isEmpty)
   }
   
   it must "ack an AlarmValue output" in {
     val alarmVal = new AlarmValue(AlarmState.Active,false,AckState.Acknowledged)
-    val output = HeteroInOut(
+    val output = InOut(
+      Some(alarmVal),
       outId,
       mpRefreshRate,
-      alarmVal, 
       OperationalMode.OPERATIONAL,
       Validity.Unreliable,
       IASTypes.ALARM)
@@ -236,17 +234,17 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElement = new ComputingElement(
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     comp.ack()
     
-    val ackedVal = comp.output.actualValue.get.value.asInstanceOf[AlarmValue]
+    val ackedVal = comp.output.actualValue.value.get.asInstanceOf[AlarmValue]
     assert(ackedVal.acknowledgement==AckState.Acknowledged)
   }
   

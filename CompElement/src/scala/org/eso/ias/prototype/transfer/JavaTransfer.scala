@@ -1,8 +1,8 @@
 package org.eso.ias.prototype.transfer
 
 import org.eso.ias.prototype.input.Identifier
-import org.eso.ias.prototype.input.HeteroInOut
-import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.input.InOut
+import org.eso.ias.prototype.compele.ComputingElement
 import org.eso.ias.prototype.input.AlarmValue
 import java.util.Properties
 import java.util.{Map => JavaMap, HashMap => JavaHashMap}
@@ -17,30 +17,26 @@ import org.eso.ias.prototype.input.java.IASValueBase
  * Note that the Validity of the output is not set by the transfer function
  * but automatically implemented by the ASCE
  */
-trait JavaTransfer extends ComputingElementBase {
+trait JavaTransfer[T] extends ComputingElement[T] {
+  
+  /**
+   * The programming language of this TF 
+   */
+  val tfLanguage = TransferFunctionLanguage.java
   
   /**
    * Flush the scala Map into a Java Map
    */
   private[this] def flushOnJavaMap(
-      inputs: Map[String, HeteroInOut]): JavaMap[String, IASValueBase] = {
+      inputs: Map[String, InOut[_]]): JavaMap[String, IASValueBase] = {
     val map: JavaMap[String, IASValueBase] = new JavaHashMap[String, IASValueBase]()
     for (key <-inputs.keySet) {
       val hio = inputs(key)
-      val iasVal = JavaConverter.hioToIASValue(hio)
+      val iasVal = JavaConverter.inOutToIASValue(hio)
       map.put(key,iasVal)
     }
     map
   }
-  
-  /**
-   * Check if the TF is java, intialized, not shutdown
-   */
-  private[this] def canRunTheJavaTF = 
-    tfSetting.initialized &&
-    tfSetting.transferExecutor.isDefined && 
-    tfSetting.language==TransferFunctionLanguage.java &&
-    !tfSetting.isShutDown
   
   /**
    * scala data structs need to be converted before invoking
@@ -48,17 +44,20 @@ trait JavaTransfer extends ComputingElementBase {
    * 
    * @see ComputingElementBase#transfer
    */
-  abstract override def transfer(
-      inputs: Map[String, HeteroInOut], 
+  def transfer(
+      inputs: Map[String, InOut[_]], 
       id: Identifier,
-      actualOutput: HeteroInOut): Either[Exception,HeteroInOut] = {
-    if (canRunTheJavaTF) {
+      actualOutput: InOut[T]): Either[Exception,InOut[T]] = {
+    
+    val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
+    val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.inOutToIASValue(actualOutput))
+    val x=JavaConverter.updateHIOWithIasValue(actualOutput, newOutput).asInstanceOf[InOut[T]]
+    try { 
       val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
-      val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.hioToIASValue(actualOutput))
-      super.transfer(inputs, id, JavaConverter.updateHIOWithIasValue(actualOutput, newOutput))
-    } else {
-      super.transfer(inputs, id, actualOutput)
-    }
+      val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.inOutToIASValue(actualOutput))
+      Right(JavaConverter.updateHIOWithIasValue(actualOutput, newOutput).asInstanceOf[InOut[T]])
+    
+    } catch { case e:Exception => Left(e) }
   }
   
 }

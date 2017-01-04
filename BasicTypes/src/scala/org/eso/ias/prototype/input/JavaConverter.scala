@@ -22,41 +22,41 @@ import org.eso.ias.prototype.input.java.IasBool
 object JavaConverter {
   
   /**
-   * Convert a scala HIO in a java IASValue
+   * Convert a scala InOut in a java IASValue
    * 
    * @param hio: the HIO to convert to java IASValue
    * @return The java value version of the passed HIO 
    */
-  def hioToIASValue[T](hio: HeteroInOut): IASValueBase = {
-    require(Option[HeteroInOut](hio).isDefined)
+  def inOutToIASValue[T](io: InOut[_]): IASValueBase = {
+    require(Option[InOut[_]](io).isDefined)
     
-    val ret = if (!hio.actualValue.isDefined) {
-      hio.iasType match {
-        case LONG => new IasLong(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case INT => new IasInt(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case SHORT => new IasShort(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case BYTE => new IasByte(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case DOUBLE => new IasDouble(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case FLOAT => new IasFloat(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case BOOLEAN => new IasBool(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case CHAR => new IasChar(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case STRING => new IasString(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case ALARM=> new IasAlarm(null, Long.MinValue,hio.mode,hio.id.id.get,hio.id.runningID)
-        case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
+    val ret = if (io.actualValue.value.isEmpty) {
+      io.iasType match {
+        case LONG => new IasLong(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case INT => new IasInt(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case SHORT => new IasShort(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case BYTE => new IasByte(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case DOUBLE => new IasDouble(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case FLOAT => new IasFloat(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case BOOLEAN => new IasBool(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case CHAR => new IasChar(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case STRING => new IasString(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case ALARM=> new IasAlarm(null, Long.MinValue,io.mode,io.id.id.get,io.id.runningID)
+        case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+io.iasType)
       }
     } else {
-      hio.iasType match {
-        case LONG => new IasLong(hio.actualValue.get.value.asInstanceOf[Long], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case INT => new IasInt(hio.actualValue.get.value.asInstanceOf[Int], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case SHORT => new IasShort(hio.actualValue.get.value.asInstanceOf[Short], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case BYTE => new IasByte(hio.actualValue.get.value.asInstanceOf[Byte], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case DOUBLE => new IasDouble(hio.actualValue.get.value.asInstanceOf[Double], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case FLOAT => new IasFloat(hio.actualValue.get.value.asInstanceOf[Float], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case BOOLEAN => new IasBool(hio.actualValue.get.value.asInstanceOf[Boolean], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case CHAR => new IasChar(hio.actualValue.get.value.asInstanceOf[Char], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case STRING => new IasString(hio.actualValue.get.value.asInstanceOf[String], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case ALARM=> new IasAlarm(hio.actualValue.get.value.asInstanceOf[AlarmValue], hio.actualValue.get.timestamp,hio.mode,hio.id.id.get,hio.id.runningID)
-        case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
+      io.iasType match {
+        case LONG => new IasLong(io.actualValue.value.get.asInstanceOf[Long], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case INT => new IasInt(io.actualValue.value.get.asInstanceOf[Int], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case SHORT => new IasShort(io.actualValue.value.get.asInstanceOf[Short], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case BYTE => new IasByte(io.actualValue.value.get.asInstanceOf[Byte], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case DOUBLE => new IasDouble(io.actualValue.value.get.asInstanceOf[Double], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case FLOAT => new IasFloat(io.actualValue.value.get.asInstanceOf[Float], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case BOOLEAN => new IasBool(io.actualValue.value.get.asInstanceOf[Boolean], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case CHAR => new IasChar(io.actualValue.value.get.asInstanceOf[Char], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case STRING => new IasString(io.actualValue.value.get.asInstanceOf[String], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case ALARM=> new IasAlarm(io.actualValue.value.get.asInstanceOf[AlarmValue], io.actualValue.timestamp,io.mode,io.id.id.get,io.id.runningID)
+        case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+io.iasType)
       }
     }
     ret.asInstanceOf[IASValueBase]
@@ -67,18 +67,18 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IASValueBase): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[_], iasValue: IASValueBase): InOut[_] = {
     hio.iasType match {
-      case LONG => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasLong])
-      case INT => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasInt])
-      case SHORT => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasShort])
-      case BYTE => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasByte])
-      case DOUBLE => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasDouble])
-      case FLOAT => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasFloat])
-      case BOOLEAN => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasBool])
-      case CHAR => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasChar])
-      case STRING => updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasString])
-      case ALARM=> updateHIOWithIasValue(hio,iasValue.asInstanceOf[IasAlarm])
+      case LONG => updateHIOWithIasValue(hio.asInstanceOf[InOut[Long]], iasValue.asInstanceOf[IasLong])
+      case INT => updateHIOWithIasValue(hio.asInstanceOf[InOut[Int]],iasValue.asInstanceOf[IasInt])
+      case SHORT => updateHIOWithIasValue(hio.asInstanceOf[InOut[Short]],iasValue.asInstanceOf[IasShort])
+      case BYTE => updateHIOWithIasValue(hio.asInstanceOf[InOut[Byte]],iasValue.asInstanceOf[IasByte])
+      case DOUBLE => updateHIOWithIasValue(hio.asInstanceOf[InOut[Double]],iasValue.asInstanceOf[IasDouble])
+      case FLOAT => updateHIOWithIasValue(hio.asInstanceOf[InOut[Float]],iasValue.asInstanceOf[IasFloat])
+      case BOOLEAN => updateHIOWithIasValue(hio.asInstanceOf[InOut[Boolean]],iasValue.asInstanceOf[IasBool])
+      case CHAR => updateHIOWithIasValue(hio.asInstanceOf[InOut[Char]],iasValue.asInstanceOf[IasChar])
+      case STRING => updateHIOWithIasValue(hio.asInstanceOf[InOut[String]],iasValue.asInstanceOf[IasString])
+      case ALARM=> updateHIOWithIasValue(hio.asInstanceOf[InOut[AlarmValue]],iasValue.asInstanceOf[IasAlarm])
       case _ => throw new UnsupportedOperationException("Unsupported IAS type: "+hio.iasType)
     }
   }
@@ -89,7 +89,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasLong): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Long], iasValue: IasLong): InOut[Long] = {
     JavaConverter.updateHIOWithIasValue[Long](hio, iasValue.asInstanceOf[IASValue[Long]])
   }
   
@@ -98,7 +98,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasInt): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Int], iasValue: IasInt): InOut[Int] = {
     JavaConverter.updateHIOWithIasValue[Int](hio, iasValue.asInstanceOf[IASValue[Int]])
   }
   
@@ -107,7 +107,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasShort): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Short], iasValue: IasShort): InOut[Short] = {
     JavaConverter.updateHIOWithIasValue[Short](hio, iasValue.asInstanceOf[IASValue[Short]])
   }
   
@@ -116,7 +116,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasByte): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Byte], iasValue: IasByte): InOut[Byte] = {
     JavaConverter.updateHIOWithIasValue[Byte](hio, iasValue.asInstanceOf[IASValue[Byte]])
   }
   
@@ -125,7 +125,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasDouble): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Double], iasValue: IasDouble): InOut[Double] = {
     JavaConverter.updateHIOWithIasValue[Double](hio, iasValue.asInstanceOf[IASValue[Double]])
   }
   
@@ -134,7 +134,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasFloat): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Float], iasValue: IasFloat): InOut[Float] = {
     JavaConverter.updateHIOWithIasValue[Float](hio, iasValue.asInstanceOf[IASValue[Float]])
   }
   
@@ -143,7 +143,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasBool): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Boolean], iasValue: IasBool): InOut[Boolean] = {
     JavaConverter.updateHIOWithIasValue[Boolean](hio, iasValue.asInstanceOf[IASValue[Boolean]])
   }
   
@@ -152,7 +152,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasChar): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[Char], iasValue: IasChar): InOut[Char] = {
     JavaConverter.updateHIOWithIasValue[Char](hio, iasValue.asInstanceOf[IASValue[Char]])
   }
   
@@ -161,7 +161,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasString): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[String], iasValue: IasString): InOut[String] = {
     JavaConverter.updateHIOWithIasValue[String](hio, iasValue.asInstanceOf[IASValue[String]])
   }
   
@@ -170,7 +170,7 @@ object JavaConverter {
    * 
    * @see #updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T])
    */
-  def updateHIOWithIasValue(hio: HeteroInOut, iasValue: IasAlarm): HeteroInOut = {
+  def updateHIOWithIasValue(hio: InOut[AlarmValue], iasValue: IasAlarm): InOut[AlarmValue] = {
     JavaConverter.updateHIOWithIasValue[AlarmValue](hio, iasValue.asInstanceOf[IASValue[AlarmValue]])
   }
   
@@ -181,8 +181,8 @@ object JavaConverter {
    * @param iasValue: the java value to update the passed scala HIO
    * @return The hio updated with the passed java value
    */
-  private def updateHIOWithIasValue[T](hio: HeteroInOut, iasValue: IASValue[T]): HeteroInOut = {
-    assert(Option[HeteroInOut](hio).isDefined)
+  private def updateHIOWithIasValue[T](hio: InOut[T], iasValue: IASValue[T]): InOut[T] = {
+    assert(Option[InOut[T]](hio).isDefined)
     assert(Option[IASValueBase](iasValue).isDefined)
     // Some consistency check
     if (hio.iasType!=iasValue.valueType) {
@@ -195,7 +195,6 @@ object JavaConverter {
       throw new IllegalStateException("Running ID mismatch for HIO "+hio.id.runningID+": "+hio.id.runningID+"!="+iasValue.runningId)
     }
     // Finally, update the HIO
-    hio.updateMode(iasValue.mode).updateValue(iasValue.asInstanceOf[IASValue[T]].value)
-    
+    hio.updateMode(iasValue.mode).updateValue(Option[T](iasValue.value))
   }
 }

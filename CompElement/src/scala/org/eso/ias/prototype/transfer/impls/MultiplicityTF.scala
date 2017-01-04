@@ -3,7 +3,7 @@ package org.eso.ias.prototype.transfer.impls
 import org.eso.ias.prototype.transfer.ScalaTransferExecutor
 import org.eso.ias.prototype.input.java.IASTypes._
 import java.util.Properties
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.compele.exceptions.PropNotFoundException
 import org.eso.ias.prototype.compele.exceptions.WrongPropValue
 import scala.util.control.NonFatal
@@ -26,7 +26,7 @@ import org.eso.ias.prototype.input.Set
  * @author acaproni
  */
 class MultiplicityTF (cEleId: String, cEleRunningId: String, props: Properties) 
-extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
+extends ScalaTransferExecutor[AlarmValue](cEleId,cEleRunningId,props) {
   
   /**
    * A little bit too verbose but wanted to catch all the 
@@ -68,7 +68,7 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
   /**
    * @see ScalaTransferExecutor#eval
    */
-  def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
+  def eval(compInputs: Map[String, InOut[_]], actualOutput: InOut[AlarmValue]): InOut[AlarmValue] = {
     if (compInputs.size<threshold) throw new UnexpectedNumberOfInputsException(compInputs.size,threshold)
     if (actualOutput.iasType!=ALARM) throw new TypeMismatchException(actualOutput.id.runningID,actualOutput.iasType,ALARM)
     for (hio <- compInputs.values
@@ -77,14 +77,17 @@ extends ScalaTransferExecutor(cEleId,cEleRunningId,props) {
     // Get the number of active alarms in input
     var activeAlarms=0
     val numOfActiveAlarms = for {
-      hio <- compInputs.values 
-      alarmValue = hio.actualValue.get.value.asInstanceOf[AlarmValue]
+      hio <- compInputs.values
+      if (hio.iasType==ALARM)
+      if (hio.actualValue.value.isDefined)
+      alarmValue = hio.actualValue.value.get.asInstanceOf[AlarmValue]
       if (alarmValue.alarmState==AlarmState.Active)} activeAlarms=activeAlarms+1
     
-    if (activeAlarms>=threshold) {  
-      actualOutput.updateValue(AlarmValue.transition(actualOutput.actualValue.get.value.asInstanceOf[AlarmValue], new Set()))
-    } else {
-      actualOutput.updateValue(AlarmValue.transition(actualOutput.actualValue.get.value.asInstanceOf[AlarmValue], new Clear()))
+    val event = if (activeAlarms>=threshold) new Set() else new Clear()
+    val ret: Either[Exception,AlarmValue] = AlarmValue.transition(actualOutput.actualValue.value.get.asInstanceOf[AlarmValue], event)
+    ret match {
+      case Left(e) => throw e
+      case Right(v) => actualOutput.updateValue(Some(v))
     }
   }
 }
