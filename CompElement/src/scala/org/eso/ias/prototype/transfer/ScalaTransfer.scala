@@ -1,6 +1,6 @@
 package org.eso.ias.prototype.transfer
 
-import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElement
 import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.input.Identifier
 import java.util.Properties
@@ -13,7 +13,7 @@ import java.util.Properties
  * Note that the Validity of the output is not set by the transfer function
  * but automatically implemented by the ASCE
  */
-trait ScalaTransfer[T] extends ComputingElementBase[T] {
+trait ScalaTransfer[T] extends ComputingElement[T] {
   
   /**
    * The programming language of this TF 

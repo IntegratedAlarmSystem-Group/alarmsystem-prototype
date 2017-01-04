@@ -15,7 +15,7 @@ import org.eso.ias.prototype.transfer.TransferFunctionSetting
 import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.Properties
 import org.eso.ias.prototype.compele.CompEleThreadFactory
-import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElement
 import org.eso.ias.prototype.transfer.ScalaTransfer
 import org.eso.ias.prototype.transfer.JavaTransfer
 
@@ -77,7 +77,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadaFactory)
-    val comp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
@@ -104,7 +104,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
@@ -129,7 +129,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElementBase[Long] = new ComputingElementBase[Long](
+    val comp: ComputingElement[Long] = new ComputingElement[Long](
        compId,
        output,
        requiredInputIDs,
@@ -154,7 +154,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
@@ -183,7 +183,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElementBase[AlarmValue]= new ComputingElementBase[AlarmValue](
+    val comp: ComputingElement[AlarmValue]= new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,
@@ -208,7 +208,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElementBase[Long] = new ComputingElementBase[Long](
+    val comp: ComputingElement[Long] = new ComputingElement[Long](
        compId,
        output,
        requiredInputIDs,
@@ -234,7 +234,7 @@ class TestComponent extends FlatSpec {
         "org.eso.ias.prototype.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val comp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val comp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compId,
        output,
        requiredInputIDs,

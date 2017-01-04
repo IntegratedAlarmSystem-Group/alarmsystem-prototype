@@ -2,7 +2,7 @@ package org.eso.ias.prototype.transfer
 
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.InOut
-import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElement
 import org.eso.ias.prototype.input.AlarmValue
 import java.util.Properties
 import java.util.{Map => JavaMap, HashMap => JavaHashMap}
@@ -17,7 +17,7 @@ import org.eso.ias.prototype.input.java.IASValueBase
  * Note that the Validity of the output is not set by the transfer function
  * but automatically implemented by the ASCE
  */
-trait JavaTransfer[T] extends ComputingElementBase[T] {
+trait JavaTransfer[T] extends ComputingElement[T] {
   
   /**
    * The programming language of this TF 

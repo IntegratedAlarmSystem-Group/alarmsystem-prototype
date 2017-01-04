@@ -6,7 +6,7 @@ import org.eso.ias.prototype.input.InOut
 import org.eso.ias.prototype.input.Identifier
 import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
-import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElement
 import org.eso.ias.prototype.input.java.IASTypes
 import scala.collection.mutable.{Map => MutableMap }
 import org.eso.ias.prototype.transfer.TransferFunctionSetting
@@ -84,7 +84,7 @@ class TestTransferFunction extends FlatSpec {
         "org.eso.ias.component.test.transfer.TransferExecutorImpl",
         TransferFunctionLanguage.java,
         threadFactory)
-    val javaComp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val javaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compID,
        output,
        requiredInputIDs,
@@ -98,7 +98,7 @@ class TestTransferFunction extends FlatSpec {
         "org.eso.ias.component.test.transfer.TransferExample",
         TransferFunctionLanguage.scala,
         threadFactory)
-    val scalaComp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val scalaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compID,
        output,
        requiredInputIDs,
@@ -111,7 +111,7 @@ class TestTransferFunction extends FlatSpec {
         "org.eso.ias.component.test.transfer.ThrowExceptionTF",
         TransferFunctionLanguage.scala,
         threadFactory)
-    val brokenTFScalaComp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val brokenTFScalaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        compID,
        output,
        requiredInputIDs,
@@ -127,7 +127,7 @@ class TestTransferFunction extends FlatSpec {
    * validities have this level.
    */
   it must "set the validity to the lower value" in new CompBuilder {
-    val component: ComputingElementBase[AlarmValue] = javaComp
+    val component: ComputingElement[AlarmValue] = javaComp
     javaComp.initialize(new ScheduledThreadPoolExecutor(2))
     assert(component.output.validity==Validity.Unreliable)
     

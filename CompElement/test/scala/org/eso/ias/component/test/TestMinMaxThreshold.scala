@@ -9,7 +9,7 @@ import org.eso.ias.prototype.input.java.OperationalMode
 import org.eso.ias.prototype.input.Validity
 import org.eso.ias.prototype.input.java.IASTypes
 import org.eso.ias.prototype.input.AlarmValue
-import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.compele.ComputingElement
 import scala.collection.mutable.{Map => MutableMap }
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import org.eso.ias.prototype.input.AlarmState
@@ -53,7 +53,7 @@ class TestMinMaxThreshold extends FlatSpec {
     }
   }
   
-  def withScalaComp(testCode: (ComputingElementBase[AlarmValue], MutableMap[String, InOut[_]]) => Any) {
+  def withScalaComp(testCode: (ComputingElement[AlarmValue], MutableMap[String, InOut[_]]) => Any) {
     val commons = new CommonCompBuilder(
         "TestMinMAxThreshold-DASU-ID",
         "TestMinMAxThreshold-ASCE-ID",
@@ -75,7 +75,7 @@ class TestMinMaxThreshold extends FlatSpec {
     props.put(MinMaxThresholdTF.lowOffPropName, "-10")
     props.put(MinMaxThresholdTF.lowOnPropName, "-20")
     
-    val scalaComp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val scalaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        commons.compID,
        commons.output.asInstanceOf[InOut[AlarmValue]],
        commons.requiredInputIDs,
@@ -90,7 +90,7 @@ class TestMinMaxThreshold extends FlatSpec {
     }
   }
   
-  def withJavaComp(testCode: (ComputingElementBase[AlarmValue], MutableMap[String, InOut[_]]) => Any) {
+  def withJavaComp(testCode: (ComputingElement[AlarmValue], MutableMap[String, InOut[_]]) => Any) {
     val commons = new CommonCompBuilder(
         "TestMinMAxThreshold-DASU-ID",
         "TestMinMAxThreshold-ASCE-ID",
@@ -112,7 +112,7 @@ class TestMinMaxThreshold extends FlatSpec {
     props.put(MinMaxThresholdTFJava.lowOffPropName, "-10")
     props.put(MinMaxThresholdTFJava.lowOnPropName, "-20")
     
-    val javaComp: ComputingElementBase[AlarmValue] = new ComputingElementBase[AlarmValue](
+    val javaComp: ComputingElement[AlarmValue] = new ComputingElement[AlarmValue](
        commons.compID,
        commons.output.asInstanceOf[InOut[AlarmValue]],
        commons.requiredInputIDs,
@@ -148,7 +148,7 @@ class TestMinMaxThreshold extends FlatSpec {
    * @param hio: the HIO to check the alarm state
    * @param alarmState: The state of the alarm
    */
-  def checkState(asce: ComputingElementBase[AlarmValue], alarmState: AlarmState.State): Boolean = {
+  def checkState(asce: ComputingElement[AlarmValue], alarmState: AlarmState.State): Boolean = {
     assert(asce.isAlarmComponent)
     val hio = asce.output
     assert(hio.iasType==IASTypes.ALARM)
