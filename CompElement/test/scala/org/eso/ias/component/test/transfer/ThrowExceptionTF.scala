@@ -2,7 +2,7 @@ package org.eso.ias.component.test.transfer
 
 import org.eso.ias.prototype.transfer.ScalaTransferExecutor
 import java.util.Properties
-import org.eso.ias.prototype.input.HeteroInOut
+import org.eso.ias.prototype.input.InOut
 
 /**
  * A transfer function that throws an exception: it allows to test if the
@@ -33,7 +33,7 @@ class ThrowExceptionTF(
   /**
    * This method does nothing but throwing an exception
    */
-  def eval(compInputs: Map[String, HeteroInOut], actualOutput: HeteroInOut): HeteroInOut = {
+  def eval(compInputs: Map[String, InOut[_]], actualOutput: InOut[Nothing]): InOut[Nothing] = {
     println("ThrowExceptionTF: Throwing exception!")
     throw new Exception("Exception from a broken TF");
   }
