@@ -16,6 +16,8 @@ import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 import java.util.Properties
 import org.eso.ias.prototype.compele.CompEleThreadFactory
 import org.eso.ias.prototype.compele.ComputingElementBase
+import org.eso.ias.prototype.transfer.ScalaTransfer
+import org.eso.ias.prototype.transfer.JavaTransfer
 
 /**
  * Test the basic functionalities of the IAS Component,
@@ -81,14 +83,14 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     assert(comp.id==compId)
     assert(comp.inputs.size==requiredInputIDs.size)
     assert(comp.output.id==outId)
   }
   
-  it must "not allow to shelve a None AlarmValue" in {
+  it must "skip to shelve a None AlarmValue" in {
     val output = InOut[AlarmValue](
       None,
       outId,
@@ -108,13 +110,12 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.shelve(true);
-    }
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
+    comp.shelve(true);
+    assert(comp.output.actualValue.value.isEmpty)
   }
   
-  it must "not allow to shelve a Non-AlarmValue output" in {
+  it must "skip to shelve a Non-AlarmValue output" in {
     val output = InOut[Long](
       None,
       outId,
@@ -134,10 +135,9 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.shelve(true);
-    }
+       Some[Properties](new Properties())) with JavaTransfer[Long]
+    comp.shelve(true);
+    assert(comp.output.actualValue.value.isEmpty)
   }
   
   it must "shelve AlarmValue output" in {
@@ -160,7 +160,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     comp.shelve(true);
     
@@ -169,7 +169,7 @@ class TestComponent extends FlatSpec {
     
   }
   
-  it must "not allow to ack a None AlarmValue" in {
+  it must "skip to ack a None AlarmValue" in {
     val output = InOut[AlarmValue](
       None,
       outId,
@@ -189,13 +189,12 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.ack();
-    }
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
+    comp.ack();
+    assert(comp.output.actualValue.value.isEmpty) 
   }
   
-  it must "not allow to ack a Non-AlarmValue output" in {
+  it must "skip to ack a Non-AlarmValue output" in {
     val output = InOut[Long](
       None,
       outId,
@@ -215,10 +214,9 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
-    assertThrows[IllegalStateException] {
-      comp.ack() 
-    }
+       Some[Properties](new Properties())) with JavaTransfer[Long]
+    comp.ack() 
+    assert(comp.output.actualValue.value.isEmpty)
   }
   
   it must "ack an AlarmValue output" in {
@@ -242,7 +240,7 @@ class TestComponent extends FlatSpec {
        requiredInputIDs,
        actualInputs,
        tfSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     comp.ack()
     

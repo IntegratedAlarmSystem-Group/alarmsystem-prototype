@@ -16,6 +16,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import org.eso.ias.prototype.compele.CompEleThreadFactory
 import org.eso.ias.prototype.input.AlarmState
 import org.eso.ias.prototype.compele.AsceStates
+import org.eso.ias.prototype.transfer.JavaTransfer
+import org.eso.ias.prototype.transfer.ScalaTransfer
 
 class TestTransferFunction extends FlatSpec {
   
@@ -88,7 +90,7 @@ class TestTransferFunction extends FlatSpec {
        requiredInputIDs,
        inputsMPs,
        javaTFSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with JavaTransfer[AlarmValue]
     
     
     // Instantiate one ASCE with a scala TF implementation
@@ -102,7 +104,7 @@ class TestTransferFunction extends FlatSpec {
        requiredInputIDs,
        inputsMPs,
        scalaTFSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with ScalaTransfer[AlarmValue]
     
      // Instantiate one ASCE with a scala TF implementation
     val brokenScalaTFSetting =new TransferFunctionSetting(
@@ -115,7 +117,7 @@ class TestTransferFunction extends FlatSpec {
        requiredInputIDs,
        inputsMPs,
        brokenScalaTFSetting,
-       Some[Properties](new Properties()))
+       Some[Properties](new Properties())) with ScalaTransfer[AlarmValue]
   }
   
   behavior of "The Component transfer function"
@@ -127,6 +129,7 @@ class TestTransferFunction extends FlatSpec {
   it must "set the validity to the lower value" in new CompBuilder {
     val component: ComputingElementBase[AlarmValue] = javaComp
     javaComp.initialize(new ScheduledThreadPoolExecutor(2))
+    assert(component.output.validity==Validity.Unreliable)
     
     val keys=inputsMPs.keys.toList.sorted
     keys.foreach { key  => {
@@ -135,7 +138,9 @@ class TestTransferFunction extends FlatSpec {
       } 
     }
     // Leave time to run the TF
+    System.out.println("Giving time to run the TF...")
     Thread.sleep(3000)
+    
     javaComp.shutdown()
     assert(component.output.validity==Validity.Reliable)
   }

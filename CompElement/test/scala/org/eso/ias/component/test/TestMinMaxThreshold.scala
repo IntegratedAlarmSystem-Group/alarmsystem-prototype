@@ -16,6 +16,8 @@ import org.eso.ias.prototype.input.AlarmState
 import java.util.Properties
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTF
 import org.eso.ias.prototype.transfer.impls.MinMaxThresholdTFJava
+import org.eso.ias.prototype.transfer.ScalaTransfer
+import org.eso.ias.prototype.transfer.JavaTransfer
 
 class TestMinMaxThreshold extends FlatSpec {
   
@@ -79,7 +81,7 @@ class TestMinMaxThreshold extends FlatSpec {
        commons.requiredInputIDs,
        commons.inputsMPs,
        scalaTFSetting,
-       Some[Properties](props))
+       Some[Properties](props)) with ScalaTransfer[AlarmValue]
     
     try {
       testCode(scalaComp,commons.inputsMPs)
@@ -116,7 +118,7 @@ class TestMinMaxThreshold extends FlatSpec {
        commons.requiredInputIDs,
        commons.inputsMPs,
        javaTFSetting,
-       Some[Properties](props))
+       Some[Properties](props)) with JavaTransfer[AlarmValue]
     
     try {
       testCode(javaComp,commons.inputsMPs)
