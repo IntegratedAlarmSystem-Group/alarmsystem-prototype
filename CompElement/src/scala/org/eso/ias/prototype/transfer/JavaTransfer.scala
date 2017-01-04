@@ -20,6 +20,11 @@ import org.eso.ias.prototype.input.java.IASValueBase
 trait JavaTransfer[T] extends ComputingElementBase[T] {
   
   /**
+   * The programming language of this TF 
+   */
+  val tfLanguage = TransferFunctionLanguage.java
+  
+  /**
    * Flush the scala Map into a Java Map
    */
   private[this] def flushOnJavaMap(
@@ -34,32 +39,25 @@ trait JavaTransfer[T] extends ComputingElementBase[T] {
   }
   
   /**
-   * Check if the TF is java, intialized, not shutdown
-   */
-  private[this] def canRunTheJavaTF = 
-    tfSetting.initialized &&
-    tfSetting.transferExecutor.isDefined && 
-    tfSetting.language==TransferFunctionLanguage.java &&
-    !tfSetting.isShutDown
-  
-  /**
    * scala data structs need to be converted before invoking
    * the java code.
    * 
    * @see ComputingElementBase#transfer
    */
-  abstract override def transfer(
+  def transfer(
       inputs: Map[String, InOut[_]], 
       id: Identifier,
       actualOutput: InOut[T]): Either[Exception,InOut[T]] = {
-    if (canRunTheJavaTF) {
+    
+    val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
+    val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.inOutToIASValue(actualOutput))
+    val x=JavaConverter.updateHIOWithIasValue(actualOutput, newOutput).asInstanceOf[InOut[T]]
+    try { 
       val map: JavaMap[String, IASValueBase] = flushOnJavaMap(inputs)
       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[JavaTransferExecutor].eval(map,JavaConverter.inOutToIASValue(actualOutput))
-      val x=JavaConverter.updateHIOWithIasValue(actualOutput, newOutput).asInstanceOf[InOut[T]]
-      super.transfer(inputs, id, x)
-    } else {
-      super.transfer(inputs, id, actualOutput)
-    }
+      Right(JavaConverter.updateHIOWithIasValue(actualOutput, newOutput).asInstanceOf[InOut[T]])
+    
+    } catch { case e:Exception => Left(e) }
   }
   
 }

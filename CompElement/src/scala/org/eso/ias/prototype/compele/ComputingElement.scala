@@ -55,10 +55,4 @@ class ComputingElement[T](
     requiredInputs: List[String],
     inputs: MutableMap[String,InOut[_]],
     tfSetting: TransferFunctionSetting,
-    props: Some[Properties] = Some(new Properties())) 
-extends ComputingElementBase[T](id,output,requiredInputs,inputs,tfSetting,props) {
-//with JavaTransfer with ScalaTransfer {
-  
-  
-  
-}
+    props: Some[Properties] = Some(new Properties()))

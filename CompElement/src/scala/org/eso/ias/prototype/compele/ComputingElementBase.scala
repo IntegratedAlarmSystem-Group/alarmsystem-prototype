@@ -18,6 +18,7 @@ import scala.util.Failure
 import scala.util.Success
 import org.eso.ias.prototype.transfer.TransferFunctionSetting
 import org.eso.ias.prototype.utils.ISO8601Helper
+import org.eso.ias.prototype.transfer.TransferFunctionLanguage
 
 /**
  * The Integrated Alarm System Computing Element (ASCE) 
@@ -36,18 +37,19 @@ import org.eso.ias.prototype.utils.ISO8601Helper
  * to implement what we called synthetic parameters. 
  * 
  * The user must provide a JVM class in one of the supported languages
- * to digest the inputs and produce the output. One methods of the object
+ * to digest the inputs and produce the output. The transfer method of the object
  * is invoked at regular time intervals when the state of the inputs
  * changed. Which programming language the user wrote the object with
  * is stored in the configuration database; programmatically it is 
  * visible in the {@link TransferFunctionSetting} object.
  * Depending on the programming language, there might be some 
- * preparatory step before running the TF, this is done through stackable
- * modifications but ultimately only one of the TF runs (i.e. the one
- * corresponding to the programming language).  
+ * preparatory step before running the TF.
+ * The class is abstract because the implementation of the transfer function 
+ * depends on the programiong language and must be mixed when instantiating the 
+ * object.
  * 
- * The ASCE is a state machine (@see ComputingElementState).
- * The state changes during the life time of the ASCE for example
+ * The ASCE is a state machine (@see ComputingElementState) whose
+ * state changes during the life time of the ASCE for example
  * after initialization or shutdown but also if the TF executor
  * reports errors or is too slow.
  * 
@@ -73,7 +75,7 @@ import org.eso.ias.prototype.utils.ISO8601Helper
  * @see AlarmSystemComponent
  * @author acaproni
  */
-class ComputingElementBase[T](
+abstract class ComputingElementBase[T](
     val id: Identifier,
     var output: InOut[T],
     val requiredInputs: List[String],
@@ -84,6 +86,13 @@ class ComputingElementBase[T](
   
   require(requiredInputs!=None && !requiredInputs.isEmpty,"Invalid (empty or null) list of required inputs to the component")
   require(requiredInputs.size==inputs.size,"Inconsistent size of lists of inputs")
+  
+  /**
+   * The programming language of this TF is abstract
+   * because it depends on the of the transfer mixed in
+   * when building objects of this class
+   */
+  val tfLanguage: TransferFunctionLanguage.Value
   
   /**
    * The point in time when this object has been created.
@@ -157,9 +166,8 @@ class ComputingElementBase[T](
    * In case of an alarm, being ACK or shelved does not trigger
    * a  recalculation of the output.
    * 
-   * The calculation of the input is delegated to the overloaded 
-   * #transfer(...) that generated the output by stackable modifications.
-   * The method provided here, updates the Validity.
+   * The calculation of the input is ultimately delegated to the abstract 
+   * #transfer(...) method whose implementation is provided by the user.
    * 
    * @see transfer(...)
    */
@@ -202,6 +210,8 @@ class ComputingElementBase[T](
       println("ACSE "+id.runningID+" TF inhibited or no new HIOs: actual state "+state.toString())
       if (state.actualState==AsceStates.Initing && tfSetting.initialized) state=ComputingElementState.transition(state, new Initialized())
     }
+    // Validity must always be updated
+    output=updateTheValidity(inputs,output)
   }
   
   /**
@@ -238,11 +248,7 @@ class ComputingElementBase[T](
   def transfer(
       inputs: Map[String, InOut[_]], 
       id: Identifier,
-      actualOutput: InOut[T]) : Either[Exception,InOut[T]] = {
-    
-    output=updateOutputWithValidity(inputs,actualOutput)
-    Right(output)
-  }
+      actualOutput: InOut[T]) : Either[Exception,InOut[T]]
   
   /**
    * Update the validity of the passed actualOutput  from the validity
@@ -252,10 +258,10 @@ class ComputingElementBase[T](
    * @param actualOutput: the actual output
    * @return The new output with the validity updated
    */
-  private[this] def updateOutputWithValidity(
-      theInputs: Map[String, InOut[_]], 
+  private[this] def updateTheValidity(
+      theInputs: MutableMap[String, InOut[_]], 
       actualOutput: InOut[T]) : InOut[T] = {
-    
+    System.out.println("ComputingElementBase.updateOutputWithValidity(...)")
     val newValidity = Validity.min(theInputs.values.map(_.validity).toList)
     actualOutput.updateValidity(newValidity)
   }

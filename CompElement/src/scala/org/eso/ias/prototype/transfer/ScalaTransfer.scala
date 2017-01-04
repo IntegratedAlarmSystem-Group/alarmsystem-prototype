@@ -16,24 +16,17 @@ import java.util.Properties
 trait ScalaTransfer[T] extends ComputingElementBase[T] {
   
   /**
-   * Check if the TF is scala, intialized, not shutdown
+   * The programming language of this TF 
    */
-  def canRunTheScalaTF = 
-    tfSetting.initialized &&
-    tfSetting.transferExecutor.isDefined && 
-    tfSetting.language==TransferFunctionLanguage.scala &&
-    !tfSetting.isShutDown
+  val tfLanguage = TransferFunctionLanguage.java
   
-  abstract override def transfer(
+  def transfer(
       inputs: Map[String, InOut[_]], 
       id: Identifier,
       actualOutput: InOut[T]): Either[Exception,InOut[T]] = {
-     if (canRunTheScalaTF) {
-       val newOutput=tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor[T]].eval(inputs,actualOutput)
-      super.transfer(inputs, id, newOutput)
-    } else {
-      super.transfer(inputs, id, actualOutput)
-    }
+    
+    try Right(tfSetting.transferExecutor.get.asInstanceOf[ScalaTransferExecutor[T]].eval(inputs,actualOutput))
+    catch { case e:Exception => Left(e) } 
   }
   
 }
