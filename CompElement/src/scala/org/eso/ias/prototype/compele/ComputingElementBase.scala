@@ -240,11 +240,7 @@ class ComputingElementBase[T](
       id: Identifier,
       actualOutput: InOut[T]) : Either[Exception,InOut[T]] = {
     
-    val validitiesSet = MutableSet[Validity.Value]()
-    for ( hio <- inputs.values ) validitiesSet += hio.validity
-    val newValidity = Validity.min(validitiesSet.toList) 
-    
-    output=actualOutput.updateValidity(newValidity)
+    output=updateOutputWithValidity(inputs,actualOutput)
     Right(output)
   }
   
@@ -259,10 +255,8 @@ class ComputingElementBase[T](
   private[this] def updateOutputWithValidity(
       theInputs: Map[String, InOut[_]], 
       actualOutput: InOut[T]) : InOut[T] = {
-    val valitiesSet = MutableSet[Validity.Value]()
-    for ( hio <- theInputs.values ) valitiesSet += hio.validity
-    val newValidity = Validity.min(valitiesSet.toList) 
     
+    val newValidity = Validity.min(theInputs.values.map(_.validity).toList)
     actualOutput.updateValidity(newValidity)
   }
   
