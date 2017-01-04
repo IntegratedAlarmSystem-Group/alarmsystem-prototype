@@ -115,19 +115,19 @@ extends ScalaTransferExecutor[AlarmValue](cEleId,cEleRunningId,props) {
   def shutdown() {}
   
   /**
-   * Gets the AlarmValue from the passed hio.
-   * if the value of the hio is noll, it creates a new AlarmValue.
+   * Gets the AlarmValue from the passed input.
+   * if the value of the input is None, it creates a new AlarmValue.
    * 
-   * @param hio: The HIO containing the AlarmValue
+   * @param hio: The IO containing the AlarmValue
    * @return the AlarmValue of the HIO (None if not defined)
    */
-  def getAlarmValue(hio: InOut[AlarmValue]): AlarmValue = {
-    require(Option[InOut[AlarmValue]](hio).isDefined)
-    require(hio.iasType==ALARM)
-    if (hio.actualValue.value.isEmpty) {
+  def getAlarmValue(io: InOut[AlarmValue]): AlarmValue = {
+    require(Option[InOut[AlarmValue]](io).isDefined)
+    require(io.iasType==ALARM)
+    if (io.actualValue.value.isEmpty) {
       new AlarmValue()
     } else {
-      hio.actualValue.value.get
+      io.actualValue.value.get
     }
   }
   
@@ -142,7 +142,7 @@ extends ScalaTransferExecutor[AlarmValue](cEleId,cEleRunningId,props) {
     val hio = compInputs.values.head
     
     val hioValue: Double = hio.iasType match {
-      case LONG => hio.actualValue.value.asInstanceOf[Long].toDouble
+      case LONG => hio.actualValue.value.get.asInstanceOf[Long].toDouble
       case INT => hio.actualValue.value.get.asInstanceOf[Int].toDouble
       case SHORT => hio.actualValue.value.get.asInstanceOf[Short].toDouble
       case BYTE => hio.actualValue.value.get.asInstanceOf[Byte].toDouble
